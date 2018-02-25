@@ -7,26 +7,14 @@
 #include "QtImGui.h"
 #include "imgui.h"
 
-class CEditorViewWidget final : public QOpenGLWidget, private QOpenGLExtraFunctions
+class IEditorViewWidgetFactory
 {
 public:
-    CEditorViewWidget(IEditorView& editorView, QWidget* parent = nullptr);
-    virtual ~CEditorViewWidget() override;
+    virtual ~IEditorViewWidgetFactory() = default;
 
-    const IEditorView& GetEditorView() const noexcept;
+    virtual std::unique_ptr<QWidget> Create(QWidget* parent) = 0;
 
-    const ImVec4& GetClearColor() const noexcept;
-    void SetClearColor(const ImVec4& color) noexcept;
-
-protected:
-    virtual void initializeGL() override final;
-    virtual void paintGL() override final;
-
-private:
-    IEditorView& m_EditorView;
-    QtImGuiContext m_Context = nullptr;
-
-    ImVec4 m_ClearColor = ImColor(127, 127, 127);
+    static std::unique_ptr<IEditorViewWidgetFactory> CreateFactory(std::shared_ptr<IEditorViewFactory> editorViewFactory);
 };
 
 #endif //__EDITOR_VIEW_WIDGET_H__
