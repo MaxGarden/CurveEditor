@@ -3,13 +3,20 @@
 class QWidget;
 class QWindow;
 
+using QtImGuiContext = void*;
+
 namespace QtImGui {
 
 #ifdef QT_WIDGETS_LIB
-void initialize(QWidget *window);
+    QtImGuiContext CreateContext(QWidget *window);
 #endif
 
-void initialize(QWindow *window);
-void newFrame();
+    QtImGuiContext CreateContext(QWindow *window);
+    void DestroyContext(QtImGuiContext context);
 
+    QtImGuiContext GetCurrentContext();
+    void SetCurrentContext(QtImGuiContext context);
+
+    void BeginFrame();
+    void EndFrame();
 }

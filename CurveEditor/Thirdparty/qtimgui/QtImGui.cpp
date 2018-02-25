@@ -32,11 +32,14 @@ public:
 private:
     QWidget *w;
 };
-
 }
 
-void initialize(QWidget *window) {
-    ImGuiRenderer::instance()->initialize(new QWidgetWindowWrapper(window));
+QtImGuiContext CreateContext(QWidget *window)
+{
+    const auto result = new ImGuiRenderer();
+    result->initialize(new QWidgetWindowWrapper(window));
+
+    return result;
 }
 
 #endif
@@ -67,12 +70,52 @@ private:
 
 }
 
-void initialize(QWindow *window) {
-    ImGuiRenderer::instance()->initialize(new QWindowWindowWrapper(window));
+QtImGuiContext CreateContext(QWindow *window)
+{
+    const auto result = new ImGuiRenderer();
+    result->initialize(new QWindowWindowWrapper(window));
+
+    return result;
 }
 
-void newFrame() {
-    ImGuiRenderer::instance()->newFrame();
+void DestroyContext(QtImGuiContext context)
+{
+    const auto renderer = static_cast<ImGuiRenderer*>(context);
+    if (!renderer)
+        return;
+
+    renderer->deleteLater();
+    delete renderer;
+}
+
+static ImGuiRenderer* currentContext = nullptr;
+
+void SetCurrentContext(QtImGuiContext context)
+{
+    currentContext = static_cast<ImGuiRenderer*>(context);
+}
+
+QtImGuiContext GetCurrentContext()
+{
+    return currentContext;
+}
+
+void BeginFrame()
+{
+    assert(currentContext);
+    if (!currentContext)
+        return;
+
+    currentContext->beginFrame();
+}
+
+void EndFrame()
+{
+    assert(currentContext);
+    if (!currentContext)
+        return;
+
+    currentContext->endFrame();
 }
 
 }

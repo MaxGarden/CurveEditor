@@ -24,23 +24,29 @@ public:
 class ImGuiRenderer : public QObject, QOpenGLExtraFunctions {
     Q_OBJECT
 public:
+    ImGuiRenderer();
+    virtual ~ImGuiRenderer();
+
     void initialize(WindowWrapper *window);
-    void newFrame();
+    void beginFrame();
 
     bool eventFilter(QObject *watched, QEvent *event);
 
-    static ImGuiRenderer *instance();
+    void endFrame();
 
 private:
-    ImGuiRenderer() {}
-
     void onMousePressedChange(QMouseEvent *event);
     void onWheel(QWheelEvent *event);
     void onKeyPressRelease(QKeyEvent *event);
 
-    void renderDrawList(ImDrawData *draw_data);
     bool createFontsTexture();
     bool createDeviceObjects();
+
+    void PushImGuiContext();
+    void PopImGuiContext();
+
+    ImGuiContext* m_ImGuiContext = nullptr;
+    ImGuiContext* m_BufferedImGuiContext = nullptr;
 
     std::unique_ptr<WindowWrapper> m_window;
     double       g_Time = 0.0f;

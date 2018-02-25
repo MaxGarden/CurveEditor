@@ -36,7 +36,34 @@ QByteArray g_currentClipboardText;
 
 }
 
+ImGuiRenderer::ImGuiRenderer() :
+    m_ImGuiContext(ImGui::CreateContext())
+{
+}
+
+ImGuiRenderer::~ImGuiRenderer()
+{
+    assert(m_ImGuiContext);
+    if (m_ImGuiContext)
+        ImGui::DestroyContext(m_ImGuiContext);
+}
+
+void ImGuiRenderer::PushImGuiContext()
+{
+    assert(m_ImGuiContext);
+    m_BufferedImGuiContext = ImGui::GetCurrentContext();
+    ImGui::SetCurrentContext(m_ImGuiContext);
+}
+
+void ImGuiRenderer::PopImGuiContext()
+{
+    ImGui::SetCurrentContext(m_BufferedImGuiContext);
+}
+
 void ImGuiRenderer::initialize(WindowWrapper *window) {
+
+    PushImGuiContext();
+
     m_window.reset(window);
     initializeOpenGLFunctions();
 
@@ -45,9 +72,6 @@ void ImGuiRenderer::initialize(WindowWrapper *window) {
         io.KeyMap[key] = key;
     }
 
-    io.RenderDrawListsFn = [](ImDrawData *drawData) {
-        instance()->renderDrawList(drawData);
-    };
     io.SetClipboardTextFn = [](void *user_data, const char *text) {
         Q_UNUSED(user_data);
         QGuiApplication::clipboard()->setText(text);
@@ -59,10 +83,15 @@ void ImGuiRenderer::initialize(WindowWrapper *window) {
     };
 
     window->installEventFilter(this);
+
+    PopImGuiContext();
 }
 
-void ImGuiRenderer::renderDrawList(ImDrawData *draw_data)
+void ImGuiRenderer::endFrame()
 {
+    ImGui::Render();
+    const auto draw_data = ImGui::GetDrawData();
+
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
     int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
@@ -157,6 +186,8 @@ void ImGuiRenderer::renderDrawList(ImDrawData *draw_data)
     if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
     glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+
+    PopImGuiContext();
 }
 
 bool ImGuiRenderer::createFontsTexture()
@@ -262,8 +293,10 @@ bool ImGuiRenderer::createDeviceObjects()
     return true;
 }
 
-void ImGuiRenderer::newFrame()
+void ImGuiRenderer::beginFrame()
 {
+    PushImGuiContext();
+
     if (!g_FontTexture)
         createDeviceObjects();
 
@@ -364,13 +397,4 @@ bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
     }
     return QObject::eventFilter(watched, event);
 }
-
-ImGuiRenderer* ImGuiRenderer::instance() {
-    static ImGuiRenderer* instance = nullptr;
-    if (!instance) {
-        instance = new ImGuiRenderer();
-    }
-    return instance;
-}
-
 }
