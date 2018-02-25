@@ -7,14 +7,18 @@ QT += core gui widgets
 
 include(Thirdparty/qtimgui/qtimgui.pri)
 
-INCLUDEPATH += $$PWD/Thirdparty/qtimgui/ $$PWD/Thirdparty/qtimgui/imgui
+INCLUDEPATH += $$PWD/Thirdparty/qtimgui/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/CurveEditor
 
 SOURCES += \
     Source/main.cpp \
-	Source/MainWindow/MainWindow.cpp
+	Source/MainWindow/MainWindow.cpp \
+	Source/CurveEditor/EditorView.cpp \
+	Source/EditorWidgets/EditorViewWidget.cpp
 	
 HEADERS += \
-	Source/MainWindow/MainWindow.h
+	Source/MainWindow/MainWindow.h \
+	Source/CurveEditor/EditorView.h \
+	Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \
 	Source/MainWindow/UI/MainWindow.ui
