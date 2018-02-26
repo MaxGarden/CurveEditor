@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     QApplication app(argc, argv);
 
-    const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(std::make_shared<CCurveEditorFactory>());
+    const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(std::make_shared<CCurveEditorViewFactory>());
     CMainWindow mainWindow(*curveEditorWidgetFactory);
 
     mainWindow.show();
