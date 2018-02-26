@@ -43,9 +43,13 @@ ImGuiRenderer::ImGuiRenderer() :
 
 ImGuiRenderer::~ImGuiRenderer()
 {
+    PushImGuiContext();
+
     assert(m_ImGuiContext);
     if (m_ImGuiContext)
         ImGui::DestroyContext(m_ImGuiContext);
+
+    PopImGuiContext();
 }
 
 void ImGuiRenderer::PushImGuiContext()
