@@ -2,7 +2,7 @@
 #include <bitset>
 #include <algorithm>
 
-using namespace Utilities::ImGui;
+using namespace Utilities;
 
 void TransformDrawListChannels(ImDrawList& drawList, int begin, int end, const ImVec2& preOffset, const ImVec2& scale, const ImVec2& postOffset)
 {
