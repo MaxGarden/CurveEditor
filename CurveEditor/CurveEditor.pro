@@ -15,6 +15,7 @@ SOURCES += \
 	Source/CurveEditor/Editor.cpp 						\
 	Source/CurveEditor/EditorView.cpp 					\
 	Source/CurveEditor/Utilities.cpp					\
+	Source/CurveEditor/Style.cpp						\
 	Source/CurveEditor/Canvas.cpp						\
 	Source/EditorWidgets/EditorViewWidget.cpp			\
 	
@@ -23,6 +24,7 @@ HEADERS += \
 	Source/CurveEditor/Editor.h		 					\
 	Source/CurveEditor/EditorView.h 					\
 	Source/CurveEditor/Utilities.h						\
+	Source/CurveEditor/Style.h							\
 	Source/CurveEditor/Canvas.h							\
 	Source/EditorWidgets/EditorViewWidget.h
 
