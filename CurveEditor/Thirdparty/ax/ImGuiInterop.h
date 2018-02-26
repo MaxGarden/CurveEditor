@@ -1,6 +1,6 @@
 #pragma once
-#include "imgui/imgui.h"
-#include "Types.h"
+#include <imgui.h>
+#include "ax.h"
 
 namespace ax {
 namespace ImGuiInterop {
