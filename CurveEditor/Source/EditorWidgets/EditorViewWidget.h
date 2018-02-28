@@ -3,9 +3,9 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
+#include <QtImGui.h>
+#include <imgui.h>
 #include "EditorView.h"
-#include "QtImGui.h"
-#include "imgui.h"
 
 class IEditorViewWidgetFactory
 {
