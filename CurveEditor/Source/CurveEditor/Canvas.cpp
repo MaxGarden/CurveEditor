@@ -1,6 +1,7 @@
 #include "Canvas.h"
-#include <ax/ImGuiInterop.h>
+#include <ImGuiInterop.h>
 
+using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
 CWindowCanvas::CWindowCanvas() noexcept :
@@ -72,7 +73,7 @@ const ImVec2& CWindowCanvas::GetInvertZoom() const noexcept
     return m_InvertZoom;
 }
 
-ax::rectf CWindowCanvas::GetVisibleBounds(bool zoom) const noexcept
+ax::rectf CWindowCanvas::CalculateVisibleBounds(bool zoom) const noexcept
 {
     return ax::rectf(
         to_pointf(FromScreen(m_WindowScreenPosition, zoom)),
@@ -141,6 +142,28 @@ CWindowCanvas& CEditorCanvas::GetWindowCanvas() noexcept
 const CWindowCanvas& CEditorCanvas::GetWindowCanvas() const noexcept
 {
     return m_WindowCanvas;
+}
+
+ImVec2 CEditorCanvas::CalculateScaledUnit() const noexcept
+{
+    const auto& zoom = m_WindowCanvas.GetZoom();
+
+    static const auto calculate = [](const auto& unit, const auto& zoom)
+    {
+        auto result = unit* zoom;
+
+        while (result > unit * 2.0f)
+            result /= 2.0f;
+
+        while (result < unit* 0.5f)
+            result *= 2.0f;
+
+        return result;
+    };
+
+    return ImVec2(
+        calculate(m_UnitScaler.x, zoom.x),
+        calculate(m_UnitScaler.y, zoom.y));
 }
 
 ImVec2 CEditorCanvas::FromEditor(const ImVec2& value) const noexcept

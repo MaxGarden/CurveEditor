@@ -17,7 +17,7 @@ public:
     const ImVec2& GetZoom() const noexcept;
     const ImVec2& GetInvertZoom() const noexcept;
 
-    ax::rectf GetVisibleBounds(bool zoom = false) const noexcept;
+    ax::rectf CalculateVisibleBounds(bool zoom = false) const noexcept;
 
     ImVec2 FromScreen(const ImVec2& point, bool zoom = false) const noexcept;
     ImVec2 ToScreen(const ImVec2& point) const noexcept;
@@ -45,6 +45,8 @@ public:
 
     CWindowCanvas& GetWindowCanvas() noexcept;
     const CWindowCanvas& GetWindowCanvas() const noexcept;
+
+    ImVec2 CalculateScaledUnit() const noexcept;
 
     ImVec2 FromEditor(const ImVec2& value) const noexcept;
     ImVec2 ToEditor(const ImVec2& position) const noexcept;
