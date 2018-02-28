@@ -2,7 +2,7 @@
 #include <QLayout>
 #include "MainWindow/MainWindow.h"
 #include "EditorWidgets/EditorViewWidget.h"
-#include "Editor.h"
+#include "EditorFactory.h"
 
 int main(int argc, char** argv)
 {

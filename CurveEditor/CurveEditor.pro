@@ -13,6 +13,7 @@ SOURCES += \
     Source/main.cpp \
     Source/MainWindow/MainWindow.cpp                    		\
     Source/CurveEditor/Editor.cpp                       		\
+    Source/CurveEditor/EditorFactory.cpp                       		\
     Source/CurveEditor/EditorView.cpp                   		\
     Source/CurveEditor/Utilities.cpp                    		\
     Source/CurveEditor/Style.cpp                        		\
@@ -25,6 +26,7 @@ HEADERS += \
     Source/MainWindow/MainWindow.h                      		\
     Source/CurveEditor/ImGuiInterop.h                      		\
     Source/CurveEditor/Editor.h                         		\
+    Source/CurveEditor/EditorFactory.h                         		\
     Source/CurveEditor/EditorView.h                     		\
     Source/CurveEditor/Utilities.h                      		\
     Source/CurveEditor/Style.h                          		\

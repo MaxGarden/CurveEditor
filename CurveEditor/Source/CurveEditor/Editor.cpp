@@ -1,36 +1,39 @@
 #include "Editor.h"
-#include <imgui.h>
+#include <ax/ax.h>
 
-class CCurveEditorView final : public IEditorView
+CEditorCanvas& CCurveEditorView::GetCanvas() noexcept
 {
-public:
-    CCurveEditorView() = default;
-    virtual ~CCurveEditorView() override final = default;
+    return m_Canvas;
+}
 
-    virtual void OnFrame() override final;
-
-private:
-    void OnFrame(ImDrawList& drawList);
-};
-
-void CCurveEditorView::OnFrame()
+const CEditorCanvas& CCurveEditorView::GetCanvas() const noexcept
 {
-    //ImGui::BeginChildFrame(1, ImVec2(300, 300));
+    return m_Canvas;
+}
 
+const SEditorStyle& CCurveEditorView::GetStyle() const noexcept
+{
+    return m_EditorStyle;
+}
+
+CCurveEditorViewComponent::CCurveEditorViewComponent(const CCurveEditorView& editorView) :
+    m_EditorView(editorView)
+{
+}
+
+void CCurveEditorViewComponent::OnFrame()
+{
+    assert(ImGui::GetCurrentContext());
     if (const auto drawList = ImGui::GetWindowDrawList())
         OnFrame(*drawList);
-
-    //ImGui::Button("Test");
-
-    //ImGui::EndChildFrame();
 }
 
-void CCurveEditorView::OnFrame(ImDrawList& drawList)
+void CCurveEditorViewComponent::OnFrame(ImDrawList&)
 {
-    drawList.AddCircle(ImVec2(50, 100), 100.0f, ImColor(1.0, 0.0f, 0.0f), 12, 10);
+    //to override
 }
 
-std::unique_ptr<IEditorView> CCurveEditorFactory::Create()
+const CCurveEditorView& CCurveEditorViewComponent::GetEditorView() const noexcept
 {
-    return std::make_unique<CCurveEditorView>();
+    return m_EditorView;
 }
