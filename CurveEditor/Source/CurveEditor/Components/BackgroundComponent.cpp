@@ -1,17 +1,18 @@
+#include "pch.h"
 #include "BackgroundComponent.h"
 #include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
 
 CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(const CCurveEditorView& editorView) :
-    CCurveEditorViewComponent(editorView)
+    CCurveEditorViewComponentBase(editorView)
 {
 }
 
-void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList)
+void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel)
 {
     const auto& editorView = GetEditorView();
-    const auto& style = editorView.GetStyle();
+    const auto& style = dataModel.GetStyle();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
 

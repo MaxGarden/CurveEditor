@@ -1,16 +1,16 @@
 #pragma  once
-#if !defined(__BACKGROUND_COMPONENT_H__)
+#if !defined(__CURVE_EDITOR_BACKGROUND_COMPONENT_H__)
 
-#include "Editor.h"
+#include "CurveEditorViewComponent.h"
 
-class CCurveEditorBackgroundViewComponent final : public CCurveEditorViewComponent
+class CCurveEditorBackgroundViewComponent final : public CCurveEditorViewComponentBase
 {
 public:
     CCurveEditorBackgroundViewComponent(const CCurveEditorView& editorView);
     virtual ~CCurveEditorBackgroundViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList) override final;
+    virtual void OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel) override final;
 };
 
-#endif //__BACKGROUND_COMPONENT_H__
+#endif //__CURVE_EDITOR_BACKGROUND_COMPONENT_H__

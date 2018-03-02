@@ -1,16 +1,16 @@
 #pragma  once
-#if !defined(__GRID_COMPONENT_H__)
+#if !defined(__CURVE_EDITOR_GRID_COMPONENT_H__)
 
-#include "Editor.h"
+#include "CurveEditorViewComponent.h"
 
-class CCurveEditorGridViewComponent final : public CCurveEditorViewComponent
+class CCurveEditorGridViewComponent final : public CCurveEditorViewComponentBase
 {
 public:
     CCurveEditorGridViewComponent(const CCurveEditorView& editorView);
     virtual ~CCurveEditorGridViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList) override final;
+    virtual void OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel) override final;
 };
 
-#endif //__GRID_COMPONENT_H__
+#endif //__CURVE_EDITOR_GRID_COMPONENT_H__

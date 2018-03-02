@@ -1,10 +1,11 @@
 #include "EditorViewWidget.h"
+#include "pch.h"
 #include <QTimer>
 
 class CEditorViewWidget final : public QOpenGLWidget, private QOpenGLExtraFunctions
 {
 public:
-    CEditorViewWidget(std::shared_ptr<IEditorView> editorView, QWidget* parent = nullptr, uint updateTimeMs = 16);
+    CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget* parent = nullptr, uint updateTimeMs = 16);
     virtual ~CEditorViewWidget() override;
 
     IEditorView* GetEditorView() const noexcept;
@@ -17,14 +18,14 @@ protected:
     virtual void paintGL() override final;
 
 private:
-    std::shared_ptr<IEditorView> m_EditorView;
+    IEditorViewSharedPtr m_EditorView;
     QtImGuiContext m_Context = nullptr;
 
     ImVec4 m_ClearColor = ImColor(127, 127, 127);
 };
 
 
-CEditorViewWidget::CEditorViewWidget(std::shared_ptr<IEditorView> editorView, QWidget* parent /* = nullptr */, uint updateTimeMs /* = 16 */) :
+CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget* parent /* = nullptr */, uint updateTimeMs /* = 16 */) :
     QOpenGLWidget(parent),
     m_EditorView(std::move(editorView))
 {
@@ -85,17 +86,17 @@ void CEditorViewWidget::paintGL()
 class CDefaultViewWidgetFactory final : public IEditorViewWidgetFactory
 {
 public:
-    CDefaultViewWidgetFactory(std::shared_ptr<IEditorViewFactory> editorViewFactory);
+    CDefaultViewWidgetFactory(IEditorViewFactorySharedPtr&& editorViewFactory);
     virtual ~CDefaultViewWidgetFactory() override final = default;
 
     virtual std::unique_ptr<QWidget> Create(QWidget* parent) override final;
 
 private:
-    std::shared_ptr<IEditorViewFactory> m_EditorViewFactory;
+    IEditorViewFactorySharedPtr m_EditorViewFactory;
 };
 
-CDefaultViewWidgetFactory::CDefaultViewWidgetFactory(std::shared_ptr<IEditorViewFactory> editorViewFactory) :
-    m_EditorViewFactory(editorViewFactory)
+CDefaultViewWidgetFactory::CDefaultViewWidgetFactory(IEditorViewFactorySharedPtr&& editorViewFactory) :
+    m_EditorViewFactory(std::move(editorViewFactory))
 {
 }
 
@@ -104,7 +105,7 @@ std::unique_ptr<QWidget> CDefaultViewWidgetFactory::Create(QWidget* parent)
     return m_EditorViewFactory ? std::make_unique<CEditorViewWidget>(m_EditorViewFactory->Create(), parent) : nullptr;
 }
 
-std::unique_ptr<IEditorViewWidgetFactory> IEditorViewWidgetFactory::CreateFactory(std::shared_ptr<IEditorViewFactory> editorViewFactory)
+IEditorViewWidgetFactoryUniquePtr IEditorViewWidgetFactory::CreateFactory(IEditorViewFactorySharedPtr&& editorViewFactory)
 {
-    return std::make_unique<CDefaultViewWidgetFactory>(editorViewFactory);
+    return std::make_unique<CDefaultViewWidgetFactory>(std::move(editorViewFactory));
 }

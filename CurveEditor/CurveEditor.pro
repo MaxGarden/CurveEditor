@@ -5,6 +5,9 @@ BINDIR = $$OUT_PWD/bin
 DESTDIR = $$BINDIR
 QT += core gui widgets
 
+CONFIG += precompile_header
+PRECOMPILED_HEADER = Source/pch.h
+
 include(Thirdparty/qtimgui/qtimgui.pri)
 
 INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/CurveEditor $$PWD/Source
@@ -12,9 +15,15 @@ INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/Cur
 SOURCES += \
     Source/main.cpp \
     Source/MainWindow/MainWindow.cpp                    		\
-    Source/CurveEditor/Editor.cpp                       		\
-    Source/CurveEditor/EditorFactory.cpp                       		\
+    Source/CurveEditor/CurveEditorView.cpp                      \
+    Source/CurveEditor/CurveEditorViewComponent.cpp             \
+    Source/CurveEditor/CurveEditorDataModel.cpp                 \
+    Source/CurveEditor/CurveEditorController.cpp                \
+    Source/CurveEditor/CurveEditorFactory.cpp                  	\
+    Source/CurveEditor/EditorContext.cpp		            	\
     Source/CurveEditor/EditorView.cpp                   		\
+    Source/CurveEditor/EditorController.cpp              		\
+    Source/CurveEditor/EditorDataModel.cpp                		\
     Source/CurveEditor/Utilities.cpp                    		\
     Source/CurveEditor/Style.cpp                        		\
     Source/CurveEditor/Canvas.cpp                       		\
@@ -23,11 +32,18 @@ SOURCES += \
     Source/EditorWidgets/EditorViewWidget.cpp           		\
     
 HEADERS += \
+	Source/Pointers.h											\
     Source/MainWindow/MainWindow.h                      		\
     Source/CurveEditor/ImGuiInterop.h                      		\
-    Source/CurveEditor/Editor.h                         		\
-    Source/CurveEditor/EditorFactory.h                         		\
+    Source/CurveEditor/CurveEditorView.h                        \
+    Source/CurveEditor/CurveEditorViewComponent.h               \
+    Source/CurveEditor/CurveEditorDataModel.h   	            \
+    Source/CurveEditor/CurveEditorController.h 	       	        \
+    Source/CurveEditor/CurveEditorFactory.h               		\
+    Source/CurveEditor/EditorContext.h			            	\
     Source/CurveEditor/EditorView.h                     		\
+    Source/CurveEditor/EditorController.h                 		\
+    Source/CurveEditor/EditorDataModel.h                		\
     Source/CurveEditor/Utilities.h                      		\
     Source/CurveEditor/Style.h                          		\
     Source/CurveEditor/Canvas.h                         		\

@@ -1,8 +1,8 @@
-#include <QGuiApplication>
-#include <QLayout>
+#include "pch.h"
 #include "MainWindow/MainWindow.h"
 #include "EditorWidgets/EditorViewWidget.h"
-#include "EditorFactory.h"
+#include "CurveEditorFactory.h"
+#include "EditorContext.h"
 
 int main(int argc, char** argv)
 {
@@ -12,6 +12,10 @@ int main(int argc, char** argv)
     QSurfaceFormat::setDefaultFormat(glFormat);
 
     QApplication app(argc, argv);
+
+    CEditorContext curveEditorContext;
+
+    curveEditorContext.SetViewFactory(std::make_unique<CCurveEditorViewFactory>());
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(std::make_shared<CCurveEditorViewFactory>());
     CMainWindow mainWindow(*curveEditorWidgetFactory);

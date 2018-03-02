@@ -1,0 +1,10 @@
+DECLARE_POINTERS(IEditorView)
+DECLARE_POINTERS(IEditorViewFactory)
+DECLARE_POINTERS(IEditorViewWidgetFactory)
+DECLARE_POINTERS(IEditorDataModel)
+DECLARE_POINTERS(IEditorController)
+
+DECLARE_POINTERS(ICurveEditorViewComponent)
+DECLARE_POINTERS(CCurveEditorView)
+DECLARE_POINTERS(CCurveEditorDataModel)
+DECLARE_POINTERS(CCurveEditorController)

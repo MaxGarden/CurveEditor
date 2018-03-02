@@ -1,4 +1,6 @@
-#include "EditorFactory.h"
+#include "pch.h"
+#include "CurveEditorFactory.h"
+#include "CurveEditorDataModel.h"
 #include "Components/BackgroundComponent.h"
 #include "Components/GridComponent.h"
 

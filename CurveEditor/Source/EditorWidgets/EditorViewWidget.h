@@ -14,7 +14,7 @@ public:
 
     virtual std::unique_ptr<QWidget> Create(QWidget* parent) = 0;
 
-    static std::unique_ptr<IEditorViewWidgetFactory> CreateFactory(std::shared_ptr<IEditorViewFactory> editorViewFactory);
+    static IEditorViewWidgetFactoryUniquePtr CreateFactory(IEditorViewFactorySharedPtr&& editorViewFactory);
 };
 
 #endif //__EDITOR_VIEW_WIDGET_H__

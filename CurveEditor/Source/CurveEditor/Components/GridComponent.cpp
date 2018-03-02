@@ -1,21 +1,22 @@
+#include "pch.h"
 #include "GridComponent.h"
 #include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
 
 CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorView& editorView) :
-    CCurveEditorViewComponent(editorView)
+    CCurveEditorViewComponentBase(editorView)
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel)
 {
     static const auto graduation = ImVec2(10, 10);
 
     const auto& editorView = GetEditorView();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
-    const auto& style = editorView.GetStyle();
+    const auto& style = dataModel.GetStyle();
 
     const auto& offset = windowCanvas.GetClientOrigin();
 

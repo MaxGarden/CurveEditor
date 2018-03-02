@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Style.h"
 
 #define DEFINE_COLOR(color, red, green, blue, alpha) Colors[color] = ImColor(red, green, blue, alpha)
