@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GridComponent.h"
 #include <ImGuiInterop.h>
+#include "CurveEditorDataModel.h"
 
 using namespace ImGuiInterop;
 
@@ -9,7 +10,7 @@ CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorV
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel, CCurveEditorController&)
 {
     static const auto graduation = ImVec2(10, 10);
 

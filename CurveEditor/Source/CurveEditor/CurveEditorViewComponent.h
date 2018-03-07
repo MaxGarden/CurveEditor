@@ -2,17 +2,8 @@
 #if !defined(__CURVE_EDITOR_VIEW_COMPONENT_H__)
 
 #include "CurveEditorView.h"
-#include "CurveEditorDataModel.h"
 
-class ICurveEditorViewComponent
-{
-public:
-    virtual ~ICurveEditorViewComponent() = default;
-
-    virtual void OnFrame() = 0;
-};
-
-class CCurveEditorViewComponentBase : public ICurveEditorViewComponent
+class CCurveEditorViewComponentBase : public CCurveEditorViewBase
 {
 public:
     CCurveEditorViewComponentBase(const CCurveEditorView& editorView);
@@ -21,7 +12,7 @@ public:
     virtual void OnFrame() override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel);
+    virtual void OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel, CCurveEditorController& controller);
 
     const CCurveEditorView& GetEditorView() const noexcept;
 

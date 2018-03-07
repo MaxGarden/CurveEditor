@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "BackgroundComponent.h"
 #include <ImGuiInterop.h>
+#include "CurveEditorDataModel.h"
 
 using namespace ImGuiInterop;
 
@@ -9,7 +10,7 @@ CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(const C
 {
 }
 
-void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel)
+void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel, CCurveEditorController&)
 {
     const auto& editorView = GetEditorView();
     const auto& style = dataModel.GetStyle();

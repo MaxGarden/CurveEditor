@@ -8,8 +8,8 @@ std::unique_ptr<IEditorView> CCurveEditorViewFactory::Create()
 {
     auto result = std::make_unique<CCurveEditorView>();
 
-    result->AddComponent(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
-    result->AddComponent(std::make_unique<CCurveEditorGridViewComponent>(*result));
+    result->AddView(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
+    result->AddView(std::make_unique<CCurveEditorGridViewComponent>(*result));
 
     return std::move(result);
 }

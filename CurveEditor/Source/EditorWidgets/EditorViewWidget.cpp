@@ -29,7 +29,7 @@ CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget*
     QOpenGLWidget(parent),
     m_EditorView(std::move(editorView))
 {
-    assert(m_EditorView);
+    EDITOR_ASSERT(m_EditorView);
     if (m_EditorView)
     {
         const auto timer = new QTimer(this);
@@ -86,26 +86,26 @@ void CEditorViewWidget::paintGL()
 class CDefaultViewWidgetFactory final : public IEditorViewWidgetFactory
 {
 public:
-    CDefaultViewWidgetFactory(IEditorViewFactorySharedPtr&& editorViewFactory);
+    CDefaultViewWidgetFactory(IEditorContextSharedPtr&& editorContext);
     virtual ~CDefaultViewWidgetFactory() override final = default;
 
     virtual std::unique_ptr<QWidget> Create(QWidget* parent) override final;
 
 private:
-    IEditorViewFactorySharedPtr m_EditorViewFactory;
+    IEditorContextSharedPtr m_EditorContext;
 };
 
-CDefaultViewWidgetFactory::CDefaultViewWidgetFactory(IEditorViewFactorySharedPtr&& editorViewFactory) :
-    m_EditorViewFactory(std::move(editorViewFactory))
+CDefaultViewWidgetFactory::CDefaultViewWidgetFactory(IEditorContextSharedPtr&& editorContext) :
+    m_EditorContext(std::move(editorContext))
 {
 }
 
 std::unique_ptr<QWidget> CDefaultViewWidgetFactory::Create(QWidget* parent)
 {
-    return m_EditorViewFactory ? std::make_unique<CEditorViewWidget>(m_EditorViewFactory->Create(), parent) : nullptr;
+    return m_EditorContext ? std::make_unique<CEditorViewWidget>(m_EditorContext->AddView(), parent) : nullptr;
 }
 
-IEditorViewWidgetFactoryUniquePtr IEditorViewWidgetFactory::CreateFactory(IEditorViewFactorySharedPtr&& editorViewFactory)
+IEditorViewWidgetFactoryUniquePtr IEditorViewWidgetFactory::CreateFactory(IEditorContextSharedPtr editorContext)
 {
-    return std::make_unique<CDefaultViewWidgetFactory>(std::move(editorViewFactory));
+    return std::make_unique<CDefaultViewWidgetFactory>(std::move(editorContext));
 }

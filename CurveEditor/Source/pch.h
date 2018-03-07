@@ -4,6 +4,9 @@
 #include <vector>
 #include <assert.h>
 #include <algorithm>
+#include <functional>
+
+#define EDITOR_ASSERT(expression) assert(expression)
 
 #define DECLARE_POINTERS(x)                                 \
     class x;                                                \

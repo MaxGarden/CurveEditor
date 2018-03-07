@@ -2,6 +2,8 @@
 #include "MainWindow/MainWindow.h"
 #include "EditorWidgets/EditorViewWidget.h"
 #include "CurveEditorFactory.h"
+#include "CurveEditorController.h"
+#include "CurveEditorDataModel.h"
 #include "EditorContext.h"
 
 int main(int argc, char** argv)
@@ -13,11 +15,15 @@ int main(int argc, char** argv)
 
     QApplication app(argc, argv);
 
-    CEditorContext curveEditorContext;
+    const auto curveEditorContext = IEditorContextSharedPtr(IEditorContext::CreateContext());
+    if (!curveEditorContext)
+        return -1;
 
-    curveEditorContext.SetViewFactory(std::make_unique<CCurveEditorViewFactory>());
+    curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>());
+    curveEditorContext->SetController(std::make_shared<CCurveEditorController>());
+    curveEditorContext->SetDataModel(std::make_shared<CCurveEditorDataModel>());
 
-    const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(std::make_shared<CCurveEditorViewFactory>());
+    const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);
     CMainWindow mainWindow(*curveEditorWidgetFactory);
 
     mainWindow.show();

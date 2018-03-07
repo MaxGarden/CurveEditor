@@ -1,6 +1,8 @@
 #include "pch.h"
-#include "CurveEditorViewComponent.h"
 #include <imgui/imgui.h>
+#include "CurveEditorViewComponent.h"
+#include "CurveEditorDataModel.h"
+#include "CurveEditorController.h"
 
 CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(const CCurveEditorView& editorView) :
     m_EditorView(editorView)
@@ -9,19 +11,25 @@ CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(const CCurveEditorV
 
 void CCurveEditorViewComponentBase::OnFrame()
 {
-    assert(ImGui::GetCurrentContext());
+    EDITOR_ASSERT(ImGui::GetCurrentContext());
     const auto drawList = ImGui::GetWindowDrawList();
     if (!drawList)
         return;
 
-    const auto& dataModel = GetEditorView().GetDataModel();
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
     if (!dataModel)
         return;
 
-    OnFrame(*drawList, *dataModel);
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return;
+
+    OnFrame(*drawList, *dataModel, *controller);
 }
 
-void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, const CCurveEditorDataModel&)
+void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, const CCurveEditorDataModel&, CCurveEditorController&)
 {
     //to override
 }

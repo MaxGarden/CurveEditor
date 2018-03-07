@@ -3,28 +3,24 @@
 
 #include "CurveEditorDataModel.h"
 
-class CEditorContext
+class IEditorContext
 {
 public:
-    CEditorContext() = default;
-    ~CEditorContext() = default;
+    virtual ~IEditorContext() = default;
 
-    void SetViewFactory(IEditorViewFactoryUniquePtr&& factory) noexcept;
-    const IEditorViewFactoryUniquePtr& GetViewFactory() const noexcept;
+    virtual void SetViewFactory(IEditorViewFactoryUniquePtr&& factory) noexcept = 0;
+    virtual const IEditorViewFactoryUniquePtr& GetViewFactory() const noexcept = 0;
 
-    void SetController(IEditorControllerSharedPtr&& controller) noexcept;
-    const IEditorControllerSharedPtr& GetController() const noexcept;
+    virtual void SetController(IEditorControllerSharedPtr&& controller) noexcept = 0;
+    virtual const IEditorControllerSharedPtr& GetController() const noexcept = 0;
 
-    IEditorViewSharedPtr AddView();
-    bool RemoveView(const IEditorViewSharedPtr& view);
+    virtual void SetDataModel(IEditorDataModelSharedPtr&& dataModel) noexcept = 0;
+    virtual const IEditorDataModelSharedPtr& GetDataModel() const noexcept = 0;
 
-private:
-    IEditorDataModelSharedPtr m_DataModel;
-    IEditorControllerSharedPtr m_Controller;
+    virtual IEditorViewSharedPtr AddView() = 0;
+    virtual bool RemoveView(const IEditorViewSharedPtr& view) = 0;
 
-    std::vector<IEditorViewSharedPtr> m_Views;
-
-    IEditorViewFactoryUniquePtr m_ViewFactory;
+    static IEditorContextUniquePtr CreateContext();
 };
 
 #endif //__EDITOR_CONTEXT_H__

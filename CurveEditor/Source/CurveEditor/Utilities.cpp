@@ -104,7 +104,7 @@ void TranslateAndClampDrawListClipRects(ImDrawList& drawList, int begin, int end
 
 void GrowDrawListChannels(ImDrawList& drawList, int channelsCount)
 {
-    assert(drawList._ChannelsCount <= channelsCount);
+    EDITOR_ASSERT(drawList._ChannelsCount <= channelsCount);
     const auto localPreviousChannelsCount = drawList._Channels.Size;
     if (localPreviousChannelsCount < channelsCount)
         drawList._Channels.resize(channelsCount);

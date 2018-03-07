@@ -23,7 +23,7 @@ CWindowCanvas::CWindowCanvas(const ImVec2& position, const ImVec2& size, const I
     m_Zoom(zoom),
     m_InvertZoom(1, 1)
 {
-    assert(m_Zoom.x != 0.0f && m_Zoom.y != 0.0f);
+    EDITOR_ASSERT(m_Zoom.x != 0.0f && m_Zoom.y != 0.0f);
 
     if (m_Zoom.x == 0.0f)
         m_Zoom.x = 1.0f;
@@ -34,7 +34,7 @@ CWindowCanvas::CWindowCanvas(const ImVec2& position, const ImVec2& size, const I
     m_InvertZoom.x = m_Zoom.x ? 1.0f / m_Zoom.x : 1.0f;
     m_InvertZoom.y = m_Zoom.y ? 1.0f / m_Zoom.y : 1.0f;
 
-    assert(m_WindowScreenSize.x > 0 && m_WindowScreenSize.y > 0);
+    EDITOR_ASSERT(m_WindowScreenSize.x > 0 && m_WindowScreenSize.y > 0);
     m_WindowScreenSize.x = std::max(1.0f, m_WindowScreenSize.x);
     m_WindowScreenSize.y = std::max(1.0f, m_WindowScreenSize.y);
 
@@ -112,7 +112,7 @@ ImVec2 CWindowCanvas::ToClient(const ImVec2& point) const noexcept
 CEditorCanvas::CEditorCanvas(const ImVec2& unitScaler) :
     m_UnitScaler(unitScaler)
 {
-    assert(m_UnitScaler.x != 0.0f && m_UnitScaler.y != 0.0f);
+    EDITOR_ASSERT(m_UnitScaler.x != 0.0f && m_UnitScaler.y != 0.0f);
 
     if (m_UnitScaler.x == 0.0f)
         m_UnitScaler.x = 1.0f;
@@ -128,7 +128,7 @@ const ImVec2& CEditorCanvas::GetUnitScaler() const noexcept
 
 void CEditorCanvas::SetUnitScaler(const ImVec2& unitScaler) noexcept
 {
-    assert(unitScaler.x != 0.0f && unitScaler.y != 0.0f);
+    EDITOR_ASSERT(unitScaler.x != 0.0f && unitScaler.y != 0.0f);
     if (unitScaler.x == 0.0f || unitScaler.y == 0.0f)
         return;
 
@@ -180,7 +180,7 @@ ImVec2 CEditorCanvas::ToEditor(const ImVec2& position) const noexcept
 {
     const auto& zoom = m_WindowCanvas.GetZoom();
 
-    assert(zoom.x != 0.0f && zoom.y != 0.0f);
+    EDITOR_ASSERT(zoom.x != 0.0f && zoom.y != 0.0f);
     if (zoom.x == 0.0f || zoom.y == 0.0f)
         return ImVec2();
 

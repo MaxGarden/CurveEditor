@@ -20,6 +20,9 @@ SOURCES += \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
     Source/CurveEditor/CurveEditorFactory.cpp                  	\
+	Source/CurveEditor/SplineDataModel.cpp						\
+	Source/CurveEditor/SplineController.cpp						\
+	Source/CurveEditor/SplineView.cpp							\
     Source/CurveEditor/EditorContext.cpp		            	\
     Source/CurveEditor/EditorView.cpp                   		\
     Source/CurveEditor/EditorController.cpp              		\
@@ -40,6 +43,9 @@ HEADERS += \
     Source/CurveEditor/CurveEditorDataModel.h   	            \
     Source/CurveEditor/CurveEditorController.h 	       	        \
     Source/CurveEditor/CurveEditorFactory.h               		\
+	Source/CurveEditor/SplineDataModel.h						\
+	Source/CurveEditor/SplineController.h						\
+	Source/CurveEditor/SplineView.h							\
     Source/CurveEditor/EditorContext.h			            	\
     Source/CurveEditor/EditorView.h                     		\
     Source/CurveEditor/EditorController.h                 		\

@@ -5,7 +5,7 @@
 #include <QOpenGLExtraFunctions>
 #include <QtImGui.h>
 #include <imgui.h>
-#include "EditorView.h"
+#include "EditorContext.h"
 
 class IEditorViewWidgetFactory
 {
@@ -14,7 +14,7 @@ public:
 
     virtual std::unique_ptr<QWidget> Create(QWidget* parent) = 0;
 
-    static IEditorViewWidgetFactoryUniquePtr CreateFactory(IEditorViewFactorySharedPtr&& editorViewFactory);
+    static IEditorViewWidgetFactoryUniquePtr CreateFactory(IEditorContextSharedPtr editorContext);
 };
 
 #endif //__EDITOR_VIEW_WIDGET_H__
