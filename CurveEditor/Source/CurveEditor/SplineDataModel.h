@@ -16,7 +16,7 @@ public:
     CCurveEditorSplineDataModel() = default;
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
-
+    std::vector<ax::pointf>& GetControlPoints() noexcept;
 
 private:
     std::vector<ax::pointf> m_ControlPoints;

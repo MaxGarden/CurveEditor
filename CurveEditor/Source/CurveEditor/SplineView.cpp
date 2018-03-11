@@ -3,6 +3,11 @@
 #include "SplineDataModel.h"
 #include "SplineController.h"
 
+CCurveEditorSplineView::CCurveEditorSplineView(CCurveEditorView& editorView) :
+    m_EditorView(editorView)
+{
+}
+
 void CCurveEditorSplineView::OnFrame()
 {
 

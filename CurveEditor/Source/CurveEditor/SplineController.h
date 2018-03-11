@@ -2,12 +2,22 @@
 #if !defined(__CURVE_EDITOR_SPLINE_CONTROLLER__)
 
 #include "EditorController.h"
+#include "ax/ax.h"
 
-class CCurveEditorSplineController final : public IEditorController
+class CCurveEditorFunctionSplineController final : public IEditorController
 {
 public:
-    CCurveEditorSplineController() = default;
-    virtual ~CCurveEditorSplineController() override final = default;
+    CCurveEditorFunctionSplineController() = default;
+    virtual ~CCurveEditorFunctionSplineController() override final = default;
+
+    virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) override final;
+
+private:
+    void OnSplineModified() noexcept;
+    void SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept;
+
+private:
+    CCurveEditorSplineDataModelSharedPtr m_DataModel;
 };
 
 

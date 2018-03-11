@@ -6,7 +6,7 @@
 class CCurveEditorSplineView final : public IEditorView
 {
 public:
-    CCurveEditorSplineView() = default;
+    CCurveEditorSplineView(CCurveEditorView& editorView);
     virtual ~CCurveEditorSplineView() override final = default;
 
     virtual void OnFrame() override final;
@@ -15,6 +15,8 @@ public:
     virtual bool SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept override final;
 
 private:
+    CCurveEditorView& m_EditorView;
+
     CCurveEditorSplineDataModelConstSharedPtr m_DataModel;
     CCurveEditorSplineControllerSharedPtr m_Controller;
 };

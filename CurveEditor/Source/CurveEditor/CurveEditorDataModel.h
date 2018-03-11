@@ -18,5 +18,4 @@ private:
     SEditorStyle m_EditorStyle;
 };
 
-
 #endif //__CURVE_EDITOR_DATA_MODEL_H__
