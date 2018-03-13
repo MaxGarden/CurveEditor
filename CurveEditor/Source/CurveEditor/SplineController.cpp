@@ -2,7 +2,7 @@
 #include "SplineController.h"
 #include "SplineDataModel.h"
 
-bool CCurveEditorFunctionSplineController::SetDataModel(const IEditorDataModelSharedPtr& dataModel)
+bool CCurveEditorFunctionSplineController::SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept
 {
     if (!dataModel)
     {

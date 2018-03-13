@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <functional>
+#include <optional>
 
 #define EDITOR_ASSERT(expression) assert(expression)
 

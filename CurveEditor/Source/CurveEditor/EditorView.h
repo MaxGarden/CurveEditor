@@ -12,7 +12,6 @@ public:
     virtual void OnFrame() = 0;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept = 0;
-    virtual bool SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept = 0;
 };
 
 class IEditorViewFactory

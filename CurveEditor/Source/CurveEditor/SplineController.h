@@ -10,7 +10,7 @@ public:
     CCurveEditorFunctionSplineController() = default;
     virtual ~CCurveEditorFunctionSplineController() override final = default;
 
-    virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) override final;
+    virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept override final;
 
 private:
     void OnSplineModified() noexcept;

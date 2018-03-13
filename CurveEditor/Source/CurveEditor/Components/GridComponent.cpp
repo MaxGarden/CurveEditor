@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GridComponent.h"
 #include <ImGuiInterop.h>
-#include "CurveEditorDataModel.h"
+#include "CurveEditorController.h"
 
 using namespace ImGuiInterop;
 
@@ -10,14 +10,14 @@ CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorV
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, const CCurveEditorDataModel& dataModel, CCurveEditorController&)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorController& controller)
 {
     static const auto graduation = ImVec2(10, 10);
 
     const auto& editorView = GetEditorView();
+    const auto& style = controller.GetEditorStyle();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
-    const auto& style = dataModel.GetStyle();
 
     const auto& offset = windowCanvas.GetClientOrigin();
 

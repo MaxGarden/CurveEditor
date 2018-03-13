@@ -12,13 +12,11 @@ public:
     virtual void OnFrame() override final;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override final;
-    virtual bool SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept override final;
 
 private:
     CCurveEditorView& m_EditorView;
 
-    CCurveEditorSplineDataModelConstSharedPtr m_DataModel;
-    CCurveEditorSplineControllerSharedPtr m_Controller;
+    CCurveEditorFunctionSplineControllerSharedPtr m_Controller;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_VIEW_H__

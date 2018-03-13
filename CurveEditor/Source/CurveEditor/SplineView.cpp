@@ -21,26 +21,10 @@ bool CCurveEditorSplineView::SetController(const IEditorControllerSharedPtr& con
         return true;
     }
 
-    const auto splineEditorContoller = std::dynamic_pointer_cast<CCurveEditorSplineController>(controller);
+    const auto splineEditorContoller = std::dynamic_pointer_cast<CCurveEditorFunctionSplineController>(controller);
     if (!splineEditorContoller)
         return false;
 
     m_Controller = std::move(splineEditorContoller);
-    return true;
-}
-
-bool CCurveEditorSplineView::SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept
-{
-    if (!dataModel)
-    {
-        m_DataModel.reset();
-        return true;
-    }
-
-    const auto splineDataModel = std::dynamic_pointer_cast<const CCurveEditorSplineDataModel>(dataModel);
-    if (!splineDataModel)
-        return false;
-
-    m_DataModel = std::move(splineDataModel);
     return true;
 }

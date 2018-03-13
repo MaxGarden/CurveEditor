@@ -43,7 +43,8 @@ const IEditorViewFactoryUniquePtr& CEditorContext::GetViewFactory() const noexce
 
 void CEditorContext::SetController(IEditorControllerSharedPtr&& controller) noexcept
 {
-    m_Controller = std::move(controller);
+	if (m_Controller = std::move(controller))
+		m_Controller->SetDataModel(GetDataModel());
 
     auto result = true;
     VisitViews([&controller, &result](auto& view)
@@ -63,13 +64,8 @@ void CEditorContext::SetDataModel(IEditorDataModelSharedPtr&& dataModel) noexcep
 {
     m_DataModel = std::move(dataModel);
 
-    auto result = true;
-    VisitViews([&dataModel, &result](auto& view)
-    {
-        result &= view.SetDataModel(dataModel);
-    });
-
-    EDITOR_ASSERT(result && "Cannot set data model in views");
+	if(const auto& controller = GetController())
+		controller->SetDataModel(m_DataModel);
 }
 
 const IEditorDataModelSharedPtr& CEditorContext::GetDataModel() const noexcept
@@ -88,7 +84,6 @@ IEditorViewSharedPtr CEditorContext::AddView()
 
     auto isVaild = true;
     isVaild &= editorView->SetController(m_Controller);
-    isVaild &= editorView->SetDataModel(m_DataModel);
 
     if (!isVaild)
         return nullptr;

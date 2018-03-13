@@ -25,33 +25,10 @@ bool CCurveEditorViewBase::SetController(const IEditorControllerSharedPtr& contr
     return true;
 }
 
-bool CCurveEditorViewBase::SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept
-{
-    if (!dataModel)
-    {
-        m_DataModel.reset();
-        return true;
-    }
-
-    const auto curveEditorDataModel = std::dynamic_pointer_cast<const CCurveEditorDataModel>(dataModel);
-    if (!curveEditorDataModel)
-        return false;
-
-    m_DataModel = std::move(curveEditorDataModel);
-
-    return true;
-}
-
-const CCurveEditorDataModelConstSharedPtr& CCurveEditorViewBase::GetDataModel() const noexcept
-{
-    return m_DataModel;
-}
-
 const CCurveEditorControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
 {
     return m_Controller;
 }
-
 
 void CCurveEditorView::OnFrame()
 {
@@ -82,22 +59,6 @@ bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controlle
     return true;
 }
 
-bool CCurveEditorView::SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept
-{
-    if (!CCurveEditorViewBase::SetDataModel(dataModel))
-        return false;
-
-    auto result = true;
-    VisitViews([&dataModel, &result](auto& view)
-    {
-        result &= view.SetDataModel(dataModel);
-    });
-
-    EDITOR_ASSERT(result && "Views should accept new data model if main view accepts.");
-
-    return true;
-}
-
 CEditorCanvas& CCurveEditorView::GetCanvas() noexcept
 {
     return m_Canvas;
@@ -115,7 +76,6 @@ bool CCurveEditorView::AddView(CCurveEditorViewBaseUniquePtr&& view)
 
     auto isValid = true;
     isValid &= view->SetController(GetController());
-    isValid &= view->SetDataModel(GetDataModel());
 
     if (!isValid)
         return false;

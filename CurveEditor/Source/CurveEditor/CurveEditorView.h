@@ -13,13 +13,10 @@ public:
     virtual void OnFrame() override;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-    virtual bool SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept override;
 
-    const CCurveEditorDataModelConstSharedPtr& GetDataModel() const noexcept;
     const CCurveEditorControllerSharedPtr& GetController() const noexcept;
 
 private:
-    CCurveEditorDataModelConstSharedPtr m_DataModel;
     CCurveEditorControllerSharedPtr m_Controller;
 };
 
@@ -32,8 +29,7 @@ public:
     virtual void OnFrame() override final;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-    virtual bool SetDataModel(const IEditorDataModelConstSharedPtr& dataModel) noexcept override;
-
+    
     CEditorCanvas& GetCanvas() noexcept;
     const CEditorCanvas& GetCanvas() const noexcept;
 

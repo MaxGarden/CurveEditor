@@ -16,20 +16,15 @@ void CCurveEditorViewComponentBase::OnFrame()
     if (!drawList)
         return;
 
-    const auto& dataModel = GetDataModel();
-    EDITOR_ASSERT(dataModel);
-    if (!dataModel)
-        return;
-
     const auto& controller = GetController();
     EDITOR_ASSERT(controller);
     if (!controller)
         return;
 
-    OnFrame(*drawList, *dataModel, *controller);
+    OnFrame(*drawList, *controller);
 }
 
-void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, const CCurveEditorDataModel&, CCurveEditorController&)
+void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, CCurveEditorController&)
 {
     //to override
 }
