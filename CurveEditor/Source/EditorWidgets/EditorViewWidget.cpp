@@ -36,7 +36,7 @@ CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget*
         timer->start(updateTimeMs);
     }
 
-    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+    setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
 CEditorViewWidget::~CEditorViewWidget()
