@@ -24,7 +24,6 @@ private:
     ImVec4 m_ClearColor = ImColor(127, 127, 127);
 };
 
-
 CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget* parent /* = nullptr */, uint updateTimeMs /* = 16 */) :
     QOpenGLWidget(parent),
     m_EditorView(std::move(editorView))
@@ -36,6 +35,8 @@ CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget*
         connect(timer, SIGNAL(timeout()), SLOT(update()));
         timer->start(updateTimeMs);
     }
+
+    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 }
 
 CEditorViewWidget::~CEditorViewWidget()
