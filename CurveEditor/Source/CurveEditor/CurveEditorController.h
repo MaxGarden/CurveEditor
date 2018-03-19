@@ -9,24 +9,26 @@ class ICurveEditorProtocol
 public:
     virtual ~ICurveEditorProtocol() = default;
 
-    virtual void OnSplineDataModelCreated(const CCurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
-    virtual void OnSplineDataModelDestroyed(const CCurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+    virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
+    virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
 };
 using CurveEditorProtocolHandle = size_t;
 
 class CCurveEditorController final : public IEditorController
 {
 public:
-    CCurveEditorController() = default;
+    CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory);
     virtual ~CCurveEditorController() override final = default;
 
     virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept override final;
 
-    bool CreateSpline(std::string&& name);
+    bool CreateSpline(std::string name);
     bool DestroySpline(const std::string& name);
 
     std::optional<CurveEditorProtocolHandle> RegisterProtocol(ICurveEditorProtocolUniquePtr&& protocol);
 	bool UnregisterProtocol(const CurveEditorProtocolHandle& handle);
+
+    void VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept;
 
 	const SEditorStyle& GetEditorStyle() const noexcept;
 
@@ -46,6 +48,8 @@ private:
 private:
     CCurveEditorDataModelSharedPtr m_DataModel;
     std::vector<ICurveEditorProtocolUniquePtr> m_Protocols;
+    std::map<ICurveEditorSplineDataModelConstSharedPtr, ICurveEditorSplineControllerSharedPtr> m_SplineControllers;
+    ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
 };
 
 #endif //__CURVE_EDITOR_CONTROLLER_H__

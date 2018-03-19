@@ -3,13 +3,21 @@
 #include "CurveEditorDataModel.h"
 #include "Components/BackgroundComponent.h"
 #include "Components/GridComponent.h"
+#include "Components/DebugComponent.h"
 
-std::unique_ptr<IEditorView> CCurveEditorViewFactory::Create()
+CCurveEditorViewFactory::CCurveEditorViewFactory(ICurveEditorSplineViewFactory& splineViewFactory) :
+    m_SplineViewFactory(splineViewFactory)
 {
-    auto result = std::make_unique<CCurveEditorView>();
+}
+
+IEditorViewUniquePtr CCurveEditorViewFactory::Create()
+{
+    auto result = std::make_unique<CCurveEditorView>(m_SplineViewFactory);
 
     result->AddView(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
     result->AddView(std::make_unique<CCurveEditorGridViewComponent>(*result));
+
+	result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result));
 
     return std::move(result);
 }

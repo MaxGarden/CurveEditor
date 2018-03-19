@@ -2,6 +2,12 @@
 #include "CurveEditorController.h"
 #include "CurveEditorDataModel.h"
 #include "SplineDataModel.h"
+#include "SplineController.h"
+
+CCurveEditorController::CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory) :
+    m_SplineControllerFactory(splineControllerFactory)
+{
+}
 
 bool CCurveEditorController::SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept
 {
@@ -19,17 +25,36 @@ bool CCurveEditorController::SetDataModel(const IEditorDataModelSharedPtr& dataM
     return true;
 }
 
-bool CCurveEditorController::CreateSpline(std::string&& name)
+bool CCurveEditorController::CreateSpline(std::string name)
 {
 	if (!m_DataModel)
 		return false;
 
-	const auto splineDataModel = std::make_shared<CCurveEditorSplineDataModel>(std::move(name));
-	
+	const auto splineDataModel = ICurveEditorSplineDataModelSharedPtr(ICurveEditorSplineDataModel::Create(std::move(name)));
+
 	if (!m_DataModel->AddSplineDataModel(splineDataModel))
 		return false;
 
-	NotifyProtocols(&ICurveEditorProtocol::OnSplineDataModelCreated, splineDataModel);
+    const auto splineController = ICurveEditorSplineControllerSharedPtr(m_SplineControllerFactory.Create(splineDataModel));
+
+    const auto cleanup = [this, &splineDataModel]()
+    {
+        m_DataModel->RemoveSplineDataModel(splineDataModel);
+        return false;
+    };
+
+    if (!splineController)
+        return cleanup();
+
+    auto isValid = true;
+    isValid &= splineController->SetDataModel(splineDataModel);
+    
+    if (!isValid)
+        return cleanup();
+
+    m_SplineControllers.emplace(splineDataModel, splineController);
+
+	NotifyProtocols(&ICurveEditorProtocol::OnSplineCreated, splineController);
 	return false;
 }
 
@@ -39,7 +64,7 @@ bool CCurveEditorController::DestroySpline(const std::string& name)
 		return false;
 
 	const auto& splineDataModels = m_DataModel->GetSplinesDataModels();
-	const auto iterator = std::find_if(splineDataModels.begin(), splineDataModels.end(), [&name](const auto& spline)
+	const auto dataModelIterator = std::find_if(splineDataModels.begin(), splineDataModels.end(), [&name](const auto& spline)
 	{
 		if (!spline)
 			return false;
@@ -47,17 +72,24 @@ bool CCurveEditorController::DestroySpline(const std::string& name)
 		return name.compare(spline->GetName()) == 0;
 	});
 
-	if (iterator == splineDataModels.end())
+	if (dataModelIterator == splineDataModels.end())
 		return nullptr;
 
-	const auto splineDataModel = *iterator;
+	const auto splineDataModel = *dataModelIterator;
 	if (!splineDataModel)
 		return false;
 
 	if (!m_DataModel->RemoveSplineDataModel(splineDataModel))
 		return false;
 
-	NotifyProtocols(&ICurveEditorProtocol::OnSplineDataModelDestroyed, splineDataModel);
+    const auto controllerIterator = m_SplineControllers.find(splineDataModel);
+    EDITOR_ASSERT(controllerIterator != m_SplineControllers.end());
+    if (controllerIterator != m_SplineControllers.end())
+    {
+        NotifyProtocols(&ICurveEditorProtocol::OnSplineDestroyed, controllerIterator->second);
+        m_SplineControllers.erase(controllerIterator);
+    }
+
 	return false;
 }
 
@@ -97,4 +129,16 @@ const SEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
 const CCurveEditorDataModelSharedPtr& CCurveEditorController::GetDataModel() const noexcept
 {
 	return m_DataModel;
+}
+
+void CCurveEditorController::VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept
+{
+    if (!visitor)
+        return;
+
+    for (const auto& controllerPair : m_SplineControllers)
+    {
+        if (const auto& controller = controllerPair.second)
+            visitor(controller);
+    }
 }

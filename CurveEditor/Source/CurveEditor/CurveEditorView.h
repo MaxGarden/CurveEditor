@@ -3,6 +3,7 @@
 
 #include "Canvas.h"
 #include "EditorView.h"
+#include "CurveEditorController.h"
 
 class CCurveEditorViewBase : public IEditorView
 {
@@ -23,13 +24,16 @@ private:
 class CCurveEditorView final : public CCurveEditorViewBase
 {
 public:
-    CCurveEditorView() = default;
-    virtual ~CCurveEditorView() override final = default;
+    CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory);
+    virtual ~CCurveEditorView();
 
     virtual void OnFrame() override final;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-    
+
+    bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
+    bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
+
     CEditorCanvas& GetCanvas() noexcept;
     const CEditorCanvas& GetCanvas() const noexcept;
 
@@ -37,11 +41,17 @@ public:
 
 private:
     void VisitViews(const std::function<void(CCurveEditorViewBase&)>& visitor) noexcept;
+    void VisitSplineViews(const std::function<void(ICurveEditorSplineView&)>& visitor) noexcept;
+
+    void RecreateSplineViews();
 
 private:
     CEditorCanvas m_Canvas = CEditorCanvas(ImVec2(100.0f, 100.0f));
 
     std::vector<CCurveEditorViewBaseUniquePtr> m_Views;
+    std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
+    ICurveEditorSplineViewFactory& m_SplineViewFactory;
+    CurveEditorProtocolHandle m_ProtocolHandle;
 };
 
 #endif //__CURVE_EDITOR_VIEW_H__

@@ -4,6 +4,8 @@
 #include "CurveEditorFactory.h"
 #include "CurveEditorController.h"
 #include "CurveEditorDataModel.h"
+#include "SplineControllerFactory.h"
+#include "SplineViewFactory.h"
 #include "EditorContext.h"
 
 int main(int argc, char** argv)
@@ -19,8 +21,11 @@ int main(int argc, char** argv)
     if (!curveEditorContext)
         return -1;
 
-    curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>());
-    curveEditorContext->SetController(std::make_shared<CCurveEditorController>());
+    CCurveEditorSplineControllerFactory splineControllerFactory;
+    CCurveEditorSplineViewFactory splineViewFactory;
+
+    curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(splineViewFactory));
+    curveEditorContext->SetController(std::make_shared<CCurveEditorController>(splineControllerFactory));
     curveEditorContext->SetDataModel(std::make_shared<CCurveEditorDataModel>());
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);

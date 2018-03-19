@@ -12,6 +12,8 @@ DECLARE_POINTERS(CCurveEditorDataModel)
 DECLARE_POINTERS(ICurveEditorProtocol)
 DECLARE_POINTERS(CCurveEditorController)
 
-DECLARE_POINTERS(CCurveEditorSplineDataModel);
-DECLARE_POINTERS(CCurveEditorFunctionSplineController);
-DECLARE_POINTERS(CCurveEditorSplineView);
+DECLARE_POINTERS(ICurveEditorSplineDataModel);
+DECLARE_POINTERS(ICurveEditorSplineController);
+DECLARE_POINTERS(ICurveEditorSplineControllerFactory);
+DECLARE_POINTERS(ICurveEditorSplineView);
+DECLARE_POINTERS(ICurveEditorSplineViewFactory);

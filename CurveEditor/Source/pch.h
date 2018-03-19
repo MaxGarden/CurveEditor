@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <optional>
+#include <map>
 
 #define EDITOR_ASSERT(expression) assert(expression)
 

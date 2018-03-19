@@ -4,21 +4,20 @@
 #include "EditorController.h"
 #include "ax/ax.h"
 
-class CCurveEditorFunctionSplineController final : public IEditorController
+class ICurveEditorSplineController : public IEditorController
 {
 public:
-    CCurveEditorFunctionSplineController() = default;
-    virtual ~CCurveEditorFunctionSplineController() override final = default;
+    virtual ~ICurveEditorSplineController() = default;
 
-    virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept override final;
-
-private:
-    void OnSplineModified() noexcept;
-    void SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept;
-
-private:
-    CCurveEditorSplineDataModelSharedPtr m_DataModel;
+    virtual const std::string& GetName() const noexcept = 0;
 };
 
+class ICurveEditorSplineControllerFactory
+{
+public:
+    virtual ~ICurveEditorSplineControllerFactory() = default;
+
+    virtual ICurveEditorSplineControllerUniquePtr Create(const ICurveEditorSplineDataModelSharedPtr& dataModel) = 0;
+};
 
 #endif //__CURVE_EDITOR_SPLINE_CONTROLLER__

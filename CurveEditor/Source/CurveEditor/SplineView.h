@@ -3,7 +3,21 @@
 
 #include "EditorView.h"
 
-class CCurveEditorSplineView final : public IEditorView
+class ICurveEditorSplineView : public IEditorView
+{
+public:
+    virtual ~ICurveEditorSplineView() override = default;
+};
+
+class ICurveEditorSplineViewFactory
+{
+public:
+    virtual ~ICurveEditorSplineViewFactory() = default;
+
+    virtual ICurveEditorSplineViewUniquePtr Create(CCurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
+};
+
+class CCurveEditorSplineView final : public ICurveEditorSplineView
 {
 public:
     CCurveEditorSplineView(CCurveEditorView& editorView);
@@ -16,7 +30,7 @@ public:
 private:
     CCurveEditorView& m_EditorView;
 
-    CCurveEditorFunctionSplineControllerSharedPtr m_Controller;
+    ICurveEditorSplineControllerSharedPtr m_Controller;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_VIEW_H__

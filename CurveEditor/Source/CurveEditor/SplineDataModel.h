@@ -10,20 +10,15 @@ enum class ECurveType
     Constant
 };
 
-class CCurveEditorSplineDataModel final : public IEditorDataModel
+class ICurveEditorSplineDataModel : public IEditorDataModel
 {
 public:
-    CCurveEditorSplineDataModel(std::string&& name);
-    virtual ~CCurveEditorSplineDataModel() override final = default;
+    virtual ~ICurveEditorSplineDataModel() = default;
 
-    std::vector<ax::pointf>& GetControlPoints() noexcept;
-	const std::string& GetName() const noexcept;
+    virtual std::vector<ax::pointf>& GetControlPoints() noexcept = 0;
+    virtual const std::string& GetName() const noexcept = 0;
 
-private:
-    std::vector<ax::pointf> m_ControlPoints;
-    std::vector<ECurveType> m_CurveTypes;
-	std::string m_Name;
+    static ICurveEditorSplineDataModelUniquePtr Create(std::string&& name);
 };
-
 
 #endif //__CURVE_EDITOR_SPLINE_DATA_MODEL_H__
