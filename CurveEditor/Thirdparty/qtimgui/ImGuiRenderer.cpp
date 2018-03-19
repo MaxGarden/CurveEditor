@@ -384,6 +384,7 @@ void ImGuiRenderer::onKeyPressRelease(QKeyEvent *event)
 
 bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
 {
+    PushImGuiContext();
     switch (event->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
@@ -399,6 +400,7 @@ bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
     default:
         break;
     }
+    PopImGuiContext();
     return QObject::eventFilter(watched, event);
 }
 }
