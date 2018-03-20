@@ -45,6 +45,9 @@ private:
 
     void RecreateSplineViews();
 
+    void OnFrameBegin();
+    void OnFrameEnd();
+
 private:
     CEditorCanvas m_Canvas = CEditorCanvas(ImVec2(100.0f, 100.0f));
 

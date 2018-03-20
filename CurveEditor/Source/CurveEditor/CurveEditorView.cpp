@@ -72,12 +72,26 @@ CCurveEditorView::~CCurveEditorView()
     SetController(nullptr);
 }
 
-void CCurveEditorView::OnFrame()
+void CCurveEditorView::OnFrameBegin()
 {
+    static const auto editorWindowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+    const auto& io = ImGui::GetIO();
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowSize(io.DisplaySize);
+    ImGui::Begin("CurveEditorView", nullptr, ImVec2(0.0f, 0.0f), 0.0f, editorWindowFlags);
+
     //only for tests
     //begin
     m_Canvas.GetWindowCanvas() = CWindowCanvas(ImGui::GetWindowPos(), ImGui::GetWindowSize(), ImVec2(1, 1), ImGui::GetWindowSize());
     //end
+}
+
+void CCurveEditorView::OnFrame()
+{
+    OnFrameBegin();
 
     VisitViews([](auto& view)
     {
@@ -88,6 +102,13 @@ void CCurveEditorView::OnFrame()
     {
         splineView.OnFrame();
     });
+
+    OnFrameEnd();
+}
+
+void CCurveEditorView::OnFrameEnd()
+{
+    ImGui::End();
 }
 
 bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controller) noexcept
