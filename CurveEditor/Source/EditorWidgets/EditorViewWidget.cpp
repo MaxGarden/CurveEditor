@@ -5,8 +5,8 @@
 class CEditorViewWidget final : public QOpenGLWidget, private QOpenGLExtraFunctions
 {
 public:
-    CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget* parent = nullptr, uint updateTimeMs = 16);
-    virtual ~CEditorViewWidget() override;
+    CEditorViewWidget(const IEditorContextSharedPtr& editorContext, IEditorViewSharedPtr&& editorView, QWidget* parent = nullptr, uint updateTimeMs = 16);
+    virtual ~CEditorViewWidget() override final;
 
     IEditorView* GetEditorView() const noexcept;
 
@@ -18,16 +18,19 @@ protected:
     virtual void paintGL() override final;
 
 private:
+    IEditorContextSharedPtr m_EditorContext;
     IEditorViewSharedPtr m_EditorView;
     QtImGuiContext m_Context = nullptr;
 
     ImVec4 m_ClearColor = ImColor(127, 127, 127);
 };
 
-CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget* parent /* = nullptr */, uint updateTimeMs /* = 16 */) :
+CEditorViewWidget::CEditorViewWidget(const IEditorContextSharedPtr& editorContext, IEditorViewSharedPtr&& editorView, QWidget* parent /* = nullptr */, uint updateTimeMs /* = 16 */) :
     QOpenGLWidget(parent),
+    m_EditorContext(std::move(editorContext)),
     m_EditorView(std::move(editorView))
 {
+    EDITOR_ASSERT(m_EditorContext);
     EDITOR_ASSERT(m_EditorView);
     if (m_EditorView)
     {
@@ -41,6 +44,11 @@ CEditorViewWidget::CEditorViewWidget(IEditorViewSharedPtr&& editorView, QWidget*
 
 CEditorViewWidget::~CEditorViewWidget()
 {
+    if (m_EditorContext && m_EditorContext->RemoveView(m_EditorView))
+        m_EditorView.reset();
+    else
+        EDITOR_ASSERT(false && "Cannot remove editor view");
+
     if (m_Context)
         QtImGui::DestroyContext(m_Context);
 }
@@ -81,7 +89,7 @@ void CEditorViewWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT);
 
     QtImGui::EndFrame();
-    QtImGui::SetCurrentContext(previousContext);;
+    QtImGui::SetCurrentContext(previousContext);
 }
 
 class CDefaultViewWidgetFactory final : public IEditorViewWidgetFactory
@@ -103,7 +111,7 @@ CDefaultViewWidgetFactory::CDefaultViewWidgetFactory(IEditorContextSharedPtr&& e
 
 std::unique_ptr<QWidget> CDefaultViewWidgetFactory::Create(QWidget* parent)
 {
-    return m_EditorContext ? std::make_unique<CEditorViewWidget>(m_EditorContext->AddView(), parent) : nullptr;
+    return m_EditorContext ? std::make_unique<CEditorViewWidget>(m_EditorContext, m_EditorContext->AddView(), parent) : nullptr;
 }
 
 IEditorViewWidgetFactoryUniquePtr IEditorViewWidgetFactory::CreateFactory(IEditorContextSharedPtr editorContext)
