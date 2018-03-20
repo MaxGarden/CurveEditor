@@ -43,8 +43,8 @@ const IEditorViewFactoryUniquePtr& CEditorContext::GetViewFactory() const noexce
 
 void CEditorContext::SetController(IEditorControllerSharedPtr&& controller) noexcept
 {
-	if (m_Controller = std::move(controller))
-		m_Controller->SetDataModel(GetDataModel());
+    if (m_Controller = std::move(controller))
+        m_Controller->SetDataModel(GetDataModel());
 
     auto result = true;
     VisitViews([&controller, &result](auto& view)
@@ -64,8 +64,8 @@ void CEditorContext::SetDataModel(IEditorDataModelSharedPtr&& dataModel) noexcep
 {
     m_DataModel = std::move(dataModel);
 
-	if(const auto& controller = GetController())
-		controller->SetDataModel(m_DataModel);
+    if(const auto& controller = GetController())
+        controller->SetDataModel(m_DataModel);
 }
 
 const IEditorDataModelSharedPtr& CEditorContext::GetDataModel() const noexcept

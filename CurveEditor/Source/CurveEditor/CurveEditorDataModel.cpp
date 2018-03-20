@@ -14,25 +14,25 @@ const SEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
 
 bool CCurveEditorDataModel::AddSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
 {
-	if (!splineDataModel)
-		return false;
+    if (!splineDataModel)
+        return false;
 
-	m_SplinesDataModels.emplace_back(splineDataModel);
-	return true;
+    m_SplinesDataModels.emplace_back(splineDataModel);
+    return true;
 }
 
 bool CCurveEditorDataModel::RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
 {
-	const auto iterator = std::remove(m_SplinesDataModels.begin(), m_SplinesDataModels.end(), splineDataModel);
+    const auto iterator = std::remove(m_SplinesDataModels.begin(), m_SplinesDataModels.end(), splineDataModel);
 
-	if (iterator == m_SplinesDataModels.end())
-		return false;
+    if (iterator == m_SplinesDataModels.end())
+        return false;
 
-	m_SplinesDataModels.erase(iterator, m_SplinesDataModels.end());
-	return true;
+    m_SplinesDataModels.erase(iterator, m_SplinesDataModels.end());
+    return true;
 }
 
 const std::vector<ICurveEditorSplineDataModelSharedPtr>& CCurveEditorDataModel::GetSplinesDataModels() const noexcept
 {
-	return m_SplinesDataModels;
+    return m_SplinesDataModels;
 }

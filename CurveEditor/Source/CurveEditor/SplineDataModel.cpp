@@ -17,7 +17,7 @@ private:
 };
 
 CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(std::string&& name) :
-	m_Name(std::move(name))
+    m_Name(std::move(name))
 {
 }
 
@@ -28,7 +28,7 @@ std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() noexcep
 
 const std::string& CCurveEditorSplineDataModel::GetName() const noexcept
 {
-	return m_Name;
+    return m_Name;
 }
 
 ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(std::string&& name)

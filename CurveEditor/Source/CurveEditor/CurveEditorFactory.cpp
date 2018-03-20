@@ -17,7 +17,7 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
     result->AddView(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
     result->AddView(std::make_unique<CCurveEditorGridViewComponent>(*result));
 
-	result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result));
+    result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result));
 
     return std::move(result);
 }

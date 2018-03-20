@@ -199,10 +199,10 @@ void CCurveEditorView::VisitSplineViews(const std::function<void(ICurveEditorSpl
 void CCurveEditorView::RecreateSplineViews()
 {
     std::vector<ICurveEditorSplineControllerConstSharedPtr> splineControllersToDestroy;
-    std::transform(m_SplineViews.begin(), m_SplineViews.end(), std::back_inserter(splineControllersToDestroy), 
-        [](const auto& pair) 
-        { 
-            return pair.first; 
+    std::transform(m_SplineViews.begin(), m_SplineViews.end(), std::back_inserter(splineControllersToDestroy),
+        [](const auto& pair)
+        {
+            return pair.first;
         });
 
     for (const auto& splineController : splineControllersToDestroy)

@@ -14,10 +14,10 @@ public:
     SEditorStyle& GetStyle() noexcept;
     const SEditorStyle& GetStyle() const noexcept;
 
-	bool AddSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
-	bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+    bool AddSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+    bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
 
-	const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept;
+    const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept;
 
 private:
     SEditorStyle m_EditorStyle;

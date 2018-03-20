@@ -26,24 +26,24 @@ public:
     bool DestroySpline(const std::string& name);
 
     std::optional<CurveEditorProtocolHandle> RegisterProtocol(ICurveEditorProtocolUniquePtr&& protocol);
-	bool UnregisterProtocol(const CurveEditorProtocolHandle& handle);
+    bool UnregisterProtocol(const CurveEditorProtocolHandle& handle);
 
     void VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept;
 
-	const SEditorStyle& GetEditorStyle() const noexcept;
+    const SEditorStyle& GetEditorStyle() const noexcept;
 
 private:
-	template<typename Method, typename... Arguments>
-	void NotifyProtocols(Method method, Arguments&&... arguments) const
-	{
-		for (const auto& protocol : m_Protocols)
-		{
-			if (protocol)
-				(protocol.get()->*method)(arguments...);
-		}
-	}
+    template<typename Method, typename... Arguments>
+    void NotifyProtocols(Method method, Arguments&&... arguments) const
+    {
+        for (const auto& protocol : m_Protocols)
+        {
+            if (protocol)
+                (protocol.get()->*method)(arguments...);
+        }
+    }
 
-	const CCurveEditorDataModelSharedPtr& GetDataModel() const noexcept;
+    const CCurveEditorDataModelSharedPtr& GetDataModel() const noexcept;
 
 private:
     CCurveEditorDataModelSharedPtr m_DataModel;
