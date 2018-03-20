@@ -1,3 +1,3 @@
 # CurveEditor
 
-Run generate_project.bat to generate project.
+Run generate_vs_project.bat to generate Visual Studio project.
