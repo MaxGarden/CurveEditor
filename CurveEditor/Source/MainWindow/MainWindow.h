@@ -16,6 +16,7 @@ public:
 
 private slots:
     void OnAddEditorButtonClicked();
+    void OnRemoveEditorButtonClicked();
 
 private:
     void Setup();
@@ -23,6 +24,7 @@ private:
 
 private:
     IEditorViewWidgetFactory& m_CurveEditorWidgetFactory;
+    std::vector<QWidget*> m_EditorsWidgets;
 };
 
 #endif //__MAIN_WINDOW_H__

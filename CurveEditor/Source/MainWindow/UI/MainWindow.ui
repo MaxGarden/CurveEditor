@@ -25,18 +25,36 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <widget class="QPushButton" name="m_AddEditorButton">
-      <property name="text">
-       <string>AddEditor</string>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
       </property>
-     </widget>
+      <item>
+       <widget class="QPushButton" name="m_AddEditorButton">
+        <property name="text">
+         <string>AddEditor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="m_RemoveEditorButton">
+        <property name="text">
+         <string>RemoveEditor</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QGroupBox" name="m_EditorsGroupBox">
       <property name="title">
        <string>Editors</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMaximumSize</enum>
+       </property>
+      </layout>
      </widget>
     </item>
    </layout>

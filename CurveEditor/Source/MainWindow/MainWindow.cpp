@@ -12,11 +12,25 @@ void CMainWindow::Setup()
 {
     if (const auto button = m_AddEditorButton)
         connect(button, SIGNAL(clicked()), SLOT(OnAddEditorButtonClicked()));
+
+    if (const auto button = m_RemoveEditorButton)
+        connect(button, SIGNAL(clicked()), SLOT(OnRemoveEditorButtonClicked()));
 }
 
 void CMainWindow::OnAddEditorButtonClicked()
 {
     AddCurveEditorView();
+}
+
+void CMainWindow::OnRemoveEditorButtonClicked()
+{
+    if (m_EditorsWidgets.empty())
+        return;
+
+    if (const auto editorWidget = m_EditorsWidgets.back())
+        editorWidget->deleteLater();
+
+    m_EditorsWidgets.pop_back();
 }
 
 void CMainWindow::AddCurveEditorView()
@@ -36,5 +50,6 @@ void CMainWindow::AddCurveEditorView()
     if (!editorWidget)
         return;
 
-    layout->addWidget(editorWidget.release());
+    m_EditorsWidgets.emplace_back(editorWidget.release());
+    layout->addWidget(m_EditorsWidgets.back());
 }
