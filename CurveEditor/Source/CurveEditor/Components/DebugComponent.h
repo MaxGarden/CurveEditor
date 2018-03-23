@@ -10,7 +10,7 @@ public:
     virtual ~CCurveEditorDebugComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& controller) override final;
+    virtual void OnFrame(ImDrawList& drawList, CCurveEditorViewController& viewController) override final;
 
 private:
     std::string m_SplineName = std::string(128, '\0');

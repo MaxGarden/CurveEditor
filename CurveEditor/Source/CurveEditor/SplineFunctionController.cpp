@@ -1,29 +1,28 @@
 #include "pch.h"
 #include "SplineFunctionController.h"
-#include "SplineDataModel.h"
 
-bool CCurveEditorFunctionSplineController::SetDataModel(const IEditorDataModelSharedPtr& dataModel) noexcept
+const std::string& CCurveEditorFunctionSplineController::GetName() const noexcept
 {
-    if (!dataModel)
-    {
-        m_DataModel.reset();
-        return true;
-    }
+    static const std::string null;
 
-    auto splineDataModel = std::dynamic_pointer_cast<ICurveEditorSplineDataModel>(dataModel);
-    if (!splineDataModel)
-        return false;
+    if (const auto& dataModel = GetDataModel())
+        return dataModel->GetName();
 
-    m_DataModel = std::move(splineDataModel);
-    return true;
+    return null;
 }
 
 void CCurveEditorFunctionSplineController::OnSplineModified() noexcept
 {
-    if (!m_DataModel)
+    const auto& dataModel = GetDataModel();
+    if(!dataModel)
         return;
 
-    SortControlPoints(m_DataModel->GetControlPoints());
+    SortControlPoints(dataModel->GetControlPoints());
+}
+
+void CCurveEditorFunctionSplineController::OnDataModelChanged()
+{
+    OnSplineModified();
 }
 
 void CCurveEditorFunctionSplineController::SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept
@@ -34,14 +33,4 @@ void CCurveEditorFunctionSplineController::SortControlPoints(std::vector<ax::poi
     };
 
     std::sort(controlPoints.begin(), controlPoints.end(), prediction);
-}
-
-const std::string& CCurveEditorFunctionSplineController::GetName() const noexcept
-{
-    static const std::string null;
-
-    if (m_DataModel)
-        return m_DataModel->GetName();
-
-    return null;
 }

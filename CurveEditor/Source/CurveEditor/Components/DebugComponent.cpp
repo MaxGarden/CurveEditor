@@ -7,19 +7,16 @@ CCurveEditorDebugComponent::CCurveEditorDebugComponent(const CCurveEditorView& e
 {
 }
 
-void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorController& controller)
+void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorViewController& viewController)
 {
+    auto& editorController = viewController.GetEditorController();
+
     ImGui::Begin("Debug Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());
 
     if (ImGui::Button("Add Spline"))
-        controller.CreateSpline(m_SplineName);
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Destroy Spline"))
-        controller.DestroySpline(m_SplineName);
+        editorController.CreateSpline(m_SplineName);
 
     ImGui::End();
 }

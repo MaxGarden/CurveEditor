@@ -18,6 +18,8 @@ SOURCES += \
     Source/main.cpp \
     Source/MainWindow/MainWindow.cpp                            \
     Source/CurveEditor/CurveEditorView.cpp                      \
+    Source/CurveEditor/CurveEditorViewDataModel.cpp             \
+    Source/CurveEditor/CurveEditorViewController.cpp            \
     Source/CurveEditor/CurveEditorViewComponent.cpp             \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
@@ -32,6 +34,7 @@ SOURCES += \
     Source/CurveEditor/EditorContext.cpp                        \
     Source/CurveEditor/EditorView.cpp                           \
     Source/CurveEditor/EditorController.cpp                     \
+    Source/CurveEditor/EditorProtocol.cpp                       \
     Source/CurveEditor/EditorDataModel.cpp                      \
     Source/CurveEditor/Utilities.cpp                            \
     Source/CurveEditor/Style.cpp                                \
@@ -46,6 +49,8 @@ HEADERS += \
     Source/MainWindow/MainWindow.h                              \
     Source/CurveEditor/ImGuiInterop.h                           \
     Source/CurveEditor/CurveEditorView.h                        \
+    Source/CurveEditor/CurveEditorViewDataModel.h               \
+    Source/CurveEditor/CurveEditorViewController.h              \
     Source/CurveEditor/CurveEditorViewComponent.h               \
     Source/CurveEditor/CurveEditorDataModel.h                   \
     Source/CurveEditor/CurveEditorController.h                  \
@@ -60,6 +65,9 @@ HEADERS += \
     Source/CurveEditor/EditorContext.h                          \
     Source/CurveEditor/EditorView.h                             \
     Source/CurveEditor/EditorController.h                       \
+    Source/CurveEditor/EditorControllerBase.h                   \
+    Source/CurveEditor/EditorControllerBase.inl                 \
+    Source/CurveEditor/EditorProtocol.h                         \
     Source/CurveEditor/EditorDataModel.h                        \
     Source/CurveEditor/Utilities.h                              \
     Source/CurveEditor/Style.h                                  \

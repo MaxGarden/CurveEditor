@@ -10,12 +10,14 @@ CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorV
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorController& controller)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorViewController& viewController)
 {
     static const auto graduation = ImVec2(10, 10);
 
+    auto& editorController = viewController.GetEditorController();
+
     const auto& editorView = GetEditorView();
-    const auto& style = controller.GetEditorStyle();
+    const auto& style = editorController.GetEditorStyle();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
 

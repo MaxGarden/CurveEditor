@@ -3,7 +3,7 @@
 
 #include "Canvas.h"
 #include "EditorView.h"
-#include "CurveEditorController.h"
+#include "CurveEditorViewController.h"
 
 class CCurveEditorViewBase : public IEditorView
 {
@@ -15,10 +15,13 @@ public:
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
 
-    const CCurveEditorControllerSharedPtr& GetController() const noexcept;
+    const CCurveEditorViewControllerSharedPtr& GetController() const noexcept;
+
+protected:
+    virtual void OnControllerChanged() noexcept;
 
 private:
-    CCurveEditorControllerSharedPtr m_Controller;
+    CCurveEditorViewControllerSharedPtr m_Controller;
 };
 
 class CCurveEditorView final : public CCurveEditorViewBase
@@ -39,6 +42,9 @@ public:
 
     bool AddView(CCurveEditorViewBaseUniquePtr&& view);
 
+protected:
+    virtual void OnControllerChanged() noexcept override final;
+
 private:
     void VisitViews(const std::function<void(CCurveEditorViewBase&)>& visitor) noexcept;
     void VisitSplineViews(const std::function<void(ICurveEditorSplineView&)>& visitor) noexcept;
@@ -54,7 +60,7 @@ private:
     std::vector<CCurveEditorViewBaseUniquePtr> m_Views;
     std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
     ICurveEditorSplineViewFactory& m_SplineViewFactory;
-    CurveEditorProtocolHandle m_ProtocolHandle;
+    EditorProtocolHandle m_ProtocolHandle;
 };
 
 #endif //__CURVE_EDITOR_VIEW_H__

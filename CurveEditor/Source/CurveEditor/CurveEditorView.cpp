@@ -46,20 +46,28 @@ bool CCurveEditorViewBase::SetController(const IEditorControllerSharedPtr& contr
     if (!controller)
     {
         m_Controller.reset();
+        OnControllerChanged();
         return true;
     }
 
-    const auto curveEditorController = std::dynamic_pointer_cast<CCurveEditorController>(controller);
+    const auto curveEditorController = std::dynamic_pointer_cast<CCurveEditorViewController>(controller);
     if (!curveEditorController)
         return false;
 
     m_Controller = std::move(curveEditorController);
+    OnControllerChanged();
+
     return true;
 }
 
-const CCurveEditorControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
+const CCurveEditorViewControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
 {
     return m_Controller;
+}
+
+void CCurveEditorViewBase::OnControllerChanged() noexcept
+{
+    //to override
 }
 
 CCurveEditorView::CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory) :
@@ -118,15 +126,7 @@ bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controlle
     if (!CCurveEditorViewBase::SetController(controller))
         return false;
 
-    auto result = true;
-    VisitViews([&controller, &result](auto& view)
-    {
-        result &= view.SetController(controller);
-    });
-
-    EDITOR_ASSERT(result && "Views should accept new controller if main view accepts.");
-
-    if (previousController)
+     if (previousController)
         previousController->UnregisterProtocol(m_ProtocolHandle);
 
     if (const auto controller = GetController())
@@ -229,12 +229,29 @@ void CCurveEditorView::RecreateSplineViews()
     for (const auto& splineController : splineControllersToDestroy)
         DestroySplineView(splineController);
 
-    const auto controller = GetController();
-    if (!controller)
+    const auto viewController = GetController();
+    if (!viewController)
         return;
 
-    controller->VisitSplineControllers([this](const auto& controller)
+    auto& editorController = viewController->GetEditorController();
+
+    editorController.VisitSplineControllers([this](const auto& controller)
     {
         CreateSplineView(controller);
     });
+}
+
+void CCurveEditorView::OnControllerChanged() noexcept
+{
+    auto result = true;
+    const auto& controller = GetController();
+
+    VisitViews([&controller, &result](auto& view)
+    {
+        result &= view.SetController(controller);
+    });
+
+    EDITOR_ASSERT(result && "Views should accept new controller if main view accepts.");
+
+    RecreateSplineViews();
 }

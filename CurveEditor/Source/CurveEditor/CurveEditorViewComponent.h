@@ -12,7 +12,7 @@ public:
     virtual void OnFrame() override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& controller);
+    virtual void OnFrame(ImDrawList& drawList, CCurveEditorViewController& viewController);
 
     const CCurveEditorView& GetEditorView() const noexcept;
 

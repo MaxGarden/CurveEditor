@@ -1,9 +1,10 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_DATA_MODEL_H__)
 
+#include "Style.h"
 #include "EditorView.h"
 #include "EditorDataModel.h"
-#include "Style.h"
+#include "CurveEditorViewDataModel.h"
 
 class CCurveEditorDataModel final : public IEditorDataModel
 {
@@ -14,13 +15,19 @@ public:
     SEditorStyle& GetStyle() noexcept;
     const SEditorStyle& GetStyle() const noexcept;
 
-    bool AddSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+    ICurveEditorViewDataModelSharedPtr AddEditorViewDataModel();
+    bool RemoveEditorViewDataModel(const ICurveEditorViewDataModelSharedPtr& editorViewDataModel);
+
+    const std::vector<ICurveEditorViewDataModelSharedPtr>& GetEditorViewsDataModels() const noexcept;
+
+    ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string&& name);
     bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
 
     const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept;
 
 private:
     SEditorStyle m_EditorStyle;
+    std::vector<ICurveEditorViewDataModelSharedPtr> m_EditorViewsDataModels;
     std::vector<ICurveEditorSplineDataModelSharedPtr> m_SplinesDataModels;
 };
 
