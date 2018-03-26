@@ -12,16 +12,6 @@ const SEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
     return m_EditorStyle;
 }
 
-ICurveEditorViewDataModelSharedPtr CCurveEditorDataModel::AddEditorViewDataModel()
-{
-    auto editorViewDataModel = ICurveEditorViewDataModel::Create();
-    if (!editorViewDataModel)
-        return nullptr;
-
-    m_EditorViewsDataModels.emplace_back(std::move(editorViewDataModel));
-    return m_EditorViewsDataModels.back();;
-}
-
 template<typename ContainerType, typename ValueType>
 static const auto RemoveFromContainer(ContainerType& container, const ValueType& value)
 {
@@ -32,16 +22,6 @@ static const auto RemoveFromContainer(ContainerType& container, const ValueType&
 
     container.erase(iterator, container.end());
     return true;
-}
-
-bool CCurveEditorDataModel::RemoveEditorViewDataModel(const ICurveEditorViewDataModelSharedPtr& editorViewDataModel)
-{
-    return RemoveFromContainer(m_EditorViewsDataModels, editorViewDataModel);
-}
-
-const std::vector<ICurveEditorViewDataModelSharedPtr>& CCurveEditorDataModel::GetEditorViewsDataModels() const noexcept
-{
-    return m_EditorViewsDataModels;
 }
 
 ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(std::string&& name)

@@ -1,69 +1,12 @@
 #include "pch.h"
 #include "CurveEditorController.h"
 #include "CurveEditorDataModel.h"
-#include "CurveEditorViewController.h"
 #include "SplineDataModel.h"
 #include "SplineController.h"
 
 CCurveEditorController::CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory) :
     m_SplineControllerFactory(splineControllerFactory)
 {
-}
-
-std::optional<CCurveEditorController::ViewHandle> CCurveEditorController::CreateView()
-{
-    const auto& dataModel = GetDataModel();
-    if (!dataModel)
-        return std::nullopt;
-
-    const auto editorViewDataModel = dataModel->AddEditorViewDataModel();
-    if (!editorViewDataModel)
-        return std::nullopt;
-
-    const auto cleanup = [&dataModel, &editorViewDataModel]()
-    {
-        dataModel->RemoveEditorViewDataModel(editorViewDataModel);
-        return std::nullopt;
-    };
-
-    const auto editorViewController = std::make_shared<CCurveEditorViewController>(*this);
-
-    auto isValid = true;
-    isValid &= editorViewController->SetDataModel(editorViewDataModel);
-
-    if (!isValid)
-        return cleanup();
-
-    const auto viewHandle = reinterpret_cast<ViewHandle>(editorViewController.get());
-
-    m_EditorViewsStorages.emplace(viewHandle, ViewStorage{ editorViewDataModel, editorViewController });
-
-    NotifyProtocols(&ICurveEditorProtocol::OnViewCreate, editorViewController);
-    return viewHandle;
-}
-
-bool CCurveEditorController::DestroyView(const ViewHandle& handle)
-{
-    const auto& dataModel = GetDataModel();
-    if (!dataModel)
-        return false;
-
-    const auto iterator = m_EditorViewsStorages.find(handle);
-    if (iterator == m_EditorViewsStorages.end())
-        return false;
-
-    const auto& storage = iterator->second;
-
-    if (!dataModel->RemoveEditorViewDataModel(storage.m_DataModel))
-    {
-        EDITOR_ASSERT(false && "Cannot remove data model");
-        return false;
-    }
-
-    NotifyProtocols(&ICurveEditorProtocol::OnViewDestroyed, storage.m_Controller);
-    m_EditorViewsStorages.erase(iterator);
-
-    return true;
 }
 
 std::optional<CCurveEditorController::SplineHandle> CCurveEditorController::CreateSpline(std::string name)

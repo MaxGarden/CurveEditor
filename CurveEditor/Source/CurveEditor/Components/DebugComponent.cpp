@@ -7,10 +7,8 @@ CCurveEditorDebugComponent::CCurveEditorDebugComponent(const CCurveEditorView& e
 {
 }
 
-void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorViewController& viewController)
+void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorController& editorController)
 {
-    auto& editorController = viewController.GetEditorController();
-
     ImGui::Begin("Debug Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());

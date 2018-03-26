@@ -10,10 +10,8 @@ CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(const C
 {
 }
 
-void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorViewController& viewController)
+void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorController& editorController)
 {
-    auto& editorController = viewController.GetEditorController();
-
     const auto& editorView = GetEditorView();
     const auto& style = editorController.GetEditorStyle();
     const auto& editorCanvas = editorView.GetCanvas();

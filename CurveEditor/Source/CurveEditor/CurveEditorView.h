@@ -3,7 +3,6 @@
 
 #include "Canvas.h"
 #include "EditorView.h"
-#include "CurveEditorViewController.h"
 
 class CCurveEditorViewBase : public IEditorView
 {
@@ -15,13 +14,13 @@ public:
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
 
-    const CCurveEditorViewControllerSharedPtr& GetController() const noexcept;
+    const CCurveEditorControllerSharedPtr& GetController() const noexcept;
 
 protected:
     virtual void OnControllerChanged() noexcept;
 
 private:
-    CCurveEditorViewControllerSharedPtr m_Controller;
+    CCurveEditorControllerSharedPtr m_Controller;
 };
 
 class CCurveEditorView final : public CCurveEditorViewBase

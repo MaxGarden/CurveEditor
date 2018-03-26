@@ -24,7 +24,7 @@ void CCurveEditorViewComponentBase::OnFrame()
     OnFrame(*drawList, *controller);
 }
 
-void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, CCurveEditorViewController&)
+void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, CCurveEditorController&)
 {
     //to override
 }

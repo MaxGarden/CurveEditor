@@ -11,9 +11,6 @@ class ICurveEditorProtocol : public IEditorProtocol
 public:
     virtual ~ICurveEditorProtocol() = default;
 
-    virtual void OnViewCreate(const CCurveEditorViewControllerSharedPtr& viewController) = 0;
-    virtual void OnViewDestroyed(const CCurveEditorViewControllerSharedPtr& viewController) = 0;
-
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
 };
@@ -25,32 +22,6 @@ struct SCurveEditorStorage
     ControllerType m_Controller;
 };
 
-class IEditorViewController : public IEditorController
-{
-public:
-    virtual ~IEditorViewController() override = default;
-
-
-};
-
-class IMainEditorControllerProtocol : public IEditorProtocol
-{
-    virtual void OnViewControllerCreated(const IEditorViewControllerSharedPtr& viewController) = 0;
-    virtual void OnViewControllerDestroyed(const IEditorViewControllerSharedPtr& viewController) = 0;
-};
-
-class IMainEditorController : public IEditorController
-{
-public:
-    virtual ~IMainEditorController() override = default;
-
-    IEditorViewControllerSharedPtr CreateViewController(const IEditorDataModelSharedPtr& dataModel);
-    //destroy
-
-    //create view data model
-};
-
-
 class CCurveEditorController final : public CEditorControllerBase<IEditorController, CCurveEditorDataModel, ICurveEditorProtocol>
 {
 public:
@@ -60,9 +31,6 @@ public:
 public:
     CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory);
     virtual ~CCurveEditorController() override final = default;
-
-    std::optional<ViewHandle> CreateView();
-    bool DestroyView(const ViewHandle& handle);
 
     std::optional<SplineHandle> CreateSpline(std::string name);
     bool DestroySpline(const SplineHandle& handle);
@@ -76,10 +44,8 @@ private:
     void RecreateSplineControllers();
 
 private:
-    using ViewStorage = SCurveEditorStorage<ICurveEditorViewDataModelSharedPtr, CCurveEditorViewControllerSharedPtr>;
     using SplineStorage = SCurveEditorStorage<ICurveEditorSplineDataModelSharedPtr, ICurveEditorSplineControllerSharedPtr>;
 
-    std::map<ViewHandle, ViewStorage> m_EditorViewsStorages;
     std::map<SplineHandle,SplineStorage> m_SplineStorages;
     ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
 };

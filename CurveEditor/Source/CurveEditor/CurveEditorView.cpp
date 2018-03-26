@@ -50,7 +50,7 @@ bool CCurveEditorViewBase::SetController(const IEditorControllerSharedPtr& contr
         return true;
     }
 
-    const auto curveEditorController = std::dynamic_pointer_cast<CCurveEditorViewController>(controller);
+    const auto curveEditorController = std::dynamic_pointer_cast<CCurveEditorController>(controller);
     if (!curveEditorController)
         return false;
 
@@ -60,7 +60,7 @@ bool CCurveEditorViewBase::SetController(const IEditorControllerSharedPtr& contr
     return true;
 }
 
-const CCurveEditorViewControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
+const CCurveEditorControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
 {
     return m_Controller;
 }
@@ -229,13 +229,11 @@ void CCurveEditorView::RecreateSplineViews()
     for (const auto& splineController : splineControllersToDestroy)
         DestroySplineView(splineController);
 
-    const auto viewController = GetController();
-    if (!viewController)
+    const auto controller = GetController();
+    if (!controller)
         return;
 
-    auto& editorController = viewController->GetEditorController();
-
-    editorController.VisitSplineControllers([this](const auto& controller)
+    controller->VisitSplineControllers([this](const auto& controller)
     {
         CreateSplineView(controller);
     });
