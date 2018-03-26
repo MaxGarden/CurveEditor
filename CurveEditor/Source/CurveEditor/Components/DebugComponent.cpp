@@ -10,7 +10,7 @@ CCurveEditorDebugComponent::CCurveEditorDebugComponent(const CCurveEditorView& e
 void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorController& editorController)
 {
     ImGui::Begin("Debug Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
+    ImGui::SetWindowPos({});
     ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());
 
     if (ImGui::Button("Add Spline"))

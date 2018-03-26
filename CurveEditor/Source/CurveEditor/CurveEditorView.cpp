@@ -2,15 +2,19 @@
 #include "CurveEditorView.h"
 #include "CurveEditorViewComponent.h"
 #include "CurveEditorDataModel.h"
-#include "CurveEditorProtocolBase.h"
+#include "CurveEditorListenerBase.h"
 #include "SplineViewFactory.h"
 #include "SplineController.h"
+#include "Utilities.h"
+#include <ImGuiInterop.h>
 
-class CCurveEditorViewProtocol final : public CCurveEditorProtocolBase
+using namespace ImGuiInterop;
+
+class CCurveEditorViewListener final : public CCurveEditorListenerBase
 {
 public:
-    CCurveEditorViewProtocol(CCurveEditorView& curveEditorView);
-    virtual ~CCurveEditorViewProtocol() override final = default;
+    CCurveEditorViewListener(CCurveEditorView& curveEditorView);
+    virtual ~CCurveEditorViewListener() override final = default;
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) override final;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) override final;
@@ -19,18 +23,18 @@ private:
     CCurveEditorView& m_CurveEditorView;
 };
 
-CCurveEditorViewProtocol::CCurveEditorViewProtocol(CCurveEditorView& curveEditorView) :
+CCurveEditorViewListener::CCurveEditorViewListener(CCurveEditorView& curveEditorView) :
     m_CurveEditorView(curveEditorView)
 {
 }
 
-void CCurveEditorViewProtocol::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController)
+void CCurveEditorViewListener::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController)
 {
     const auto result = m_CurveEditorView.CreateSplineView(splineController);
     EDITOR_ASSERT(result);
 }
 
-void CCurveEditorViewProtocol::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController)
+void CCurveEditorViewListener::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController)
 {
     const auto result = m_CurveEditorView.DestroySplineView(splineController);
     EDITOR_ASSERT(result);
@@ -95,6 +99,8 @@ void CCurveEditorView::OnFrameBegin()
     //begin
     m_Canvas.GetWindowCanvas() = CWindowCanvas(ImGui::GetWindowPos(), ImGui::GetWindowSize(), ImVec2(1, 1), ImGui::GetWindowSize());
     //end
+
+    SetWindowCanvas();
 }
 
 void CCurveEditorView::OnFrame()
@@ -116,6 +122,8 @@ void CCurveEditorView::OnFrame()
 
 void CCurveEditorView::OnFrameEnd()
 {
+    ApplyCanvas();
+
     ImGui::End();
 }
 
@@ -127,10 +135,10 @@ bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controlle
         return false;
 
      if (previousController)
-        previousController->UnregisterProtocol(m_ProtocolHandle);
+        previousController->UnregisterListener(m_ListenerHandle);
 
     if (const auto controller = GetController())
-        m_ProtocolHandle = controller->RegisterProtocol(std::make_unique<CCurveEditorViewProtocol>(*this)).value_or(0);
+        m_ListenerHandle = controller->RegisterListener(std::make_unique<CCurveEditorViewListener>(*this)).value_or(0);
 
     RecreateSplineViews();
     return true;
@@ -252,4 +260,40 @@ void CCurveEditorView::OnControllerChanged() noexcept
     EDITOR_ASSERT(result && "Views should accept new controller if main view accepts.");
 
     RecreateSplineViews();
+}
+
+void CCurveEditorView::SetWindowCanvas()
+{
+    auto& windowCanvas = GetCanvas().GetWindowCanvas();
+
+    windowCanvas = { ImGui::GetWindowPos(), ImGui::GetWindowSize(), ImVec2{ 1.0f, 1.0f }, {} };
+}
+
+void CCurveEditorView::ApplyCanvas()
+{
+    const auto drawList = ImGui::GetWindowDrawList();
+    EDITOR_ASSERT(drawList);
+    if (!drawList)
+        return;
+
+    const auto& windowCanvas = GetCanvas().GetWindowCanvas();
+
+    const auto& windowScreenPosition = windowCanvas.GetWindowScreenPosition();
+    const auto& windowSize = windowCanvas.GetWindowScreenSize();
+    const auto& clientOrigin = windowCanvas.GetClientOrigin();
+
+    const auto preOffset = ImVec2{ 0, 0 };
+    const auto postOffset = windowScreenPosition + clientOrigin;
+    const auto scale = ImVec2{ 1.0f, 1.0f };
+
+    const auto backgroundChannelStart = Utilities::GetBackgroundChannelStart();
+
+    Utilities::TransformDrawListChannels(*drawList, 0, 1, preOffset, scale, postOffset);
+    Utilities::TransformDrawListChannels(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, preOffset, scale, postOffset);
+
+    auto localClipTranslation = windowScreenPosition - windowCanvas.FromScreen(windowScreenPosition);
+    ImGui::PushClipRect(windowScreenPosition, windowScreenPosition + windowSize, false);
+    Utilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, localClipTranslation);
+    Utilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, localClipTranslation);
+    ImGui::PopClipRect();
 }

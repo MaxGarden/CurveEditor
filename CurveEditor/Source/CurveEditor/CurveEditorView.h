@@ -53,13 +53,16 @@ private:
     void OnFrameBegin();
     void OnFrameEnd();
 
+    void SetWindowCanvas();
+    void ApplyCanvas();
+
 private:
     CEditorCanvas m_Canvas = CEditorCanvas(ImVec2(100.0f, 100.0f));
 
     std::vector<CCurveEditorViewBaseUniquePtr> m_Views;
     std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
     ICurveEditorSplineViewFactory& m_SplineViewFactory;
-    EditorProtocolHandle m_ProtocolHandle;
+    EditorListenerHandle m_ListenerHandle;
 };
 
 #endif //__CURVE_EDITOR_VIEW_H__

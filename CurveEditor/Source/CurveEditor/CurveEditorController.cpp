@@ -41,7 +41,7 @@ std::optional<CCurveEditorController::SplineHandle> CCurveEditorController::Crea
 
     m_SplineStorages.emplace(splineHandle, SplineStorage{ splineDataModel, splineController });
 
-    NotifyProtocols(&ICurveEditorProtocol::OnSplineCreated, splineController);
+    NotifyListeners(&ICurveEditorListener::OnSplineCreated, splineController);
     return splineHandle;
 }
 
@@ -63,7 +63,7 @@ bool CCurveEditorController::DestroySpline(const SplineHandle& handle)
         return false;
     }
 
-    NotifyProtocols(&ICurveEditorProtocol::OnSplineDestroyed, storage.m_Controller);
+    NotifyListeners(&ICurveEditorListener::OnSplineDestroyed, storage.m_Controller);
     m_SplineStorages.erase(iterator);
 
     return true;
@@ -103,4 +103,15 @@ void CCurveEditorController::RecreateSplineControllers()
         return;
 
     //TODO
+}
+
+bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept
+{
+    m_ActiveTool = std::move(tool);
+    return true;
+}
+
+const ICurveEditorToolSharedPtr& CCurveEditorController::GetActiveTool() const noexcept
+{
+    return m_ActiveTool;
 }

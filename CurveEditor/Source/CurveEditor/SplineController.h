@@ -1,14 +1,14 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_SPLINE_CONTROLLER__)
 
-#include "EditorProtocol.h"
+#include "EditorListener.h"
 #include "EditorController.h"
 #include "ax/ax.h"
 
-class ICurveEditorSplineProtocol : public IEditorProtocol
+class ICurveEditorSplineListener : public IEditorListener
 {
 public:
-    virtual ~ICurveEditorSplineProtocol() override = default;
+    virtual ~ICurveEditorSplineListener() override = default;
 };
 
 class ICurveEditorSplineController : public IEditorController

@@ -1,5 +1,5 @@
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-bool CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::SetDataModel(const IEditorDataModelSharedPtr& dataModel)
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+bool CEditorControllerBase<SuperClass, DataModelType, ListenerType>::SetDataModel(const IEditorDataModelSharedPtr& dataModel)
 {
     if (!dataModel)
     {
@@ -18,51 +18,51 @@ bool CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::SetDataMode
     return true;
 }
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-std::optional<EditorProtocolHandle> CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::RegisterProtocol(IEditorProtocolUniquePtr&& protocol)
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+std::optional<EditorListenerHandle> CEditorControllerBase<SuperClass, DataModelType, ListenerType>::RegisterListener(IEditorListenerUniquePtr&& listener)
 {
-    const auto curveEditorProtocol = dynamic_cast<ProtocolType*>(protocol.get());
-    if (!curveEditorProtocol)
+    const auto curveEditorListener = dynamic_cast<ListenerType*>(listener.get());
+    if (!curveEditorListener)
         return std::nullopt;
 
-    m_Protocols.emplace_back(std::unique_ptr<ProtocolType>(curveEditorProtocol));
-    return reinterpret_cast<EditorProtocolHandle>(protocol.release());
+    m_Listeners.emplace_back(std::unique_ptr<ListenerType>(curveEditorListener));
+    return reinterpret_cast<EditorListenerHandle>(listener.release());
 }
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-bool CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::UnregisterProtocol(const EditorProtocolHandle& handle)
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+bool CEditorControllerBase<SuperClass, DataModelType, ListenerType>::UnregisterListener(const EditorListenerHandle& handle)
 {
-    const auto iterator = std::remove_if(m_Protocols.begin(), m_Protocols.end(), [&handle](const auto& protocol)
+    const auto iterator = std::remove_if(m_Listeners.begin(), m_Listeners.end(), [&handle](const auto& listener)
     {
-        return reinterpret_cast<EditorProtocolHandle>(protocol.get()) == handle;
+        return reinterpret_cast<EditorListenerHandle>(listener.get()) == handle;
     });
 
-    if (iterator == m_Protocols.end())
+    if (iterator == m_Listeners.end())
         return false;
 
-    m_Protocols.erase(iterator, m_Protocols.end());
+    m_Listeners.erase(iterator, m_Listeners.end());
     return true;
 }
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-template<typename ProtocolMethod, typename... Arguments>
-void CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::NotifyProtocols(ProtocolMethod method, Arguments&&... arguments) const
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+template<typename ListenerMethod, typename... Arguments>
+void CEditorControllerBase<SuperClass, DataModelType, ListenerType>::NotifyListeners(ListenerMethod method, Arguments&&... arguments) const
 {
-    for (const auto& protocol : m_Protocols)
+    for (const auto& listener : m_Listeners)
     {
-        if (protocol)
-            (protocol.get()->*method)(arguments...);
+        if (listener)
+            (listener.get()->*method)(arguments...);
     }
 }
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-void CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::OnDataModelChanged()
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+void CEditorControllerBase<SuperClass, DataModelType, ListenerType>::OnDataModelChanged()
 {
     //to override
 }
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
-const std::shared_ptr<DataModelType>& CEditorControllerBase<SuperClass, DataModelType, ProtocolType>::GetDataModel() const noexcept
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+const std::shared_ptr<DataModelType>& CEditorControllerBase<SuperClass, DataModelType, ListenerType>::GetDataModel() const noexcept
 {
     return m_DataModel;
 }

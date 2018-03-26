@@ -21,7 +21,7 @@ SOURCES += \
     Source/CurveEditor/CurveEditorViewComponent.cpp             \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
-    Source/CurveEditor/CurveEditorProtocolBase.cpp              \
+    Source/CurveEditor/CurveEditorListenerBase.cpp              \
     Source/CurveEditor/CurveEditorFactory.cpp                   \
     Source/CurveEditor/SplineDataModel.cpp                      \
     Source/CurveEditor/SplineController.cpp                     \
@@ -32,7 +32,9 @@ SOURCES += \
     Source/CurveEditor/EditorContext.cpp                        \
     Source/CurveEditor/EditorView.cpp                           \
     Source/CurveEditor/EditorController.cpp                     \
-    Source/CurveEditor/EditorProtocol.cpp                       \
+    Source/CurveEditor/EditorListener.cpp                       \
+    Source/CurveEditor/EditorTool.cpp                           \
+    Source/CurveEditor/CurveEditorTool.cpp                      \
     Source/CurveEditor/EditorDataModel.cpp                      \
     Source/CurveEditor/Utilities.cpp                            \
     Source/CurveEditor/Style.cpp                                \
@@ -40,6 +42,7 @@ SOURCES += \
     Source/CurveEditor/Components/GridComponent.cpp             \
     Source/CurveEditor/Components/BackgroundComponent.cpp       \
     Source/CurveEditor/Components/DebugComponent.cpp            \
+    Source/CurveEditor/Components/ToolHandlerComponent.cpp      \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
 HEADERS += \
@@ -50,7 +53,7 @@ HEADERS += \
     Source/CurveEditor/CurveEditorViewComponent.h               \
     Source/CurveEditor/CurveEditorDataModel.h                   \
     Source/CurveEditor/CurveEditorController.h                  \
-    Source/CurveEditor/CurveEditorProtocolBase.h                \
+    Source/CurveEditor/CurveEditorListenerBase.h                \
     Source/CurveEditor/CurveEditorFactory.h                     \
     Source/CurveEditor/SplineDataModel.h                        \
     Source/CurveEditor/SplineController.h                       \
@@ -63,7 +66,9 @@ HEADERS += \
     Source/CurveEditor/EditorController.h                       \
     Source/CurveEditor/EditorControllerBase.h                   \
     Source/CurveEditor/EditorControllerBase.inl                 \
-    Source/CurveEditor/EditorProtocol.h                         \
+    Source/CurveEditor/EditorListener.h                         \
+    Source/CurveEditor/EditorTool.h                             \
+    Source/CurveEditor/CurveEditorTool.h                        \
     Source/CurveEditor/EditorDataModel.h                        \
     Source/CurveEditor/Utilities.h                              \
     Source/CurveEditor/Style.h                                  \
@@ -71,6 +76,7 @@ HEADERS += \
     Source/CurveEditor/Components/GridComponent.h               \
     Source/CurveEditor/Components/BackgroundComponent.h         \
     Source/CurveEditor/Components/DebugComponent.h              \
+    Source/CurveEditor/Components/ToolHandlerComponent.h        \
     Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \

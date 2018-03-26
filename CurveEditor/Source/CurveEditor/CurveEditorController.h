@@ -1,15 +1,15 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_CONTROLLER_H__)
 
-#include "EditorProtocol.h"
+#include "EditorListener.h"
 #include "CurveEditorDataModel.h"
 #include "EditorControllerBase.h"
 #include "Style.h"
 
-class ICurveEditorProtocol : public IEditorProtocol
+class ICurveEditorListener : public IEditorListener
 {
 public:
-    virtual ~ICurveEditorProtocol() = default;
+    virtual ~ICurveEditorListener() = default;
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
@@ -22,7 +22,7 @@ struct SCurveEditorStorage
     ControllerType m_Controller;
 };
 
-class CCurveEditorController final : public CEditorControllerBase<IEditorController, CCurveEditorDataModel, ICurveEditorProtocol>
+class CCurveEditorController final : public CEditorControllerBase<IEditorController, CCurveEditorDataModel, ICurveEditorListener>
 {
 public:
     using ViewHandle = size_t;
@@ -34,6 +34,9 @@ public:
 
     std::optional<SplineHandle> CreateSpline(std::string name);
     bool DestroySpline(const SplineHandle& handle);
+
+    bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept;
+    const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept;
 
     void VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept;
 
@@ -48,6 +51,7 @@ private:
 
     std::map<SplineHandle,SplineStorage> m_SplineStorages;
     ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
+    ICurveEditorToolSharedPtr m_ActiveTool;
 };
 
 #endif //__CURVE_EDITOR_CONTROLLER_H__

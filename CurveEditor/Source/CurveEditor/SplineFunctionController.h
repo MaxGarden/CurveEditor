@@ -5,7 +5,7 @@
 #include "SplineController.h"
 #include "EditorControllerBase.h"
 
-class CCurveEditorFunctionSplineController final : public CEditorControllerBase<ICurveEditorSplineController, ICurveEditorSplineDataModel, ICurveEditorSplineProtocol>
+class CCurveEditorFunctionSplineController final : public CEditorControllerBase<ICurveEditorSplineController, ICurveEditorSplineDataModel, ICurveEditorSplineListener>
 {
 public:
     CCurveEditorFunctionSplineController() = default;

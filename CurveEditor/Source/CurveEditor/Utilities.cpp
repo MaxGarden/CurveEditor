@@ -3,9 +3,7 @@
 #include <bitset>
 #include <algorithm>
 
-using namespace Utilities;
-
-void TransformDrawListChannels(ImDrawList& drawList, int begin, int end, const ImVec2& preOffset, const ImVec2& scale, const ImVec2& postOffset)
+void Utilities::TransformDrawListChannels(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& preOffset, const ImVec2& scale, const ImVec2& postOffset)
 {
     const auto innerTransform = [&vertexBuffer = drawList.VtxBuffer, &indexBuffer = drawList.IdxBuffer, &preOffset, &scale, &postOffset](const auto& cmdBuffer)
     {
@@ -28,8 +26,11 @@ void TransformDrawListChannels(ImDrawList& drawList, int begin, int end, const I
             {
                 int idx = idxRead[indexOffset + i];
                 indexMap.set(idx);
-                if (minIndex > idx) minIndex = idx;
-                if (maxIndex < idx) maxIndex = idx;
+
+                if (minIndex > idx)
+                    minIndex = idx;
+                if (maxIndex < idx)
+                    maxIndex = idx;
             }
 
             indexOffset += idxCount;
@@ -59,9 +60,9 @@ void TransformDrawListChannels(ImDrawList& drawList, int begin, int end, const I
         ++begin;
     }
 
-    for (int channelIndex = begin; channelIndex < end; ++channelIndex)
+    for (auto channelIndex = begin; channelIndex < end; ++channelIndex)
     {
-        auto& channel = drawList._Channels[channelIndex];
+        auto& channel = drawList._Channels[static_cast<int>(channelIndex)];
         innerTransform(channel.CmdBuffer);
     }
 
@@ -69,7 +70,7 @@ void TransformDrawListChannels(ImDrawList& drawList, int begin, int end, const I
         drawList.ChannelsSetCurrent(lastCurrentChannel);
 }
 
-void TranslateAndClampDrawListClipRects(ImDrawList& drawList, int begin, int end, const ImVec2& offset)
+void Utilities::TranslateAndClampDrawListClipRects(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& offset)
 {
     int lastCurrentChannel = drawList._ChannelsCurrent;
     if (lastCurrentChannel != 0)
@@ -92,9 +93,9 @@ void TranslateAndClampDrawListClipRects(ImDrawList& drawList, int begin, int end
         ++begin;
     }
 
-    for (int channelIndex = begin; channelIndex < end; ++channelIndex)
+    for (auto channelIndex = begin; channelIndex < end; ++channelIndex)
     {
-        auto& channel = drawList._Channels[channelIndex];
+        auto& channel = drawList._Channels[static_cast<int>(channelIndex)];
         innerTransform(channel.CmdBuffer);
     }
 
@@ -102,22 +103,22 @@ void TranslateAndClampDrawListClipRects(ImDrawList& drawList, int begin, int end
         drawList.ChannelsSetCurrent(lastCurrentChannel);
 }
 
-void GrowDrawListChannels(ImDrawList& drawList, int channelsCount)
+void Utilities::GrowDrawListChannels(ImDrawList& drawList, size_t channelsCount)
 {
     EDITOR_ASSERT(drawList._ChannelsCount <= channelsCount);
-    const auto localPreviousChannelsCount = drawList._Channels.Size;
-    if (localPreviousChannelsCount < channelsCount)
-        drawList._Channels.resize(channelsCount);
+    const auto previousChannelsCount = drawList._Channels.Size;
+    if (previousChannelsCount < channelsCount)
+        drawList._Channels.resize(static_cast<int>(channelsCount));
 
-    const auto localPreviousUsedChannelsCount = drawList._ChannelsCount;
-    drawList._ChannelsCount = channelsCount;
+    const auto previousUsedChannelsCount = drawList._ChannelsCount;
+    drawList._ChannelsCount = static_cast<int>(channelsCount);
 
-    if (localPreviousChannelsCount == 0)
+    if (previousChannelsCount == 0)
         memset(&drawList._Channels[0], 0, sizeof(ImDrawChannel));
 
-    for (int i = localPreviousUsedChannelsCount; i < channelsCount; i++)
+    for (int i = previousUsedChannelsCount; i < channelsCount; i++)
     {
-        if (i >= localPreviousChannelsCount)
+        if (i >= previousChannelsCount)
             new (&drawList._Channels[i]) ImDrawChannel();
         else
         {
@@ -126,10 +127,20 @@ void GrowDrawListChannels(ImDrawList& drawList, int channelsCount)
         }
         if (drawList._Channels[i].CmdBuffer.Size == 0)
         {
-            ImDrawCmd localDrawCmd;
-            localDrawCmd.ClipRect = drawList._ClipRectStack.back();
-            localDrawCmd.TextureId = drawList._TextureIdStack.back();
-            drawList._Channels[i].CmdBuffer.push_back(localDrawCmd);
+            ImDrawCmd drawCommand;
+            drawCommand.ClipRect = drawList._ClipRectStack.back();
+            drawCommand.TextureId = drawList._TextureIdStack.back();
+            drawList._Channels[i].CmdBuffer.push_back(drawCommand);
         }
     }
+}
+
+size_t Utilities::GetBackgroundChannelStart() noexcept
+{
+    return 0;
+}
+
+size_t Utilities::GetBackgroundChannelCount() noexcept
+{
+    return 1;
 }

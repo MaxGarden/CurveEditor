@@ -3,7 +3,7 @@
 
 #include "EditorController.h"
 
-template<typename SuperClass, typename DataModelType, typename ProtocolType>
+template<typename SuperClass, typename DataModelType, typename ListenerType>
 class CEditorControllerBase : public SuperClass
 {
 public:
@@ -12,22 +12,22 @@ public:
 
     virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) override;
 
-    virtual std::optional<EditorProtocolHandle> RegisterProtocol(IEditorProtocolUniquePtr&& protocol) override;
-    virtual bool UnregisterProtocol(const EditorProtocolHandle& handle) override;
+    virtual std::optional<EditorListenerHandle> RegisterListener(IEditorListenerUniquePtr&& listener) override;
+    virtual bool UnregisterListener(const EditorListenerHandle& handle) override;
 
 protected:
-    template<typename ProtocolMethod, typename... Arguments>
-    void NotifyProtocols(ProtocolMethod method, Arguments&&... arguments) const;
+    template<typename ListenerMethod, typename... Arguments>
+    void NotifyListeners(ListenerMethod method, Arguments&&... arguments) const;
 
     virtual void OnDataModelChanged();
 
     const std::shared_ptr<DataModelType>& GetDataModel() const noexcept;
 
-    using Super = CEditorControllerBase<SuperClass, DataModelType, ProtocolType>;
+    using Super = CEditorControllerBase<SuperClass, DataModelType, ListenerType>;
 
 private:
     std::shared_ptr<DataModelType> m_DataModel;
-    std::vector<std::unique_ptr<ProtocolType>> m_Protocols;
+    std::vector<std::unique_ptr<ListenerType>> m_Listeners;
 };
 
 #include "EditorControllerBase.inl"
