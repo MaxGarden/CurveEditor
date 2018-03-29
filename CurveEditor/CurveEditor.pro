@@ -66,6 +66,8 @@ HEADERS += \
     Source/CurveEditor/EditorController.h                       \
     Source/CurveEditor/EditorControllerBase.h                   \
     Source/CurveEditor/EditorControllerBase.inl                 \
+    Source/CurveEditor/EditorViewBase.h                         \
+    Source/CurveEditor/EditorViewBase.inl                       \
     Source/CurveEditor/EditorListener.h                         \
     Source/CurveEditor/EditorTool.h                             \
     Source/CurveEditor/CurveEditorTool.h                        \

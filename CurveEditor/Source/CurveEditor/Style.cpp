@@ -5,7 +5,10 @@
 
 SEditorStyle::SEditorStyle()
 {
-    DEFINE_COLOR(EditorStyleColor_Grid          , 127, 127, 127, 50);
-    DEFINE_COLOR(EditorStyleColor_SmallGrid     , 127, 127, 127, 25);
-    DEFINE_COLOR(EditorStyleColor_Background    , 32, 32, 32, 255);
+    DEFINE_COLOR(EditorStyleColor_Grid          , 127, 127, 127, 050);
+    DEFINE_COLOR(EditorStyleColor_SmallGrid     , 127, 127, 127, 025);
+    DEFINE_COLOR(EditorStyleColor_Background    , 032, 032, 032, 255);
+    DEFINE_COLOR(EditorStyleColor_Knot          , 127, 032, 032, 255);
+
+    KnotSize = { 10.0f, 10.0f };
 }

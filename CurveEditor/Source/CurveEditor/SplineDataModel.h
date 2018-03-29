@@ -16,6 +16,9 @@ public:
     virtual ~ICurveEditorSplineDataModel() = default;
 
     virtual std::vector<ax::pointf>& GetControlPoints() noexcept = 0;
+    virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
+    virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept = 0;
+
     virtual const std::string& GetName() const noexcept = 0;
 
     static ICurveEditorSplineDataModelUniquePtr Create(std::string&& name);

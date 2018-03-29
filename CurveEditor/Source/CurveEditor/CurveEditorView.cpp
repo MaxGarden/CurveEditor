@@ -40,40 +40,6 @@ void CCurveEditorViewListener::OnSplineDestroyed(const ICurveEditorSplineControl
     EDITOR_ASSERT(result);
 }
 
-void CCurveEditorViewBase::OnFrame()
-{
-    //to override
-}
-
-bool CCurveEditorViewBase::SetController(const IEditorControllerSharedPtr& controller) noexcept
-{
-    if (!controller)
-    {
-        m_Controller.reset();
-        OnControllerChanged();
-        return true;
-    }
-
-    const auto curveEditorController = std::dynamic_pointer_cast<CCurveEditorController>(controller);
-    if (!curveEditorController)
-        return false;
-
-    m_Controller = std::move(curveEditorController);
-    OnControllerChanged();
-
-    return true;
-}
-
-const CCurveEditorControllerSharedPtr& CCurveEditorViewBase::GetController() const noexcept
-{
-    return m_Controller;
-}
-
-void CCurveEditorViewBase::OnControllerChanged() noexcept
-{
-    //to override
-}
-
 CCurveEditorView::CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory) :
     m_SplineViewFactory(splineViewFactory)
 {
@@ -131,7 +97,7 @@ bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controlle
 {
     const auto previousController = GetController();
 
-    if (!CCurveEditorViewBase::SetController(controller))
+    if (!Super::SetController(controller))
         return false;
 
      if (previousController)
@@ -186,7 +152,7 @@ const CEditorCanvas& CCurveEditorView::GetCanvas() const noexcept
     return m_Canvas;
 }
 
-bool CCurveEditorView::AddView(CCurveEditorViewBaseUniquePtr&& view)
+bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
 {
     if (!view)
         return false;
@@ -201,7 +167,7 @@ bool CCurveEditorView::AddView(CCurveEditorViewBaseUniquePtr&& view)
     return true;
 }
 
-void CCurveEditorView::VisitViews(const std::function<void(CCurveEditorViewBase&)>& visitor) noexcept
+void CCurveEditorView::VisitViews(const std::function<void(IEditorView&)>& visitor) noexcept
 {
     if (!visitor)
         return;
@@ -291,9 +257,10 @@ void CCurveEditorView::ApplyCanvas()
     Utilities::TransformDrawListChannels(*drawList, 0, 1, preOffset, scale, postOffset);
     Utilities::TransformDrawListChannels(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, preOffset, scale, postOffset);
 
-    auto localClipTranslation = windowScreenPosition - windowCanvas.FromScreen(windowScreenPosition);
+    auto clipTranslation = windowScreenPosition - windowCanvas.FromScreen(windowScreenPosition);
+
     ImGui::PushClipRect(windowScreenPosition, windowScreenPosition + windowSize, false);
-    Utilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, localClipTranslation);
-    Utilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, localClipTranslation);
+    Utilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, clipTranslation);
+    Utilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, clipTranslation);
     ImGui::PopClipRect();
 }

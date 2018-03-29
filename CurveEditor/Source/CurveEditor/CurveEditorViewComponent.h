@@ -3,7 +3,7 @@
 
 #include "CurveEditorView.h"
 
-class CCurveEditorViewComponentBase : public CCurveEditorViewBase
+class CCurveEditorViewComponentBase : public CEditorViewBase<IEditorView, CCurveEditorController>
 {
 public:
     CCurveEditorViewComponentBase(const CCurveEditorView& editorView);

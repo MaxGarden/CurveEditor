@@ -8,12 +8,15 @@ enum EEditorStyleColor
     EditorStyleColor_Grid,
     EditorStyleColor_SmallGrid,
     EditorStyleColor_Background,
-    EditorStyleColor_Count
+    EditorStyleColor_Knot,
+    EditorStyleColor_Count,
 };
 
 struct SEditorStyle
 {
     ImColor Colors[EditorStyleColor_Count];
+
+    ImVec2 KnotSize;
 
     SEditorStyle();
     ~SEditorStyle() = default;

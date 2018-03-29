@@ -14,9 +14,19 @@ public:
 class ICurveEditorSplineController : public IEditorController
 {
 public:
+    using CurveConstVisitor = std::function<void(const ax::pointf&)>;
+
+public:
     virtual ~ICurveEditorSplineController() = default;
 
     virtual const std::string& GetName() const noexcept = 0;
+    virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
+
+    virtual bool VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept = 0;
+    virtual size_t GetCurvesCount() const noexcept = 0;
+
+    virtual std::optional<ax::pointf> GetKnot(size_t knotIndex) const noexcept = 0;
+    virtual size_t GetKnotsCount() const noexcept = 0;
 };
 
 class ICurveEditorSplineControllerFactory
