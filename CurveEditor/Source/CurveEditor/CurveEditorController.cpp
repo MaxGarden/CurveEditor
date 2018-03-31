@@ -9,13 +9,13 @@ CCurveEditorController::CCurveEditorController(ICurveEditorSplineControllerFacto
 {
 }
 
-std::optional<CCurveEditorController::SplineHandle> CCurveEditorController::CreateSpline(std::string name)
+std::optional<CCurveEditorController::SplineHandle> CCurveEditorController::CreateSpline(std::string_view name, unsigned int color)
 {
     const auto& dataModel = GetDataModel();
     if (!dataModel)
         return std::nullopt;
 
-    const auto splineDataModel = dataModel->AddSplineDataModel(std::move(name));
+    const auto splineDataModel = dataModel->AddSplineDataModel(name, color);
 
     if (!splineDataModel)
         return std::nullopt;
@@ -69,9 +69,9 @@ bool CCurveEditorController::DestroySpline(const SplineHandle& handle)
     return true;
 }
 
-const SEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
+const SCurveEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
 {
-    static SEditorStyle nullStyle;
+    static SCurveEditorStyle nullStyle;
 
     if (const auto& dataModel = GetDataModel())
         return dataModel->GetStyle();

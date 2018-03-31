@@ -2,6 +2,9 @@
 #include "ToolHandlerComponent.h"
 #include "CurveEditorController.h"
 #include "CurveEditorTool.h"
+#include <ImGuiInterop.h>
+
+using namespace ax::ImGuiInterop;
 
 CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(const CCurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
@@ -61,7 +64,7 @@ void CMouseButtonHandler::OnCapture(const CCurveEditorView& editorView)
     const auto& windowCanvas = editorView.GetCanvas().GetWindowCanvas();
 
     m_ClickPositionBuffer = io.MouseClickedPos[m_ButtonIndex];
-    io.MouseClickedPos[m_ButtonIndex] = windowCanvas.FromScreen(m_ClickPositionBuffer);
+    io.MouseClickedPos[m_ButtonIndex] = to_imvec(windowCanvas.FromScreen(to_pointf(m_ClickPositionBuffer)));
 }
 
 void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)

@@ -2,12 +2,12 @@
 #include "CurveEditorDataModel.h"
 #include "SplineDataModel.h"
 
-SEditorStyle& CCurveEditorDataModel::GetStyle() noexcept
+SCurveEditorStyle& CCurveEditorDataModel::GetStyle() noexcept
 {
     return m_EditorStyle;
 }
 
-const SEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
+const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
 {
     return m_EditorStyle;
 }
@@ -24,9 +24,9 @@ static const auto RemoveFromContainer(ContainerType& container, const ValueType&
     return true;
 }
 
-ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(std::string&& name)
+ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(std::string_view name, unsigned int color)
 {
-    auto splineDataModel = ICurveEditorSplineDataModel::Create(std::move(name));
+    auto splineDataModel = ICurveEditorSplineDataModel::Create(name, color);
     if (!splineDataModel)
         return nullptr;
 

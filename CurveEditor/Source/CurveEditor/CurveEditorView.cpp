@@ -9,6 +9,7 @@
 #include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
+using namespace ax::ImGuiInterop;
 
 class CCurveEditorViewListener final : public CCurveEditorListenerBase
 {
@@ -60,11 +61,6 @@ void CCurveEditorView::OnFrameBegin()
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::Begin("CurveEditorView", nullptr, ImVec2(0.0f, 0.0f), 0.0f, editorWindowFlags);
-
-    //only for tests
-    //begin
-    m_Canvas.GetWindowCanvas() = CWindowCanvas(ImGui::GetWindowPos(), ImGui::GetWindowSize(), ImVec2(1, 1), ImGui::GetWindowSize());
-    //end
 
     SetWindowCanvas();
 }
@@ -169,14 +165,7 @@ bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
 
 void CCurveEditorView::VisitViews(const std::function<void(IEditorView&)>& visitor) noexcept
 {
-    if (!visitor)
-        return;
-
-    for (const auto& view : m_Views)
-    {
-        if (view)
-            visitor(*view);
-    }
+    VisitContainer(m_Views, visitor);
 }
 
 void CCurveEditorView::VisitSplineViews(const std::function<void(ICurveEditorSplineView&)>& visitor) noexcept
@@ -232,7 +221,7 @@ void CCurveEditorView::SetWindowCanvas()
 {
     auto& windowCanvas = GetCanvas().GetWindowCanvas();
 
-    windowCanvas = { ImGui::GetWindowPos(), ImGui::GetWindowSize(), ImVec2{ 1.0f, 1.0f }, {} };
+    windowCanvas = CWindowCanvas{ to_pointf(ImGui::GetWindowPos()), to_sizef(ImGui::GetWindowSize()), ax::pointf{ 1.0f, 1.0f }, {} };
 }
 
 void CCurveEditorView::ApplyCanvas()
@@ -244,23 +233,24 @@ void CCurveEditorView::ApplyCanvas()
 
     const auto& windowCanvas = GetCanvas().GetWindowCanvas();
 
-    const auto& windowScreenPosition = windowCanvas.GetWindowScreenPosition();
-    const auto& windowSize = windowCanvas.GetWindowScreenSize();
-    const auto& clientOrigin = windowCanvas.GetClientOrigin();
+    const auto windowScreenPosition = to_imvec(windowCanvas.GetWindowScreenPosition());
+    const auto windowSize = to_imvec(windowCanvas.GetWindowScreenSize());
+    const auto clientOrigin = to_imvec(windowCanvas.GetClientOrigin());
 
     const auto preOffset = ImVec2{ 0, 0 };
     const auto postOffset = windowScreenPosition + clientOrigin;
     const auto scale = ImVec2{ 1.0f, 1.0f };
 
-    const auto backgroundChannelStart = Utilities::GetBackgroundChannelStart();
+    const auto backgroundChannelStart = ImGuiUtilities::GetBackgroundChannelStart();
 
-    Utilities::TransformDrawListChannels(*drawList, 0, 1, preOffset, scale, postOffset);
-    Utilities::TransformDrawListChannels(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, preOffset, scale, postOffset);
+    ImGuiUtilities::TransformDrawListChannels(*drawList, 0, 1, preOffset, scale, postOffset);
+    ImGuiUtilities::TransformDrawListChannels(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, preOffset, scale, postOffset);
 
-    auto clipTranslation = windowScreenPosition - windowCanvas.FromScreen(windowScreenPosition);
+    const auto windowScreenPositionPoint = windowCanvas.GetWindowScreenPosition();
+    auto clipTranslation = to_imvec(windowScreenPositionPoint - windowCanvas.FromScreen(windowScreenPositionPoint));
 
     ImGui::PushClipRect(windowScreenPosition, windowScreenPosition + windowSize, false);
-    Utilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, clipTranslation);
-    Utilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, clipTranslation);
+    ImGuiUtilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, clipTranslation);
+    ImGuiUtilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, clipTranslation);
     ImGui::PopClipRect();
 }

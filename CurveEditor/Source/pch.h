@@ -7,6 +7,7 @@
 #include <functional>
 #include <optional>
 #include <map>
+#include <array>
 
 #define EDITOR_ASSERT(expression) assert(expression)
 

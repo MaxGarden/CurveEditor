@@ -32,7 +32,7 @@ public:
     CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory);
     virtual ~CCurveEditorController() override final = default;
 
-    std::optional<SplineHandle> CreateSpline(std::string name);
+    std::optional<SplineHandle> CreateSpline(std::string_view name, unsigned int color);
     bool DestroySpline(const SplineHandle& handle);
 
     bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept;
@@ -40,7 +40,7 @@ public:
 
     void VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept;
 
-    const SEditorStyle& GetEditorStyle() const noexcept;
+    const SCurveEditorStyle& GetEditorStyle() const noexcept;
 
 private:
     virtual void OnDataModelChanged() override final;

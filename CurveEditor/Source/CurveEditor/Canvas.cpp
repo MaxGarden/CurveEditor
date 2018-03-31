@@ -1,9 +1,5 @@
 #include "pch.h"
 #include "Canvas.h"
-#include <ImGuiInterop.h>
-
-using namespace ImGuiInterop;
-using namespace ax::ImGuiInterop;
 
 CWindowCanvas::CWindowCanvas() noexcept :
     m_WindowScreenPosition(0, 0),
@@ -15,7 +11,7 @@ CWindowCanvas::CWindowCanvas() noexcept :
 {
 }
 
-CWindowCanvas::CWindowCanvas(const ImVec2& position, const ImVec2& size, const ImVec2& zoom, const ImVec2& origin) noexcept :
+CWindowCanvas::CWindowCanvas(const ax::pointf& position, const ax::sizef& size, const ax::pointf& zoom, const ax::pointf& origin) noexcept :
     m_WindowScreenPosition(position),
     m_WindowScreenSize(size),
     m_ClientSize(size),
@@ -34,42 +30,42 @@ CWindowCanvas::CWindowCanvas(const ImVec2& position, const ImVec2& size, const I
     m_InvertZoom.x = m_Zoom.x ? 1.0f / m_Zoom.x : 1.0f;
     m_InvertZoom.y = m_Zoom.y ? 1.0f / m_Zoom.y : 1.0f;
 
-    EDITOR_ASSERT(m_WindowScreenSize.x > 0 && m_WindowScreenSize.y > 0);
-    m_WindowScreenSize.x = std::max(1.0f, m_WindowScreenSize.x);
-    m_WindowScreenSize.y = std::max(1.0f, m_WindowScreenSize.y);
+    EDITOR_ASSERT(m_WindowScreenSize.w > 0 && m_WindowScreenSize.h > 0);
+    m_WindowScreenSize.w = std::max(1.0f, m_WindowScreenSize.w);
+    m_WindowScreenSize.h = std::max(1.0f, m_WindowScreenSize.h);
 
     if (m_InvertZoom.x > 1.0f)
-        m_ClientSize.x *= m_InvertZoom.x;
+        m_ClientSize.w *= m_InvertZoom.x;
     if (m_InvertZoom.y > 1.0f)
-        m_ClientSize.y *= m_InvertZoom.y;
+        m_ClientSize.h *= m_InvertZoom.y;
 }
 
-const ImVec2& CWindowCanvas::GetWindowScreenPosition() const noexcept
+const ax::pointf& CWindowCanvas::GetWindowScreenPosition() const noexcept
 {
     return m_WindowScreenPosition;
 }
 
-const ImVec2& CWindowCanvas::GetWindowScreenSize() const noexcept
+const ax::sizef& CWindowCanvas::GetWindowScreenSize() const noexcept
 {
     return m_WindowScreenSize;
 }
 
-const ImVec2& CWindowCanvas::GetClientOrigin() const noexcept
+const ax::pointf& CWindowCanvas::GetClientOrigin() const noexcept
 {
     return m_ClientOrigin;
 }
 
-const ImVec2& CWindowCanvas::GetClientSize() const noexcept
+const ax::sizef& CWindowCanvas::GetClientSize() const noexcept
 {
     return m_ClientSize;
 }
 
-const ImVec2& CWindowCanvas::GetZoom() const noexcept
+const ax::pointf& CWindowCanvas::GetZoom() const noexcept
 {
     return m_Zoom;
 }
 
-const ImVec2& CWindowCanvas::GetInvertZoom() const noexcept
+const ax::pointf& CWindowCanvas::GetInvertZoom() const noexcept
 {
     return m_InvertZoom;
 }
@@ -77,39 +73,39 @@ const ImVec2& CWindowCanvas::GetInvertZoom() const noexcept
 ax::rectf CWindowCanvas::CalculateVisibleBounds(bool zoom) const noexcept
 {
     return ax::rectf(
-        to_pointf(FromScreen(m_WindowScreenPosition, zoom)),
-        to_pointf(FromScreen(m_WindowScreenPosition + m_WindowScreenSize, zoom)));
+        FromScreen(m_WindowScreenPosition, zoom),
+        FromScreen(m_WindowScreenPosition + m_WindowScreenSize, zoom));
 }
 
-ImVec2 CWindowCanvas::FromScreen(const ImVec2& point, bool zoom) const noexcept
+ax::pointf CWindowCanvas::FromScreen(const ax::pointf& point, bool zoom) const noexcept
 {
-    return ImVec2(
+    return ax::pointf(
         (point.x - m_WindowScreenPosition.x - m_ClientOrigin.x) * (zoom ? m_InvertZoom.x : 1.0f),
         (point.y - m_WindowScreenPosition.y - m_ClientOrigin.y) * (zoom ? m_InvertZoom.y : 1.0f));
 }
 
-ImVec2 CWindowCanvas::ToScreen(const ImVec2& point) const noexcept
+ax::pointf CWindowCanvas::ToScreen(const ax::pointf& point) const noexcept
 {
-    return ImVec2(
+    return ax::pointf(
         (point.x + m_ClientOrigin.x + m_WindowScreenPosition.x),
         (point.y + m_ClientOrigin.y + m_WindowScreenPosition.y));
 }
 
-ImVec2 CWindowCanvas::FromClient(const ImVec2& point) const noexcept
+ax::pointf CWindowCanvas::FromClient(const ax::pointf& point) const noexcept
 {
-    return ImVec2(
+    return ax::pointf(
         (point.x - m_ClientOrigin.x),
         (point.y - m_ClientOrigin.y));
 }
 
-ImVec2 CWindowCanvas::ToClient(const ImVec2& point) const noexcept
+ax::pointf CWindowCanvas::ToClient(const ax::pointf& point) const noexcept
 {
-    return ImVec2(
+    return ax::pointf(
         (point.x + m_ClientOrigin.x),
         (point.y + m_ClientOrigin.y));
 }
 
-CEditorCanvas::CEditorCanvas(const ImVec2& unitScaler) :
+CEditorCanvas::CEditorCanvas(const ax::pointf& unitScaler) :
     m_UnitScaler(unitScaler)
 {
     EDITOR_ASSERT(m_UnitScaler.x != 0.0f && m_UnitScaler.y != 0.0f);
@@ -121,12 +117,12 @@ CEditorCanvas::CEditorCanvas(const ImVec2& unitScaler) :
         m_UnitScaler.y = 1.0f;
 }
 
-const ImVec2& CEditorCanvas::GetUnitScaler() const noexcept
+const ax::pointf& CEditorCanvas::GetUnitScaler() const noexcept
 {
     return m_UnitScaler;
 }
 
-void CEditorCanvas::SetUnitScaler(const ImVec2& unitScaler) noexcept
+void CEditorCanvas::SetUnitScaler(const ax::pointf& unitScaler) noexcept
 {
     EDITOR_ASSERT(unitScaler.x != 0.0f && unitScaler.y != 0.0f);
     if (unitScaler.x == 0.0f || unitScaler.y == 0.0f)
@@ -145,7 +141,7 @@ const CWindowCanvas& CEditorCanvas::GetWindowCanvas() const noexcept
     return m_WindowCanvas;
 }
 
-ImVec2 CEditorCanvas::CalculateScaledUnit() const noexcept
+ax::pointf CEditorCanvas::CalculateScaledUnit() const noexcept
 {
     const auto& zoom = m_WindowCanvas.GetZoom();
 
@@ -162,29 +158,29 @@ ImVec2 CEditorCanvas::CalculateScaledUnit() const noexcept
         return result;
     };
 
-    return ImVec2(
+    return ax::pointf(
         calculate(m_UnitScaler.x, zoom.x),
         calculate(m_UnitScaler.y, zoom.y));
 }
 
-ImVec2 CEditorCanvas::FromEditor(const ImVec2& value) const noexcept
-{
-    const auto& zoom = m_WindowCanvas.GetZoom();
-
-    return ImVec2(
-        (value.x * m_UnitScaler.x * zoom.x),
-        (-value.y * m_UnitScaler.y * zoom.y));
-}
-
-ImVec2 CEditorCanvas::ToEditor(const ImVec2& position) const noexcept
+ax::pointf CEditorCanvas::FromEditor(const ax::pointf& value) const noexcept
 {
     const auto& zoom = m_WindowCanvas.GetZoom();
 
     EDITOR_ASSERT(zoom.x != 0.0f && zoom.y != 0.0f);
     if (zoom.x == 0.0f || zoom.y == 0.0f)
-        return ImVec2();
+        return ax::pointf();
 
-    return ImVec2(
-        (position.x / m_UnitScaler.x / zoom.x),
-        (-position.y / m_UnitScaler.y / zoom.y));
+    return ax::pointf(
+        (value.x / m_UnitScaler.x / zoom.x),
+        (-value.y / m_UnitScaler.y / zoom.y));
+}
+
+ax::pointf CEditorCanvas::ToEditor(const ax::pointf& position) const noexcept
+{
+    const auto& zoom = m_WindowCanvas.GetZoom();
+
+    return ax::pointf(
+        (position.x * m_UnitScaler.x * zoom.x),
+        (-position.y * m_UnitScaler.y * zoom.y));
 }

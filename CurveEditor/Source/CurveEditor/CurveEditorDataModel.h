@@ -11,16 +11,16 @@ public:
     CCurveEditorDataModel() = default;
     virtual ~CCurveEditorDataModel() override final = default;
 
-    SEditorStyle& GetStyle() noexcept;
-    const SEditorStyle& GetStyle() const noexcept;
+    SCurveEditorStyle& GetStyle() noexcept;
+    const SCurveEditorStyle& GetStyle() const noexcept;
 
-    ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string&& name);
+    ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color);
     bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
 
     const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept;
 
 private:
-    SEditorStyle m_EditorStyle;
+    SCurveEditorStyle m_EditorStyle;
     std::vector<ICurveEditorSplineDataModelSharedPtr> m_SplinesDataModels;
 };
 

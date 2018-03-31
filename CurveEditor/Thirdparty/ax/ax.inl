@@ -18,13 +18,13 @@
 template <typename T, typename P>
 inline ax::basic_point<T> operator + (const ax::basic_size<P>& lhs, const ax::basic_point<T>& rhs)
 {
-    return static_cast<basic_point<T>>(lhs) + rhs;
+    return static_cast<ax::basic_point<T>>(lhs) + rhs;
 }
 
 template <typename T, typename P>
 inline ax::basic_point<T> operator + (const ax::basic_point<T>& lhs, const ax::basic_size<P>& rhs)
 {
-    return lhs + static_cast<basic_point<T>>(rhs);
+    return lhs + static_cast<ax::basic_point<T>>(rhs);
 }
 
 

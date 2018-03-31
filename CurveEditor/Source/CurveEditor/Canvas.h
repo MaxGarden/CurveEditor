@@ -1,58 +1,57 @@
 #pragma  once
 #if !defined(__CANVAS_H__)
 
-#include <imgui.h>
 #include <ax/ax.h>
 
 class CWindowCanvas
 {
 public:
     CWindowCanvas() noexcept;
-    CWindowCanvas(const ImVec2& position, const ImVec2& size, const ImVec2& scale, const ImVec2& origin) noexcept;
+    CWindowCanvas(const ax::pointf& position, const ax::sizef& size, const ax::pointf& scale, const ax::pointf& origin) noexcept;
 
-    const ImVec2& GetWindowScreenPosition() const noexcept;
-    const ImVec2& GetWindowScreenSize() const noexcept;
-    const ImVec2& GetClientOrigin() const noexcept;
-    const ImVec2& GetClientSize() const noexcept;
-    const ImVec2& GetZoom() const noexcept;
-    const ImVec2& GetInvertZoom() const noexcept;
+    const ax::pointf& GetWindowScreenPosition() const noexcept;
+    const ax::sizef& GetWindowScreenSize() const noexcept;
+    const ax::pointf& GetClientOrigin() const noexcept;
+    const ax::sizef& GetClientSize() const noexcept;
+    const ax::pointf& GetZoom() const noexcept;
+    const ax::pointf& GetInvertZoom() const noexcept;
 
     ax::rectf CalculateVisibleBounds(bool zoom = false) const noexcept;
 
-    ImVec2 FromScreen(const ImVec2& point, bool zoom = false) const noexcept;
-    ImVec2 ToScreen(const ImVec2& point) const noexcept;
-    ImVec2 FromClient(const ImVec2& point) const noexcept;
-    ImVec2 ToClient(const ImVec2& point) const noexcept;
+    ax::pointf FromScreen(const ax::pointf& point, bool zoom = false) const noexcept;
+    ax::pointf ToScreen(const ax::pointf& point) const noexcept;
+    ax::pointf FromClient(const ax::pointf& point) const noexcept;
+    ax::pointf ToClient(const ax::pointf& point) const noexcept;
 
 private:
-    ImVec2 m_WindowScreenPosition;
-    ImVec2 m_WindowScreenSize;
-    ImVec2 m_ClientOrigin;
-    ImVec2 m_ClientSize;
-    ImVec2 m_Zoom;
-    ImVec2 m_InvertZoom;
+    ax::pointf m_WindowScreenPosition;
+    ax::sizef m_WindowScreenSize;
+    ax::pointf m_ClientOrigin;
+    ax::sizef m_ClientSize;
+    ax::pointf m_Zoom;
+    ax::pointf m_InvertZoom;
 
 };
 
 class CEditorCanvas
 {
 public:
-    CEditorCanvas(const ImVec2& unitScaler);
+    CEditorCanvas(const ax::pointf& unitScaler);
     ~CEditorCanvas() = default;
 
-    const ImVec2& GetUnitScaler() const noexcept;
-    void SetUnitScaler(const ImVec2& unitScaler) noexcept;
+    const ax::pointf& GetUnitScaler() const noexcept;
+    void SetUnitScaler(const ax::pointf& unitScaler) noexcept;
 
     CWindowCanvas& GetWindowCanvas() noexcept;
     const CWindowCanvas& GetWindowCanvas() const noexcept;
 
-    ImVec2 CalculateScaledUnit() const noexcept;
+    ax::pointf CalculateScaledUnit() const noexcept;
 
-    ImVec2 FromEditor(const ImVec2& value) const noexcept;
-    ImVec2 ToEditor(const ImVec2& position) const noexcept;
+    ax::pointf FromEditor(const ax::pointf& position) const noexcept;
+    ax::pointf ToEditor(const ax::pointf& value) const noexcept;
 
 private:
-    ImVec2 m_UnitScaler;
+    ax::pointf m_UnitScaler;
     CWindowCanvas m_WindowCanvas;
 };
 

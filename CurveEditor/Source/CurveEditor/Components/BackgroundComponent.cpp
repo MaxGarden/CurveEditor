@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "BackgroundComponent.h"
-#include <ImGuiInterop.h>
 #include "CurveEditorController.h"
+#include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
+using namespace ax::ImGuiInterop;
 
 CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(const CCurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
@@ -17,10 +18,10 @@ void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, CCurveEd
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
 
-    const auto& windowPosition = windowCanvas.GetWindowScreenPosition();
-    const auto& windowSize = windowCanvas.GetWindowScreenSize();
+    const auto& windowPosition = to_imvec(windowCanvas.GetWindowScreenPosition());
+    const auto& windowSize = to_imvec(windowCanvas.GetWindowScreenSize());
 
-    const auto& backgroundColor = style.Colors[EditorStyleColor_Background];
+    const auto& backgroundColor = style.Colors[CurveEditorStyleColor_Background];
 
     drawList.AddRectFilled(windowPosition, windowPosition + windowSize, backgroundColor);
 }

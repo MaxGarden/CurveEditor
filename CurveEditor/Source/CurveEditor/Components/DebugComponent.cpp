@@ -13,8 +13,10 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, CCurveEditorController& ed
     ImGui::SetWindowPos({});
     ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());
 
+    ImGui::ColorEdit4("Spline color", &m_SplineColor.Value.x);
+
     if (ImGui::Button("Add Spline"))
-        editorController.CreateSpline(m_SplineName);
+        editorController.CreateSpline(m_SplineName, static_cast<ImU32>(m_SplineColor));
 
     ImGui::End();
 }

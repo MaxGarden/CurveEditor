@@ -4,6 +4,7 @@
 #include "CurveEditorController.h"
 
 using namespace ImGuiInterop;
+using namespace ax::ImGuiInterop;
 
 CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
@@ -23,11 +24,11 @@ void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorCo
 
     const auto gridSize = editorCanvas.CalculateScaledUnit();
 
-    const auto& windowPosition = windowCanvas.GetWindowScreenPosition();
-    const auto& windowSize = windowCanvas.GetWindowScreenSize();
+    const auto& windowPosition = to_imvec(windowCanvas.GetWindowScreenPosition());
+    const auto& windowSize = to_imvec(windowCanvas.GetWindowScreenSize());
 
-    const auto& gridColor = style.Colors[EditorStyleColor_Grid];
-    const auto& smallGridColor = style.Colors[EditorStyleColor_SmallGrid];
+    const auto& gridColor = style.Colors[CurveEditorStyleColor_Grid];
+    const auto& smallGridColor = style.Colors[CurveEditorStyleColor_SmallGrid];
 
     for (float x = -gridSize.x; x < windowSize.x + gridSize.x; x += gridSize.x)
     {

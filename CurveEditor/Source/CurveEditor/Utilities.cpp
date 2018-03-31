@@ -3,7 +3,7 @@
 #include <bitset>
 #include <algorithm>
 
-void Utilities::TransformDrawListChannels(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& preOffset, const ImVec2& scale, const ImVec2& postOffset)
+void ImGuiUtilities::TransformDrawListChannels(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& preOffset, const ImVec2& scale, const ImVec2& postOffset)
 {
     const auto innerTransform = [&vertexBuffer = drawList.VtxBuffer, &indexBuffer = drawList.IdxBuffer, &preOffset, &scale, &postOffset](const auto& cmdBuffer)
     {
@@ -70,7 +70,7 @@ void Utilities::TransformDrawListChannels(ImDrawList& drawList, size_t begin, si
         drawList.ChannelsSetCurrent(lastCurrentChannel);
 }
 
-void Utilities::TranslateAndClampDrawListClipRects(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& offset)
+void ImGuiUtilities::TranslateAndClampDrawListClipRects(ImDrawList& drawList, size_t begin, size_t end, const ImVec2& offset)
 {
     int lastCurrentChannel = drawList._ChannelsCurrent;
     if (lastCurrentChannel != 0)
@@ -103,7 +103,7 @@ void Utilities::TranslateAndClampDrawListClipRects(ImDrawList& drawList, size_t 
         drawList.ChannelsSetCurrent(lastCurrentChannel);
 }
 
-void Utilities::GrowDrawListChannels(ImDrawList& drawList, size_t channelsCount)
+void ImGuiUtilities::GrowDrawListChannels(ImDrawList& drawList, size_t channelsCount)
 {
     EDITOR_ASSERT(drawList._ChannelsCount <= channelsCount);
     const auto previousChannelsCount = drawList._Channels.Size;
@@ -135,12 +135,12 @@ void Utilities::GrowDrawListChannels(ImDrawList& drawList, size_t channelsCount)
     }
 }
 
-size_t Utilities::GetBackgroundChannelStart() noexcept
+size_t ImGuiUtilities::GetBackgroundChannelStart() noexcept
 {
     return 0;
 }
 
-size_t Utilities::GetBackgroundChannelCount() noexcept
+size_t ImGuiUtilities::GetBackgroundChannelCount() noexcept
 {
     return 1;
 }

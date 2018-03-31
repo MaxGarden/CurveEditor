@@ -20,6 +20,8 @@ public:
     virtual ~ICurveEditorSplineController() = default;
 
     virtual const std::string& GetName() const noexcept = 0;
+    virtual unsigned int GetColor() const noexcept = 0;
+
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
 
     virtual bool VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept = 0;

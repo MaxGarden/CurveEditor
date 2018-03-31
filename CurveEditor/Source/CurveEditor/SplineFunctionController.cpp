@@ -11,6 +11,14 @@ const std::string& CCurveEditorFunctionSplineController::GetName() const noexcep
     return null;
 }
 
+unsigned int CCurveEditorFunctionSplineController::GetColor() const noexcept
+{
+    if (const auto dataModel = GetDataModel())
+        return dataModel->GetColor();
+
+    return 0;
+}
+
 const std::vector<ax::pointf>& CCurveEditorFunctionSplineController::GetControlPoints() const noexcept
 {
     static const std::vector<ax::pointf> null;
@@ -46,7 +54,7 @@ size_t CCurveEditorFunctionSplineController::GetCurvesCount() const noexcept
     if (controlPointsCount < 4)
         return 0;
 
-    return GetControlPoints().size() / 4 + 1;
+    return 1 + (controlPointsCount - 4) / 3;
 }
 
 void CCurveEditorFunctionSplineController::OnSplineModified() noexcept

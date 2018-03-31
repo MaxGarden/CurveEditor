@@ -3,12 +3,13 @@
 
 #define DEFINE_COLOR(color, red, green, blue, alpha) Colors[color] = ImColor(red, green, blue, alpha)
 
-SEditorStyle::SEditorStyle()
+SCurveEditorStyle::SCurveEditorStyle()
 {
-    DEFINE_COLOR(EditorStyleColor_Grid          , 127, 127, 127, 050);
-    DEFINE_COLOR(EditorStyleColor_SmallGrid     , 127, 127, 127, 025);
-    DEFINE_COLOR(EditorStyleColor_Background    , 032, 032, 032, 255);
-    DEFINE_COLOR(EditorStyleColor_Knot          , 127, 032, 032, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_Grid          , 127, 127, 127, 050);
+    DEFINE_COLOR(CurveEditorStyleColor_SmallGrid     , 127, 127, 127, 025);
+    DEFINE_COLOR(CurveEditorStyleColor_Background    , 032, 032, 032, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_Knot          , 127, 032, 032, 255);
 
     KnotSize = { 10.0f, 10.0f };
+    SplineThickness = 3.0f;
 }

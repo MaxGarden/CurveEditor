@@ -39,7 +39,7 @@ private:
     void ApplyCanvas();
 
 private:
-    CEditorCanvas m_Canvas = CEditorCanvas(ImVec2(100.0f, 100.0f));
+    CEditorCanvas m_Canvas = CEditorCanvas({ 100.0f, 100.0f });
 
     std::vector<IEditorViewUniquePtr> m_Views;
     std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;

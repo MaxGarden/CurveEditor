@@ -3,23 +3,24 @@
 
 #include <imgui.h>
 
-enum EEditorStyleColor
+enum ECurveEditorStyleColor
 {
-    EditorStyleColor_Grid,
-    EditorStyleColor_SmallGrid,
-    EditorStyleColor_Background,
-    EditorStyleColor_Knot,
-    EditorStyleColor_Count,
+    CurveEditorStyleColor_Grid,
+    CurveEditorStyleColor_SmallGrid,
+    CurveEditorStyleColor_Background,
+    CurveEditorStyleColor_Knot,
+    CurveEditorStyleColor_Count
 };
 
-struct SEditorStyle
+struct SCurveEditorStyle
 {
-    ImColor Colors[EditorStyleColor_Count];
+    ImColor Colors[CurveEditorStyleColor_Count];
 
     ImVec2 KnotSize;
+    float SplineThickness;
 
-    SEditorStyle();
-    ~SEditorStyle() = default;
+    SCurveEditorStyle();
+    ~SCurveEditorStyle() = default;
 };
 
 #endif //__STYLE_H__

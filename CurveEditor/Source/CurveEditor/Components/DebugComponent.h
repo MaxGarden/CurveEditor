@@ -14,6 +14,7 @@ protected:
 
 private:
     std::string m_SplineName = std::string(128, '\0');
+    ImColor m_SplineColor = ImColor(1.0f, 0.0f, 0.0f);
 };
 
 #endif //__CURVE_EDITOR_DEBUG_COMPONENT_H__
