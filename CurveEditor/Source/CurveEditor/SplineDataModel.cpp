@@ -26,7 +26,9 @@ CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(std::string_view name, 
     m_Color(color)
 {
     //for tests
-    m_ControlPoints = { { 1.0f, -1.0f }, { 1.01f, -2.0f }, { 1.0f, -1.0f }, { 2.0f, -3.0f } };
+    m_ControlPoints = { { 1.0f, -1.0f }, { 1.01f, -2.0f }, { 1.0f, -1.0f }, { 2.0f, -3.0f },
+                        { 2.0f, -1.0f }, { 2.01f, -2.0f }, { 3.0f, -1.0f },
+                        { 3.0f, -1.0f }, { 3.01f, -2.0f }, { 4.0f, -1.0f } };
 }
 
 std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() noexcept

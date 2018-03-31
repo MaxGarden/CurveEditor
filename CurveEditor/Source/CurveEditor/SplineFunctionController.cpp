@@ -29,13 +29,13 @@ const std::vector<ax::pointf>& CCurveEditorFunctionSplineController::GetControlP
     return null;
 }
 
-bool CCurveEditorFunctionSplineController::VisitCurvePoints(size_t index, const CurveConstVisitor& visitor) const noexcept
+bool CCurveEditorFunctionSplineController::VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept
 {
     if (!visitor)
         return false;
 
     const auto& controlPoints = GetControlPoints();
-    const auto actualIndex = index * 4;
+    const auto actualIndex = curveIndex * 3;
 
     if (actualIndex >= controlPoints.size())
         return false;
