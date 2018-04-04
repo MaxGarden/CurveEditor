@@ -27,8 +27,8 @@ protected:
     virtual void OnControllerChanged() noexcept override final;
 
 private:
-    void VisitViews(const std::function<void(IEditorView&)>& visitor) noexcept;
-    void VisitSplineViews(const std::function<void(ICurveEditorSplineView&)>& visitor) noexcept;
+    void VisitViews(const VisitorType<IEditorView>& visitor) noexcept;
+    void VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept;
 
     void RecreateSplineViews();
 

@@ -3,7 +3,6 @@
 #include "SplineDataModel.h"
 #include "SplineController.h"
 #include "CurveEditorView.h"
-#include "Utilities.h"
 #include <imgui/imgui.h>
 #include <ImGuiInterop.h>
 
@@ -55,19 +54,6 @@ CCurveEditorKnotView::CCurveEditorKnotView(CCurveEditorView& editorView, size_t 
 {
 }
 
-void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
-{
-    const auto bounds = GetBounds();
-    EDITOR_ASSERT(bounds);
-    if (!bounds)
-        return;
-
-    const auto& editorStyle = GetEditorStyle();
-    const auto& fillColor = editorStyle.Colors[CurveEditorStyleColor_Knot];
-
-    drawList.AddRectFilled(to_imvec(bounds->top_left()), to_imvec(bounds->bottom_right()), fillColor);
-}
-
 std::optional<ax::pointf> CCurveEditorKnotView::GetPosition() const noexcept
 {
     if (const auto controller = GetController())
@@ -86,6 +72,19 @@ std::optional<ax::pointf> CCurveEditorKnotView::GetEditorPosition() const noexce
     return editorCanvas.ToEditor(*position);
 }
 
+void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController&)
+{
+    const auto bounds = GetBounds();
+    EDITOR_ASSERT(bounds);
+    if (!bounds)
+        return;
+
+    const auto& editorStyle = GetEditorStyle();
+    const auto& fillColor = editorStyle.Colors[CurveEditorStyleColor_Knot];
+
+    drawList.AddRectFilled(to_imvec(bounds->top_left()), to_imvec(bounds->bottom_right()), fillColor);
+}
+
 std::optional<ax::rectf> CCurveEditorKnotView::GetBounds() const noexcept
 {
     const auto editorPosition = GetEditorPosition();
@@ -96,34 +95,44 @@ std::optional<ax::rectf> CCurveEditorKnotView::GetBounds() const noexcept
     return ax::rectf{ *editorPosition - halfKnotSize, *editorPosition + halfKnotSize };
 }
 
-CCurveEditorCurveView::CCurveEditorCurveView(CCurveEditorView& editorView, size_t curveIndex) :
+CCurveEditorTangentView::CCurveEditorTangentView(CCurveEditorView& editorView, CCurveEditorCurveView& curveView, size_t anchorPointIndex, size_t tangentPointIndex) :
     CCurveEditorSplineViewBase(editorView),
-    m_CurveIndex(curveIndex)
+    m_CurveView(curveView),
+    m_AnchorControlPointIndex(anchorPointIndex),
+    m_TangentControlPointIndex(tangentPointIndex)
 {
 }
 
-void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
+void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController&)
 {
-    const auto controlPoints = GetEditorControlPointsPositions();
+    const auto controlPoints = m_CurveView.GetEditorControlPointsPositions();
     EDITOR_ASSERT(controlPoints);
     if (!controlPoints)
         return;
 
-    EDITOR_ASSERT(controlPoints->size() == 4);
-    if (controlPoints->size() != 4)
+    EDITOR_ASSERT(m_AnchorControlPointIndex < controlPoints->size() && m_TangentControlPointIndex < controlPoints->size());
+    if (m_TangentControlPointIndex >= controlPoints->size())
         return;
 
-    const auto& editorStyle = GetEditorStyle();
-    const auto splineThickness = editorStyle.SplineThickness;
+    const auto& style = GetEditorStyle();
+    const auto tangentPosition = to_imvec(controlPoints->at(m_TangentControlPointIndex));
 
-    const auto curveColor = controller.GetColor();
-
-    const auto getControlPoint = [&controlPoints](size_t index)
+    if (m_AnchorControlPointIndex < controlPoints->size())
     {
-        return to_imvec(controlPoints->at(index));
-    };
+        const auto anchorPosition = to_imvec(controlPoints->at(m_AnchorControlPointIndex));
+        drawList.AddLine(anchorPosition, tangentPosition, style.Colors[CurveEditorStyleColor_TangentLine], style.TangentLineThickness);
+    }
 
-    drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
+    drawList.AddCircleFilled(tangentPosition, style.TangentMarkerRadius, style.Colors[CurveEditorStyleColor_TangentMarker]);
+}
+
+CCurveEditorCurveView::CCurveEditorCurveView(CCurveEditorView& editorView, size_t curveIndex) :
+    CCurveEditorSplineViewBase(editorView),
+    m_CurveIndex(curveIndex)
+{
+    m_Tangents.reserve(2);
+    m_Tangents.emplace_back(std::make_unique<CCurveEditorTangentView>(editorView, *this, 0u, 1u));
+    m_Tangents.emplace_back(std::make_unique<CCurveEditorTangentView>(editorView, *this, 3u, 2u));
 }
 
 std::optional<CCurveEditorCurveView::ControlPoints> CCurveEditorCurveView::GetControlPointsPositions() const noexcept
@@ -162,12 +171,54 @@ std::optional<CCurveEditorCurveView::ControlPoints> CCurveEditorCurveView::GetEd
     return controlPoints;
 }
 
+void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
+{
+    const auto controlPoints = GetEditorControlPointsPositions();
+    EDITOR_ASSERT(controlPoints);
+    if (!controlPoints)
+        return;
+
+    EDITOR_ASSERT(controlPoints->size() == 4);
+    if (controlPoints->size() != 4)
+        return;
+
+    const auto& editorStyle = GetEditorStyle();
+    const auto splineThickness = editorStyle.SplineThickness;
+
+    const auto curveColor = controller.GetColor();
+
+    const auto getControlPoint = [&controlPoints](size_t index)
+    {
+        return to_imvec(controlPoints->at(index));
+    };
+
+    drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
+
+    VisitTangentsViews([](auto& tangentView)
+    {
+        tangentView.OnFrame();
+    });
+}
+
+void CCurveEditorCurveView::OnControllerChanged()
+{
+    VisitTangentsViews([controller = GetController()](auto& tangentView)
+    {
+        tangentView.SetController(controller);
+    });
+}
+
+void CCurveEditorCurveView::VisitTangentsViews(const VisitorType<CCurveEditorSplineViewBase>& visitor) noexcept
+{
+    VisitContainer(m_Tangents, visitor);
+}
+
 CCurveEditorSplineView::CCurveEditorSplineView(CCurveEditorView& editorView) :
     CCurveEditorSplineViewBase(editorView)
 {
 }
 
-void CCurveEditorSplineView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
+void CCurveEditorSplineView::OnFrame(ImDrawList&, ICurveEditorSplineController& controller)
 {
     EnsureCurvesViews(controller);
     EnsureKnotsViews(controller);
@@ -221,12 +272,12 @@ void CCurveEditorSplineView::EnsureKnotsViews(ICurveEditorSplineController& cont
     EnsureViews<CCurveEditorKnotView>(m_KnotsViews, GetController(), GetEditorView(), controller.GetKnotsCount());
 }
 
-void CCurveEditorSplineView::VisitCurveViews(const std::function<void(CCurveEditorCurveView&)>& visitor) noexcept
+void CCurveEditorSplineView::VisitCurveViews(const VisitorType<CCurveEditorCurveView>& visitor) noexcept
 {
     VisitContainer(m_CurvesViews, visitor);
 }
 
-void CCurveEditorSplineView::VisitKnotViews(const std::function<void(CCurveEditorKnotView&)>& visitor) noexcept
+void CCurveEditorSplineView::VisitKnotViews(const VisitorType<CCurveEditorKnotView>& visitor) noexcept
 {
     VisitContainer(m_KnotsViews, visitor);
 }

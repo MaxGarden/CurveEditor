@@ -79,7 +79,7 @@ const SCurveEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
     return nullStyle;
 }
 
-void CCurveEditorController::VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept
+void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept
 {
     if (!visitor)
         return;

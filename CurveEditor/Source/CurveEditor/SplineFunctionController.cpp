@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "SplineFunctionController.h"
 
+static const auto s_ControlPointsPerCurve = 4u;
+
 const std::string& CCurveEditorFunctionSplineController::GetName() const noexcept
 {
     static const std::string null;
@@ -35,12 +37,12 @@ bool CCurveEditorFunctionSplineController::VisitCurvePoints(size_t curveIndex, c
         return false;
 
     const auto& controlPoints = GetControlPoints();
-    const auto actualIndex = curveIndex * 3;
+    const auto actualIndex = curveIndex * (s_ControlPointsPerCurve - 1);
 
     if (actualIndex >= controlPoints.size())
         return false;
 
-    const auto endIndex = actualIndex + 4;
+    const auto endIndex = actualIndex + s_ControlPointsPerCurve;
 
     for (auto i = actualIndex; i < endIndex; ++i)
         visitor(controlPoints[i]);
@@ -51,10 +53,10 @@ bool CCurveEditorFunctionSplineController::VisitCurvePoints(size_t curveIndex, c
 size_t CCurveEditorFunctionSplineController::GetCurvesCount() const noexcept
 {
     const auto controlPointsCount = GetControlPoints().size();
-    if (controlPointsCount < 4)
+    if (controlPointsCount < s_ControlPointsPerCurve)
         return 0;
 
-    return 1 + (controlPointsCount - 4) / 3;
+    return 1 + (controlPointsCount - s_ControlPointsPerCurve) / (s_ControlPointsPerCurve - 1);
 }
 
 void CCurveEditorFunctionSplineController::OnSplineModified() noexcept
@@ -83,7 +85,7 @@ void CCurveEditorFunctionSplineController::SortControlPoints(std::vector<ax::poi
 
 std::optional<ax::pointf> CCurveEditorFunctionSplineController::GetKnot(size_t knotIndex) const noexcept
 {
-    const auto actualIndex = knotIndex * 3;
+    const auto actualIndex = knotIndex * (s_ControlPointsPerCurve - 1);
 
     const auto& controlPoints = GetControlPoints();
     if (actualIndex >= controlPoints.size())

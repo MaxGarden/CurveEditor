@@ -9,6 +9,8 @@ enum ECurveEditorStyleColor
     CurveEditorStyleColor_SmallGrid,
     CurveEditorStyleColor_Background,
     CurveEditorStyleColor_Knot,
+    CurveEditorStyleColor_TangentLine,
+    CurveEditorStyleColor_TangentMarker,
     CurveEditorStyleColor_Count
 };
 
@@ -18,6 +20,8 @@ struct SCurveEditorStyle
 
     ImVec2 KnotSize;
     float SplineThickness;
+    float TangentLineThickness;
+    float TangentMarkerRadius;
 
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;

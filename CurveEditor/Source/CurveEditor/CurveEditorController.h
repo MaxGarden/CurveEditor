@@ -38,7 +38,7 @@ public:
     bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept;
     const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept;
 
-    void VisitSplineControllers(const std::function<void(const ICurveEditorSplineControllerSharedPtr&)>& visitor) const noexcept;
+    void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept;
 
     const SCurveEditorStyle& GetEditorStyle() const noexcept;
 

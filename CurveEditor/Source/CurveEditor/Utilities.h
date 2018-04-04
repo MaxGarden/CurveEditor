@@ -13,6 +13,12 @@ namespace ImGuiUtilities
     size_t GetBackgroundChannelCount() noexcept;
 }
 
+template<typename Type>
+using VisitorType = std::function<void(Type&)>;
+
+template<typename Type>
+using ConstVisitorType = std::function<void(const Type&)>;
+
 template<typename ContainerType, typename VisitorType>
 inline void VisitContainer(const ContainerType& container, const VisitorType& visitor) noexcept
 {

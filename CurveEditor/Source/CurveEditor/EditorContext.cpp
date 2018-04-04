@@ -20,7 +20,7 @@ public:
     virtual bool RemoveView(const IEditorViewSharedPtr& view) override final;
 
 private:
-    void VisitViews(const std::function<void(IEditorView&)>& visitor);
+    void VisitViews(const VisitorType<IEditorView>& visitor);
 
 private:
     IEditorDataModelSharedPtr m_DataModel;
@@ -103,16 +103,9 @@ bool CEditorContext::RemoveView(const IEditorViewSharedPtr& view)
     return true;
 }
 
-void CEditorContext::VisitViews(const std::function<void(IEditorView &)>& visitor)
+void CEditorContext::VisitViews(const VisitorType<IEditorView>& visitor)
 {
-    if (!visitor)
-        return;
-
-    for (const auto& view : m_Views)
-    {
-        if (view)
-            visitor(*view);
-    }
+    VisitContainer(m_Views, visitor);
 }
 
 IEditorContextUniquePtr IEditorContext::CreateContext()

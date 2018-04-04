@@ -5,7 +5,6 @@
 #include "CurveEditorListenerBase.h"
 #include "SplineViewFactory.h"
 #include "SplineController.h"
-#include "Utilities.h"
 #include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
@@ -163,12 +162,12 @@ bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
     return true;
 }
 
-void CCurveEditorView::VisitViews(const std::function<void(IEditorView&)>& visitor) noexcept
+void CCurveEditorView::VisitViews(const VisitorType<IEditorView>& visitor) noexcept
 {
     VisitContainer(m_Views, visitor);
 }
 
-void CCurveEditorView::VisitSplineViews(const std::function<void(ICurveEditorSplineView&)>& visitor) noexcept
+void CCurveEditorView::VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept
 {
     if (!visitor)
         return;

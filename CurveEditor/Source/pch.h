@@ -9,6 +9,8 @@
 #include <map>
 #include <array>
 
+#include "Utilities.h"
+
 #define EDITOR_ASSERT(expression) assert(expression)
 
 #define DECLARE_POINTERS(x)                                 \
