@@ -34,6 +34,7 @@ SOURCES += \
     Source/CurveEditor/EditorController.cpp                     \
     Source/CurveEditor/EditorListener.cpp                       \
     Source/CurveEditor/EditorTool.cpp                           \
+    Source/CurveEditor/CurveEditorToolEvent.cpp                 \
     Source/CurveEditor/CurveEditorTool.cpp                      \
     Source/CurveEditor/EditorDataModel.cpp                      \
     Source/CurveEditor/Utilities.cpp                            \
@@ -71,6 +72,7 @@ HEADERS += \
     Source/CurveEditor/EditorListener.h                         \
     Source/CurveEditor/EditorTool.h                             \
     Source/CurveEditor/CurveEditorTool.h                        \
+    Source/CurveEditor/CurveEditorToolEvent.h                   \
     Source/CurveEditor/EditorDataModel.h                        \
     Source/CurveEditor/Utilities.h                              \
     Source/CurveEditor/Style.h                                  \

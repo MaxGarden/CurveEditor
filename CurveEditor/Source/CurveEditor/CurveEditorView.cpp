@@ -164,7 +164,7 @@ bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
 
 void CCurveEditorView::VisitViews(const VisitorType<IEditorView>& visitor) noexcept
 {
-    VisitContainer(m_Views, visitor);
+    VisitPointersContainer(m_Views, visitor);
 }
 
 void CCurveEditorView::VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept

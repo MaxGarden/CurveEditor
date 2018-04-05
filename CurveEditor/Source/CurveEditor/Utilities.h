@@ -20,7 +20,7 @@ template<typename Type>
 using ConstVisitorType = std::function<void(const Type&)>;
 
 template<typename ContainerType, typename VisitorType>
-inline void VisitContainer(const ContainerType& container, const VisitorType& visitor) noexcept
+inline void VisitPointersContainer(const ContainerType& container, const VisitorType& visitor) noexcept
 {
     if (!visitor)
         return;
@@ -30,6 +30,16 @@ inline void VisitContainer(const ContainerType& container, const VisitorType& vi
         if (element)
             visitor(*element);
     }
+}
+
+template<typename ContainerType, typename VisitorType>
+inline void VisitObjectsContainer(const ContainerType& container, const VisitorType& visitor) noexcept
+{
+    if (!visitor)
+        return;
+
+    for (auto& element : container)
+        visitor(element);
 }
 
 #endif //__UTILITES_H__

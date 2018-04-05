@@ -105,7 +105,7 @@ bool CEditorContext::RemoveView(const IEditorViewSharedPtr& view)
 
 void CEditorContext::VisitViews(const VisitorType<IEditorView>& visitor)
 {
-    VisitContainer(m_Views, visitor);
+    VisitPointersContainer(m_Views, visitor);
 }
 
 IEditorContextUniquePtr IEditorContext::CreateContext()

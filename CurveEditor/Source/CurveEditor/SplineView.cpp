@@ -210,7 +210,7 @@ void CCurveEditorCurveView::OnControllerChanged()
 
 void CCurveEditorCurveView::VisitTangentsViews(const VisitorType<CCurveEditorSplineViewBase>& visitor) noexcept
 {
-    VisitContainer(m_Tangents, visitor);
+    VisitPointersContainer(m_Tangents, visitor);
 }
 
 CCurveEditorSplineView::CCurveEditorSplineView(CCurveEditorView& editorView) :
@@ -274,12 +274,12 @@ void CCurveEditorSplineView::EnsureKnotsViews(ICurveEditorSplineController& cont
 
 void CCurveEditorSplineView::VisitCurveViews(const VisitorType<CCurveEditorCurveView>& visitor) noexcept
 {
-    VisitContainer(m_CurvesViews, visitor);
+    VisitPointersContainer(m_CurvesViews, visitor);
 }
 
 void CCurveEditorSplineView::VisitKnotViews(const VisitorType<CCurveEditorKnotView>& visitor) noexcept
 {
-    VisitContainer(m_KnotsViews, visitor);
+    VisitPointersContainer(m_KnotsViews, visitor);
 }
 
 CCurveEditorSplineViewBase::CCurveEditorSplineViewBase(CCurveEditorView& editorView) :
