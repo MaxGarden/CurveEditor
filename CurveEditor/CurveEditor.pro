@@ -44,6 +44,8 @@ SOURCES += \
     Source/CurveEditor/Components/BackgroundComponent.cpp       \
     Source/CurveEditor/Components/DebugComponent.cpp            \
     Source/CurveEditor/Components/ToolHandlerComponent.cpp      \
+    Source/CurveEditor/Tools/CurveEditorToolBase.cpp            \
+    Source/CurveEditor/Tools/CurveEditorHoveringTool.cpp        \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
 HEADERS += \
@@ -81,6 +83,8 @@ HEADERS += \
     Source/CurveEditor/Components/BackgroundComponent.h         \
     Source/CurveEditor/Components/DebugComponent.h              \
     Source/CurveEditor/Components/ToolHandlerComponent.h        \
+    Source/CurveEditor/Tools/CurveEditorToolBase.h              \
+    Source/CurveEditor/Tools/CurveEditorHoveringTool.h          \
     Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \

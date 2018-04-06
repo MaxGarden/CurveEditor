@@ -24,5 +24,14 @@ public:
     virtual void OnKeyUp(const CCurveEditorToolKeyEvent& event) = 0;
 };
 
+class ICurveEditorComponentTool : public ICurveEditorTool
+{
+public:
+    virtual ~ICurveEditorComponentTool() override = default;
+
+    virtual bool AddComponent(ICurveEditorToolUniquePtr&& component) = 0;
+
+    static ICurveEditorComponentToolUniquePtr Create();
+};
 
 #endif //__CURVE_EDITOR_TOOL_H__

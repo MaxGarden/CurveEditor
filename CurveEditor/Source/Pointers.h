@@ -20,6 +20,7 @@ DECLARE_POINTERS(ICurveEditorSplineViewFactory)
 
 DECLARE_POINTERS(IEditorTool)
 DECLARE_POINTERS(ICurveEditorTool)
+DECLARE_POINTERS(ICurveEditorComponentTool)
 
 DECLARE_POINTERS(CCurveEditorSplineViewBase)
 DECLARE_POINTERS(CCurveEditorCurveView)
