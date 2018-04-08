@@ -5,7 +5,7 @@
 #include "CurveEditorController.h"
 #include "EditorViewBase.h"
 
-class CCurveEditorView final : public CEditorViewBase<IEditorView, CCurveEditorController>
+class CCurveEditorView final : public CEditorViewBase<IEditorView, ICurveEditorController>
 {
 public:
     CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory);

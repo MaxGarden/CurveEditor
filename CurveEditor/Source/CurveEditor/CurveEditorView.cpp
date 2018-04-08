@@ -10,7 +10,7 @@
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
-class CCurveEditorViewListener final : public CCurveEditorListenerBase
+class CCurveEditorViewListener final : public CCurveEditorControllerListenerBase
 {
 public:
     CCurveEditorViewListener(CCurveEditorView& curveEditorView);
@@ -129,12 +129,7 @@ bool CCurveEditorView::CreateSplineView(const ICurveEditorSplineControllerShared
 
 bool CCurveEditorView::DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController)
 {
-    const auto iterator = m_SplineViews.find(splineController);
-    if (iterator == m_SplineViews.end())
-        return false;
-
-    m_SplineViews.erase(iterator);
-    return true;
+    return RemoveFromMap(m_SplineViews, splineController);
 }
 
 CEditorCanvas& CCurveEditorView::GetCanvas() noexcept

@@ -3,68 +3,102 @@
 #include "CurveEditorDataModel.h"
 #include "SplineDataModel.h"
 #include "SplineController.h"
+#include "CurveEditorListenerBase.h"
+
+class CCurveEditorController;
+
+class CCurveEditorDataModelControllerListener final : public CCurveEditorDataModelListenerBase
+{
+public:
+    CCurveEditorDataModelControllerListener(CCurveEditorController& controller);
+    virtual ~CCurveEditorDataModelControllerListener() override final = default;
+
+    virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
+    virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
+
+private:
+    CCurveEditorController& m_Controller;
+};
+
+class CCurveEditorController final : public CEditorControllerBase<ICurveEditorController, ICurveEditorDataModel, ICurveEditorControllerListener>
+{
+public:
+    CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory);
+    virtual ~CCurveEditorController() override final = default;
+
+    bool CreateSpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+    bool DestroySpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+
+    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept override final;
+    virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept override final;
+
+    virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept override final;
+
+    virtual const SCurveEditorStyle& GetEditorStyle() const noexcept override final;
+
+private:
+    virtual void OnDataModelChanged() override final;
+    virtual IEditorListenerUniquePtr CreateListener() override final;
+
+    void RecreateSplineControllers();
+
+private:
+    std::map<ICurveEditorSplineDataModelConstSharedPtr, ICurveEditorSplineControllerSharedPtr> m_SplineControllers;
+    ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
+    ICurveEditorToolSharedPtr m_ActiveTool;
+};
+
+CCurveEditorDataModelControllerListener::CCurveEditorDataModelControllerListener(CCurveEditorController& controller) :
+    m_Controller(controller)
+{
+}
+
+void CCurveEditorDataModelControllerListener::OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
+{
+    const auto result = m_Controller.CreateSpline(splineDataModel);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorDataModelControllerListener::OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
+{
+    const auto result = m_Controller.DestroySpline(splineDataModel);
+    EDITOR_ASSERT(result);
+}
 
 CCurveEditorController::CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory) :
     m_SplineControllerFactory(splineControllerFactory)
 {
 }
 
-std::optional<CCurveEditorController::SplineHandle> CCurveEditorController::CreateSpline(std::string_view name, unsigned int color)
+bool CCurveEditorController::CreateSpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
 {
-    const auto& dataModel = GetDataModel();
-    if (!dataModel)
-        return std::nullopt;
-
-    const auto splineDataModel = dataModel->AddSplineDataModel(name, color);
-
     if (!splineDataModel)
-        return std::nullopt;
+        return false;
 
     const auto splineController = ICurveEditorSplineControllerSharedPtr(m_SplineControllerFactory.Create(splineDataModel));
 
-    const auto cleanup = [&dataModel, &splineDataModel]()
-    {
-        dataModel->RemoveSplineDataModel(splineDataModel);
-        return std::nullopt;
-    };
-
     if (!splineController)
-        return cleanup();
+        return false;
 
     auto isValid = true;
     isValid &= splineController->SetDataModel(splineDataModel);
 
     if (!isValid)
-        return cleanup();
+        return false;
+    m_SplineControllers.emplace(splineDataModel, splineController);
 
-    const auto splineHandle = reinterpret_cast<SplineHandle>(splineController.get());
-
-    m_SplineStorages.emplace(splineHandle, SplineStorage{ splineDataModel, splineController });
-
-    NotifyListeners(&ICurveEditorListener::OnSplineCreated, splineController);
-    return splineHandle;
+    NotifyListeners(&ICurveEditorControllerListener::OnSplineCreated, splineController);
+    return true;
 }
 
-bool CCurveEditorController::DestroySpline(const SplineHandle& handle)
+bool CCurveEditorController::DestroySpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
 {
-    const auto& dataModel = GetDataModel();
-    if (!dataModel)
+    const auto iterator = m_SplineControllers.find(splineDataModel);
+    if (iterator == m_SplineControllers.end())
         return false;
 
-    const auto iterator = m_SplineStorages.find(handle);
-    if (iterator == m_SplineStorages.end())
-        return false;
-
-    const auto& storage = iterator->second;
-
-    if (!dataModel->RemoveSplineDataModel(storage.m_DataModel))
-    {
-        EDITOR_ASSERT(false && "Cannot remove data model");
-        return false;
-    }
-
-    NotifyListeners(&ICurveEditorListener::OnSplineDestroyed, storage.m_Controller);
-    m_SplineStorages.erase(iterator);
+    NotifyListeners(&ICurveEditorControllerListener::OnSplineDestroyed, iterator->second);
+    m_SplineControllers.erase(iterator);
 
     return true;
 }
@@ -84,9 +118,9 @@ void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurv
     if (!visitor)
         return;
 
-    for (const auto& controllerPair : m_SplineStorages)
+    for (const auto& controllerPair : m_SplineControllers)
     {
-        if (const auto& controller = controllerPair.second.m_Controller)
+        if (const auto& controller = controllerPair.second)
             visitor(controller);
     }
 }
@@ -114,4 +148,14 @@ bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool) noe
 const ICurveEditorToolSharedPtr& CCurveEditorController::GetActiveTool() const noexcept
 {
     return m_ActiveTool;
+}
+
+IEditorListenerUniquePtr CCurveEditorController::CreateListener()
+{
+    return std::make_unique<CCurveEditorDataModelControllerListener>(*this);
+}
+
+ICurveEditorControllerUniquePtr ICurveEditorController::Create(ICurveEditorSplineControllerFactory& splineControllerFactory)
+{
+    return std::make_unique<CCurveEditorController>(splineControllerFactory);
 }

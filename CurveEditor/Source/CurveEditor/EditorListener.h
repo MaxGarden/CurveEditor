@@ -10,4 +10,13 @@ public:
     virtual ~IEditorListener() = default;
 };
 
+class IEditorListenable
+{
+public:
+    virtual ~IEditorListenable() = default;
+
+    virtual std::optional<EditorListenerHandle> RegisterListener(IEditorListenerUniquePtr&& listener) = 0;
+    virtual bool UnregisterListener(const EditorListenerHandle& handle) = 0;
+};
+
 #endif //__EDITOR_LISTENER_H__

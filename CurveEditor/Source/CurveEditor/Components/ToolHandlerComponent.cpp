@@ -22,7 +22,7 @@ CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(const CCurveE
         m_ButtonHandlers.emplace_back(editorView, *this, button);
 }
 
-void CCurveEditorToolHandlerComponent::OnFrame(ImDrawList&, CCurveEditorController& editorController)
+void CCurveEditorToolHandlerComponent::OnFrame(ImDrawList&, ICurveEditorController& editorController)
 {
     CaptureMouseState();
     UpdateMouseState(editorController);
@@ -39,7 +39,7 @@ void CCurveEditorToolHandlerComponent::CaptureMouseState()
         buttonHandler.OnCapture();
 }
 
-void CCurveEditorToolHandlerComponent::UpdateMouseState(CCurveEditorController& editorController)
+void CCurveEditorToolHandlerComponent::UpdateMouseState(ICurveEditorController& editorController)
 {
     const auto& activeTool = editorController.GetActiveTool();
     if (!activeTool)

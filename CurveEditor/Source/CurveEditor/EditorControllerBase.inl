@@ -1,8 +1,23 @@
 template<typename SuperClass, typename DataModelType, typename ListenerType>
+CEditorControllerBase<SuperClass, DataModelType, ListenerType>::~CEditorControllerBase()
+{
+    SetDataModel(nullptr);
+}
+
+template<typename SuperClass, typename DataModelType, typename ListenerType>
 bool CEditorControllerBase<SuperClass, DataModelType, ListenerType>::SetDataModel(const IEditorDataModelSharedPtr& dataModel)
 {
+    const auto resetListener = [this]()
+    {
+        if (m_DataModel)
+            m_DataModel->UnregisterListener(m_ListenerHandle);
+
+        m_ListenerHandle = InvalidListenerHandle;
+    };
+
     if (!dataModel)
     {
+        resetListener();
         m_DataModel.reset();
         OnDataModelChanged();
         return true;
@@ -12,53 +27,32 @@ bool CEditorControllerBase<SuperClass, DataModelType, ListenerType>::SetDataMode
     if (!curveEditorDataModel)
         return false;
 
+    resetListener();
     m_DataModel = std::move(curveEditorDataModel);
+
+    if (auto listener = CreateListener())
+    {
+        const auto listenerHandle = m_DataModel->RegisterListener(std::move(listener));
+        EDITOR_ASSERT(listenerHandle);
+        m_ListenerHandle = listenerHandle.value_or(m_ListenerHandle);
+    }
+
     OnDataModelChanged();
 
     return true;
 }
 
 template<typename SuperClass, typename DataModelType, typename ListenerType>
-std::optional<EditorListenerHandle> CEditorControllerBase<SuperClass, DataModelType, ListenerType>::RegisterListener(IEditorListenerUniquePtr&& listener)
-{
-    const auto curveEditorListener = dynamic_cast<ListenerType*>(listener.get());
-    if (!curveEditorListener)
-        return std::nullopt;
-
-    m_Listeners.emplace_back(std::unique_ptr<ListenerType>(curveEditorListener));
-    return reinterpret_cast<EditorListenerHandle>(listener.release());
-}
-
-template<typename SuperClass, typename DataModelType, typename ListenerType>
-bool CEditorControllerBase<SuperClass, DataModelType, ListenerType>::UnregisterListener(const EditorListenerHandle& handle)
-{
-    const auto iterator = std::remove_if(m_Listeners.begin(), m_Listeners.end(), [&handle](const auto& listener)
-    {
-        return reinterpret_cast<EditorListenerHandle>(listener.get()) == handle;
-    });
-
-    if (iterator == m_Listeners.end())
-        return false;
-
-    m_Listeners.erase(iterator, m_Listeners.end());
-    return true;
-}
-
-template<typename SuperClass, typename DataModelType, typename ListenerType>
-template<typename ListenerMethod, typename... Arguments>
-void CEditorControllerBase<SuperClass, DataModelType, ListenerType>::NotifyListeners(ListenerMethod method, Arguments&&... arguments) const
-{
-    for (const auto& listener : m_Listeners)
-    {
-        if (listener)
-            (listener.get()->*method)(arguments...);
-    }
-}
-
-template<typename SuperClass, typename DataModelType, typename ListenerType>
 void CEditorControllerBase<SuperClass, DataModelType, ListenerType>::OnDataModelChanged()
 {
     //to override
+}
+
+template<typename SuperClass, typename DataModelType, typename ListenerType>
+IEditorListenerUniquePtr CEditorControllerBase<SuperClass, DataModelType, ListenerType>::CreateListener()
+{
+    //to override
+    return nullptr;
 }
 
 template<typename SuperClass, typename DataModelType, typename ListenerType>

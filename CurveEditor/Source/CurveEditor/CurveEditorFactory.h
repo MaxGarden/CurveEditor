@@ -7,12 +7,13 @@
 class CCurveEditorViewFactory final : public IEditorViewFactory
 {
 public:
-    CCurveEditorViewFactory(ICurveEditorSplineViewFactory& splineViewFactory);
+    CCurveEditorViewFactory(IEditorContext& editorContext, ICurveEditorSplineViewFactory& splineViewFactory);
     virtual ~CCurveEditorViewFactory() override final = default;
 
     virtual IEditorViewUniquePtr Create() override final;
 
 private:
+    IEditorContext& m_EditorContext;
     ICurveEditorSplineViewFactory& m_SplineViewFactory;
 };
 

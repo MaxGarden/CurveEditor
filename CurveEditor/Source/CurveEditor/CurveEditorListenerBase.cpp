@@ -1,12 +1,27 @@
 #include "pch.h"
 #include "CurveEditorListenerBase.h"
 
-void CCurveEditorListenerBase::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr&)
+void CCurveEditorDataModelListenerBase::OnStyleChanged(const SCurveEditorStyle&)
 {
     //to override
 }
 
-void CCurveEditorListenerBase::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr&)
+void CCurveEditorDataModelListenerBase::OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr&)
+{
+    //to override
+}
+
+void CCurveEditorDataModelListenerBase::OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr&)
+{
+    //to override
+}
+
+void CCurveEditorControllerListenerBase::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr&)
+{
+    //to override
+}
+
+void CCurveEditorControllerListenerBase::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr&)
 {
     //to override
 }

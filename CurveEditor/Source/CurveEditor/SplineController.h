@@ -17,7 +17,7 @@ public:
     using CurveConstVisitor = std::function<void(const ax::pointf&)>;
 
 public:
-    virtual ~ICurveEditorSplineController() = default;
+    virtual ~ICurveEditorSplineController() override = default;
 
     virtual const std::string& GetName() const noexcept = 0;
     virtual unsigned int GetColor() const noexcept = 0;

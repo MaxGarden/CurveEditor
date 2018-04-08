@@ -10,7 +10,7 @@ public:
     virtual ~CCurveEditorGridViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& editorController) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
 };
 
 #endif //__CURVE_EDITOR_GRID_COMPONENT_H__

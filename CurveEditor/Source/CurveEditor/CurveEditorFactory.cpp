@@ -6,7 +6,8 @@
 #include "Components/DebugComponent.h"
 #include "Components/ToolHandlerComponent.h"
 
-CCurveEditorViewFactory::CCurveEditorViewFactory(ICurveEditorSplineViewFactory& splineViewFactory) :
+CCurveEditorViewFactory::CCurveEditorViewFactory(IEditorContext& editorContext, ICurveEditorSplineViewFactory& splineViewFactory) :
+    m_EditorContext(editorContext),
     m_SplineViewFactory(splineViewFactory)
 {
 }
@@ -18,7 +19,7 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
     result->AddView(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
     result->AddView(std::make_unique<CCurveEditorGridViewComponent>(*result));
 
-    result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result));
+    result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result, m_EditorContext));
 
     result->AddView(std::make_unique<CCurveEditorToolHandlerComponent>(*result));
 

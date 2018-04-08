@@ -8,9 +8,9 @@ DECLARE_POINTERS(IEditorController)
 DECLARE_POINTERS(IEditorContext)
 
 DECLARE_POINTERS(CCurveEditorView)
-DECLARE_POINTERS(CCurveEditorDataModel)
-DECLARE_POINTERS(ICurveEditorListener)
-DECLARE_POINTERS(CCurveEditorController)
+DECLARE_POINTERS(ICurveEditorDataModel)
+DECLARE_POINTERS(ICurveEditorControllerListener)
+DECLARE_POINTERS(ICurveEditorController)
 
 DECLARE_POINTERS(ICurveEditorSplineDataModel)
 DECLARE_POINTERS(ICurveEditorSplineController)

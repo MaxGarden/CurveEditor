@@ -95,12 +95,7 @@ IEditorViewSharedPtr CEditorContext::AddView()
 
 bool CEditorContext::RemoveView(const IEditorViewSharedPtr& view)
 {
-    const auto iterator = std::find(m_Views.begin(), m_Views.end(), view);
-    if (iterator == m_Views.end())
-        return false;
-
-    m_Views.erase(iterator);
-    return true;
+    return RemoveFromContainer(m_Views, view);
 }
 
 void CEditorContext::VisitViews(const VisitorType<IEditorView>& visitor)

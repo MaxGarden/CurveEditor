@@ -3,11 +3,23 @@
 
 #include "CurveEditorController.h"
 
-class CCurveEditorListenerBase : public ICurveEditorListener
+class CCurveEditorDataModelListenerBase : public ICurveEditorDataModelListener
 {
 public:
-    CCurveEditorListenerBase() = default;
-    virtual ~CCurveEditorListenerBase() override = default;
+    CCurveEditorDataModelListenerBase() = default;
+    virtual ~CCurveEditorDataModelListenerBase() override = default;
+
+    virtual void OnStyleChanged(const SCurveEditorStyle& style) override;
+
+    virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override;
+    virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override;
+};
+
+class CCurveEditorControllerListenerBase : public ICurveEditorControllerListener
+{
+public:
+    CCurveEditorControllerListenerBase() = default;
+    virtual ~CCurveEditorControllerListenerBase() override = default;
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) override;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) override;

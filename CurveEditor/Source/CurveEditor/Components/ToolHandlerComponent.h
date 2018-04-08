@@ -39,11 +39,11 @@ public:
     void VisitButtonHandlers(const ConstVisitorType<CMouseButtonHandler>& visitor) const noexcept;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& editorController) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
 
 private:
     void CaptureMouseState();
-    void UpdateMouseState(CCurveEditorController& editorController);
+    void UpdateMouseState(ICurveEditorController& editorController);
     void ReleaseMouseState();
 
 private:

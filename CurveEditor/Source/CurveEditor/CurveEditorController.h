@@ -6,52 +6,28 @@
 #include "EditorControllerBase.h"
 #include "Style.h"
 
-class ICurveEditorListener : public IEditorListener
+class ICurveEditorControllerListener : public IEditorListener
 {
 public:
-    virtual ~ICurveEditorListener() = default;
+    virtual ~ICurveEditorControllerListener() = default;
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
 };
 
-template<typename DataModelType, typename ControllerType>
-struct SCurveEditorStorage
-{
-    DataModelType m_DataModel;
-    ControllerType m_Controller;
-};
-
-class CCurveEditorController final : public CEditorControllerBase<IEditorController, CCurveEditorDataModel, ICurveEditorListener>
+class ICurveEditorController : public IEditorController
 {
 public:
-    using ViewHandle = size_t;
-    using SplineHandle = size_t;
+    virtual ~ICurveEditorController() override = default;
 
-public:
-    CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory);
-    virtual ~CCurveEditorController() override final = default;
+    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept = 0;
+    virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept = 0;
 
-    std::optional<SplineHandle> CreateSpline(std::string_view name, unsigned int color);
-    bool DestroySpline(const SplineHandle& handle);
+    virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept = 0;
 
-    bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept;
-    const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept;
+    virtual const SCurveEditorStyle& GetEditorStyle() const noexcept = 0;
 
-    void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept;
-
-    const SCurveEditorStyle& GetEditorStyle() const noexcept;
-
-private:
-    virtual void OnDataModelChanged() override final;
-    void RecreateSplineControllers();
-
-private:
-    using SplineStorage = SCurveEditorStorage<ICurveEditorSplineDataModelSharedPtr, ICurveEditorSplineControllerSharedPtr>;
-
-    std::map<SplineHandle,SplineStorage> m_SplineStorages;
-    ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
-    ICurveEditorToolSharedPtr m_ActiveTool;
+    static ICurveEditorControllerUniquePtr Create(ICurveEditorSplineControllerFactory& splineControllerFactory);
 };
 
 #endif //__CURVE_EDITOR_CONTROLLER_H__

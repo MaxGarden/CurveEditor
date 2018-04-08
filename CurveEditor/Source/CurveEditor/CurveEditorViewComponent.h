@@ -3,7 +3,7 @@
 
 #include "CurveEditorView.h"
 
-class CCurveEditorViewComponentBase : public CEditorViewBase<IEditorView, CCurveEditorController>
+class CCurveEditorViewComponentBase : public CEditorViewBase<IEditorView, ICurveEditorController>
 {
 public:
     CCurveEditorViewComponentBase(const CCurveEditorView& editorView);
@@ -12,7 +12,7 @@ public:
     virtual void OnFrame() override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& editorController);
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController);
 
     const CCurveEditorView& GetEditorView() const noexcept;
 

@@ -42,4 +42,28 @@ inline void VisitObjectsContainer(const ContainerType& container, const VisitorT
         visitor(element);
 }
 
+template<typename ContainerType, typename ValueType>
+inline const auto RemoveFromContainer(ContainerType& container, const ValueType& value)
+{
+    const auto iterator = std::remove(container.begin(), container.end(), value);
+
+    if (iterator == container.end())
+        return false;
+
+    container.erase(iterator, container.end());
+    return true;
+}
+
+template<typename MapType, typename KeyType>
+inline const auto RemoveFromMap(MapType& map, const KeyType& key)
+{
+    const auto iterator = map.find(key);
+
+    if (iterator == map.end())
+        return false;
+
+    map.erase(iterator);
+    return true;
+}
+
 #endif //__UTILITES_H__

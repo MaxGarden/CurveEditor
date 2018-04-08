@@ -11,7 +11,7 @@ CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(const CCurveEditorV
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, CCurveEditorController& editorController)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, ICurveEditorController& editorController)
 {
     static const auto graduation = ImVec2(10, 10);
 

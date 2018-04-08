@@ -13,7 +13,7 @@ enum class ECurveType
 class ICurveEditorSplineDataModel : public IEditorDataModel
 {
 public:
-    virtual ~ICurveEditorSplineDataModel() = default;
+    virtual ~ICurveEditorSplineDataModel() override = default;
 
     virtual std::vector<ax::pointf>& GetControlPoints() noexcept = 0;
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;

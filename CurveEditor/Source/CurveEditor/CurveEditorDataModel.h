@@ -4,24 +4,33 @@
 #include "Style.h"
 #include "EditorView.h"
 #include "EditorDataModel.h"
+#include "EditorListenableBase.h"
 
-class CCurveEditorDataModel final : public IEditorDataModel
+class ICurveEditorDataModelListener : public IEditorListener
 {
 public:
-    CCurveEditorDataModel() = default;
-    virtual ~CCurveEditorDataModel() override final = default;
+    virtual ~ICurveEditorDataModelListener() override = default;
 
-    SCurveEditorStyle& GetStyle() noexcept;
-    const SCurveEditorStyle& GetStyle() const noexcept;
+    virtual void OnStyleChanged(const SCurveEditorStyle& style) = 0;
 
-    ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color);
-    bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
+    virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+    virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+};
 
-    const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept;
+class ICurveEditorDataModel : public IEditorDataModel
+{
+public:
+    virtual ~ICurveEditorDataModel() override = default;
 
-private:
-    SCurveEditorStyle m_EditorStyle;
-    std::vector<ICurveEditorSplineDataModelSharedPtr> m_SplinesDataModels;
+    virtual void SetStyle(SCurveEditorStyle&& style) = 0;
+    virtual const SCurveEditorStyle& GetStyle() const noexcept = 0;
+
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color) = 0;
+    virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+
+    virtual const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept = 0;
+
+    static ICurveEditorDataModelUniquePtr Create();
 };
 
 #endif //__CURVE_EDITOR_DATA_MODEL_H__

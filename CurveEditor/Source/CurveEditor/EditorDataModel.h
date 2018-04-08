@@ -1,7 +1,9 @@
 #pragma  once
 #if !defined(__EDITOR_DATA_MODEL_H__)
 
-class IEditorDataModel
+#include "EditorListener.h"
+
+class IEditorDataModel : public IEditorListenable
 {
 public:
     virtual ~IEditorDataModel() = default;

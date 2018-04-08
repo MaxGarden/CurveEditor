@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "SplineDataModel.h"
+#include "EditorListenableBase.h"
 
-class CCurveEditorSplineDataModel final : public ICurveEditorSplineDataModel
+class CCurveEditorSplineDataModel final : public CEditorListenableBase<ICurveEditorSplineDataModel, IEditorListener>
 {
 public:
     CCurveEditorSplineDataModel(std::string_view name, unsigned int color);

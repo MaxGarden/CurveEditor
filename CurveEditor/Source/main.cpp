@@ -24,9 +24,9 @@ int main(int argc, char** argv)
     CCurveEditorSplineControllerFactory splineControllerFactory;
     CCurveEditorSplineViewFactory splineViewFactory;
 
-    curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(splineViewFactory));
-    curveEditorContext->SetController(std::make_shared<CCurveEditorController>(splineControllerFactory));
-    curveEditorContext->SetDataModel(std::make_shared<CCurveEditorDataModel>());
+    curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(*curveEditorContext, splineViewFactory));
+    curveEditorContext->SetController(ICurveEditorController::Create(splineControllerFactory));
+    curveEditorContext->SetDataModel(ICurveEditorDataModel::Create());
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);
     CMainWindow mainWindow(*curveEditorWidgetFactory);

@@ -8,6 +8,7 @@
 #include <optional>
 #include <map>
 #include <array>
+#include <stack>
 
 #include "Utilities.h"
 

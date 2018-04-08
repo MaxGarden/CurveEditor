@@ -10,7 +10,7 @@ public:
     virtual ~CCurveEditorBackgroundViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, CCurveEditorController& editorController) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
 };
 
 #endif //__CURVE_EDITOR_BACKGROUND_COMPONENT_H__

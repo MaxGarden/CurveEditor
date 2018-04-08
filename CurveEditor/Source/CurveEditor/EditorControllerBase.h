@@ -1,25 +1,20 @@
 #pragma  once
 #if !defined(__EDITOR_CONTROLLER_BASE_H__)
 
-#include "EditorController.h"
+#include "EditorListenableBase.h"
 
 template<typename SuperClass, typename DataModelType, typename ListenerType>
-class CEditorControllerBase : public SuperClass
+class CEditorControllerBase : public CEditorListenableBase<SuperClass, ListenerType>
 {
 public:
     CEditorControllerBase() = default;
-    virtual ~CEditorControllerBase() = default;
+    virtual ~CEditorControllerBase() override;
 
     virtual bool SetDataModel(const IEditorDataModelSharedPtr& dataModel) override;
 
-    virtual std::optional<EditorListenerHandle> RegisterListener(IEditorListenerUniquePtr&& listener) override;
-    virtual bool UnregisterListener(const EditorListenerHandle& handle) override;
-
 protected:
-    template<typename ListenerMethod, typename... Arguments>
-    void NotifyListeners(ListenerMethod method, Arguments&&... arguments) const;
-
     virtual void OnDataModelChanged();
+    virtual IEditorListenerUniquePtr CreateListener();
 
     const std::shared_ptr<DataModelType>& GetDataModel() const noexcept;
 
@@ -27,7 +22,7 @@ protected:
 
 private:
     std::shared_ptr<DataModelType> m_DataModel;
-    std::vector<std::unique_ptr<ListenerType>> m_Listeners;
+    EditorListenerHandle m_ListenerHandle;
 };
 
 #include "EditorControllerBase.inl"

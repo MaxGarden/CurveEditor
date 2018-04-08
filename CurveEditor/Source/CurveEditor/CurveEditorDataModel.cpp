@@ -2,26 +2,34 @@
 #include "CurveEditorDataModel.h"
 #include "SplineDataModel.h"
 
-SCurveEditorStyle& CCurveEditorDataModel::GetStyle() noexcept
+class CCurveEditorDataModel final : public CEditorListenableBase<ICurveEditorDataModel, ICurveEditorDataModelListener>
 {
-    return m_EditorStyle;
+public:
+    CCurveEditorDataModel() = default;
+    virtual ~CCurveEditorDataModel() override final = default;
+
+    virtual void SetStyle(SCurveEditorStyle&& style) override final;
+    virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
+
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color) override final;
+    virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
+
+    virtual const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept override final;
+
+private:
+    SCurveEditorStyle m_EditorStyle;
+    std::vector<ICurveEditorSplineDataModelSharedPtr> m_SplinesDataModels;
+};
+
+void CCurveEditorDataModel::SetStyle(SCurveEditorStyle&& style)
+{
+    m_EditorStyle = std::move(style);
+    NotifyListeners(&ICurveEditorDataModelListener::OnStyleChanged, m_EditorStyle);
 }
 
 const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
 {
     return m_EditorStyle;
-}
-
-template<typename ContainerType, typename ValueType>
-static const auto RemoveFromContainer(ContainerType& container, const ValueType& value)
-{
-    const auto iterator = std::remove(container.begin(), container.end(), value);
-
-    if (iterator == container.end())
-        return false;
-
-    container.erase(iterator, container.end());
-    return true;
 }
 
 ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(std::string_view name, unsigned int color)
@@ -31,15 +39,29 @@ ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(s
         return nullptr;
 
     m_SplinesDataModels.emplace_back(std::move(splineDataModel));
-    return m_SplinesDataModels.back();
+    const auto& addedSplineDataModel = m_SplinesDataModels.back();
+
+    NotifyListeners(&ICurveEditorDataModelListener::OnSplineCreated, addedSplineDataModel);
+    return addedSplineDataModel;
 }
 
 bool CCurveEditorDataModel::RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
 {
-    return RemoveFromContainer(m_SplinesDataModels, splineDataModel);
+    if (RemoveFromContainer(m_SplinesDataModels, splineDataModel))
+    {
+        NotifyListeners(&ICurveEditorDataModelListener::OnSplineDestroyed, splineDataModel);
+        return true;
+    }
+
+    return false;
 }
 
 const std::vector<ICurveEditorSplineDataModelSharedPtr>& CCurveEditorDataModel::GetSplinesDataModels() const noexcept
 {
     return m_SplinesDataModels;
+}
+
+ICurveEditorDataModelUniquePtr ICurveEditorDataModel::Create()
+{
+    return std::make_unique<CCurveEditorDataModel>();
 }
