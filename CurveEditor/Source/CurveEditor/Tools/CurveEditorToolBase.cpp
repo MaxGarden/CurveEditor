@@ -1,17 +1,17 @@
 #include "pch.h"
 #include "CurveEditorToolBase.h"
 
-void CCurveEditorToolBase::OnDragBegin(const CCurveEditorToolMouseButtonEvent&)
+void CCurveEditorToolBase::OnDragBegin(const CCurveEditorToolMouseDragEvent&)
 {
     //to override
 }
 
-void CCurveEditorToolBase::OnDragUpdate(const CCurveEditorToolMouseButtonEvent&)
+void CCurveEditorToolBase::OnDragUpdate(const CCurveEditorToolMouseDragEvent&)
 {
     //to override
 }
 
-void CCurveEditorToolBase::OnDragEnd(const CCurveEditorToolMouseButtonEvent&)
+void CCurveEditorToolBase::OnDragEnd(const CCurveEditorToolMouseDragEvent&)
 {
     //to override
 }
@@ -21,7 +21,7 @@ void CCurveEditorToolBase::OnMouseMove(const CCurveEditorToolMouseEvent&)
     //to override
 }
 
-void CCurveEditorToolBase::OnWheel(const CCurveEditorToolWheelEvent&)
+void CCurveEditorToolBase::OnWheel(const CCurveEditorToolMouseWheelEvent&)
 {
     //to override
 }

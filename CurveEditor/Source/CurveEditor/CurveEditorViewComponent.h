@@ -6,7 +6,7 @@
 class CCurveEditorViewComponentBase : public CEditorViewBase<IEditorView, ICurveEditorController>
 {
 public:
-    CCurveEditorViewComponentBase(const CCurveEditorView& editorView);
+    CCurveEditorViewComponentBase(const ICurveEditorView& editorView);
     virtual ~CCurveEditorViewComponentBase() override = default;
 
     virtual void OnFrame() override final;
@@ -14,10 +14,10 @@ public:
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController);
 
-    const CCurveEditorView& GetEditorView() const noexcept;
+    const ICurveEditorView& GetEditorView() const noexcept;
 
 private:
-    const CCurveEditorView& m_EditorView;
+    const ICurveEditorView& m_EditorView;
 };
 
 #endif //__CURVE_EDITOR_VIEW_COMPONENT_H__

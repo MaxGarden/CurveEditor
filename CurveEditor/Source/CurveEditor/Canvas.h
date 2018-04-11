@@ -7,13 +7,22 @@ class CWindowCanvas
 {
 public:
     CWindowCanvas() noexcept;
-    CWindowCanvas(const ax::pointf& position, const ax::sizef& size, const ax::pointf& scale, const ax::pointf& origin) noexcept;
+    CWindowCanvas(const ax::pointf& position, const ax::sizef& size, const ax::pointf& zoom, const ax::pointf& origin) noexcept;
 
     const ax::pointf& GetWindowScreenPosition() const noexcept;
+    void SetWindowScreenPosition(const ax::pointf& position) noexcept;
+
     const ax::sizef& GetWindowScreenSize() const noexcept;
-    const ax::pointf& GetClientOrigin() const noexcept;
+    void SetWindowScreenSize(const ax::sizef& size) noexcept;
+
     const ax::sizef& GetClientSize() const noexcept;
+
+    const ax::pointf& GetClientOrigin() const noexcept;
+    void SetClientOrigin(const ax::pointf& origin) noexcept;
+
     const ax::pointf& GetZoom() const noexcept;
+    void SetZoom(const ax::pointf& zoom) noexcept;
+
     const ax::pointf& GetInvertZoom() const noexcept;
 
     ax::rectf CalculateVisibleBounds(bool zoom = false) const noexcept;
@@ -22,6 +31,9 @@ public:
     ax::pointf ToScreen(const ax::pointf& point) const noexcept;
     ax::pointf FromClient(const ax::pointf& point) const noexcept;
     ax::pointf ToClient(const ax::pointf& point) const noexcept;
+
+private:
+    void RefreshClientSize() noexcept;
 
 private:
     ax::pointf m_WindowScreenPosition;

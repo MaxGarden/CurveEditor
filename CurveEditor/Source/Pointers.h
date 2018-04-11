@@ -7,7 +7,7 @@ DECLARE_POINTERS(IEditorController)
 
 DECLARE_POINTERS(IEditorContext)
 
-DECLARE_POINTERS(CCurveEditorView)
+DECLARE_POINTERS(ICurveEditorView)
 DECLARE_POINTERS(ICurveEditorDataModel)
 DECLARE_POINTERS(ICurveEditorControllerListener)
 DECLARE_POINTERS(ICurveEditorController)

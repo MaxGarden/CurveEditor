@@ -23,6 +23,11 @@ struct SCurveEditorStyle
     float TangentLineThickness;
     float TangentMarkerRadius;
 
+    float MinimumZoomLevel;
+    float MaximumZoomLevel;
+    float ZoomInMultipler;
+    float ZoomOutMultipler;
+
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;
 };

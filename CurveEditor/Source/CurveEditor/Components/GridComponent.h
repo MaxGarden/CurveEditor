@@ -6,7 +6,7 @@
 class CCurveEditorGridViewComponent final : public CCurveEditorViewComponentBase
 {
 public:
-    CCurveEditorGridViewComponent(const CCurveEditorView& editorView);
+    CCurveEditorGridViewComponent(const ICurveEditorView& editorView);
     virtual ~CCurveEditorGridViewComponent() override final = default;
 
 protected:

@@ -3,7 +3,7 @@
 #include "CurveEditorController.h"
 #include "EditorContext.h"
 
-CCurveEditorDebugComponent::CCurveEditorDebugComponent(const CCurveEditorView& editorView, IEditorContext& editorContext) :
+CCurveEditorDebugComponent::CCurveEditorDebugComponent(const ICurveEditorView& editorView, IEditorContext& editorContext) :
     CCurveEditorViewComponentBase(editorView),
     m_EditorContext(editorContext)
 {
@@ -12,7 +12,6 @@ CCurveEditorDebugComponent::CCurveEditorDebugComponent(const CCurveEditorView& e
 void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
 {
     ImGui::Begin("Debug Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::SetWindowPos({});
     ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());
 
     ImGui::ColorEdit4("Spline color", &m_SplineColor.Value.x);

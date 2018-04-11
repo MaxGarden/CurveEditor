@@ -6,7 +6,7 @@
 class CCurveEditorBackgroundViewComponent final : public CCurveEditorViewComponentBase
 {
 public:
-    CCurveEditorBackgroundViewComponent(const CCurveEditorView& editorView);
+    CCurveEditorBackgroundViewComponent(const ICurveEditorView& editorView);
     virtual ~CCurveEditorBackgroundViewComponent() override final = default;
 
 protected:

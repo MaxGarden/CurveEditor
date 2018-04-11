@@ -14,14 +14,14 @@ CCurveEditorViewFactory::CCurveEditorViewFactory(IEditorContext& editorContext, 
 
 IEditorViewUniquePtr CCurveEditorViewFactory::Create()
 {
-    auto result = std::make_unique<CCurveEditorView>(m_SplineViewFactory);
+    auto result = ICurveEditorView::Create(m_SplineViewFactory);
 
-    result->AddView(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
-    result->AddView(std::make_unique<CCurveEditorGridViewComponent>(*result));
+    result->AddViewComponent(std::make_unique<CCurveEditorBackgroundViewComponent>(*result));
+    result->AddViewComponent(std::make_unique<CCurveEditorGridViewComponent>(*result));
 
-    result->AddView(std::make_unique<CCurveEditorDebugComponent>(*result, m_EditorContext));
+    result->AddViewComponent(std::make_unique<CCurveEditorDebugComponent>(*result, m_EditorContext));
 
-    result->AddView(std::make_unique<CCurveEditorToolHandlerComponent>(*result));
+    result->AddViewComponent(std::make_unique<CCurveEditorToolHandlerComponent>(*result));
 
     return std::move(result);
 }

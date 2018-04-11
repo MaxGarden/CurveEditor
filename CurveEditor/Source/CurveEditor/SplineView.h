@@ -16,13 +16,13 @@ class ICurveEditorSplineViewFactory
 public:
     virtual ~ICurveEditorSplineViewFactory() = default;
 
-    virtual ICurveEditorSplineViewUniquePtr Create(CCurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
+    virtual ICurveEditorSplineViewUniquePtr Create(ICurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
 };
 
 class CCurveEditorSplineViewBase : public CEditorViewBase<ICurveEditorSplineView, ICurveEditorSplineController>
 {
 public:
-    CCurveEditorSplineViewBase(CCurveEditorView& editorView);
+    CCurveEditorSplineViewBase(ICurveEditorView& editorView);
     virtual ~CCurveEditorSplineViewBase() override = default;
 
     virtual void OnFrame() override;
@@ -30,18 +30,18 @@ public:
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller);
 
-    CCurveEditorView& GetEditorView() noexcept;
-    const CCurveEditorView& GetEditorView() const noexcept;
+    ICurveEditorView& GetEditorView() noexcept;
+    const ICurveEditorView& GetEditorView() const noexcept;
     const SCurveEditorStyle& GetEditorStyle() const noexcept;
 
 private:
-    CCurveEditorView& m_EditorView;
+    ICurveEditorView& m_EditorView;
 };
 
 class CCurveEditorKnotView final : public CCurveEditorSplineViewBase
 {
 public:
-    CCurveEditorKnotView(CCurveEditorView& editorView, size_t knotIndex);
+    CCurveEditorKnotView(ICurveEditorView& editorView, size_t knotIndex);
     virtual ~CCurveEditorKnotView() override final = default;
 
     std::optional<ax::pointf> GetPosition() const noexcept;
@@ -63,7 +63,7 @@ public:
     using ControlPoints = std::array<ax::pointf, 4>;
 
 public:
-    CCurveEditorCurveView(CCurveEditorView& editorView, size_t curveIndex);
+    CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex);
     virtual ~CCurveEditorCurveView() override final = default;
 
     std::optional<ControlPoints> GetControlPointsPositions() const noexcept;
@@ -84,7 +84,7 @@ private:
 class CCurveEditorTangentView final : public CCurveEditorSplineViewBase
 {
 public:
-    CCurveEditorTangentView(CCurveEditorView& editorView, CCurveEditorCurveView& curveView, size_t anchorPointIndex, size_t tangentPointIndex);
+    CCurveEditorTangentView(ICurveEditorView& editorView, CCurveEditorCurveView& curveView, size_t anchorPointIndex, size_t tangentPointIndex);
     virtual ~CCurveEditorTangentView() override final = default;
 
 protected:
@@ -99,7 +99,7 @@ private:
 class CCurveEditorSplineView final : public CCurveEditorSplineViewBase
 {
 public:
-    CCurveEditorSplineView(CCurveEditorView& editorView);
+    CCurveEditorSplineView(ICurveEditorView& editorView);
     virtual ~CCurveEditorSplineView() override final = default;
 
 protected:

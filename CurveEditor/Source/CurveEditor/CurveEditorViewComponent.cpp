@@ -4,7 +4,7 @@
 #include "CurveEditorDataModel.h"
 #include "CurveEditorController.h"
 
-CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(const CCurveEditorView& editorView) :
+CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(const ICurveEditorView& editorView) :
     m_EditorView(editorView)
 {
 }
@@ -29,7 +29,7 @@ void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, ICurveEditorController&
     //to override
 }
 
-const CCurveEditorView& CCurveEditorViewComponentBase::GetEditorView() const noexcept
+const ICurveEditorView& CCurveEditorViewComponentBase::GetEditorView() const noexcept
 {
     return m_EditorView;
 }

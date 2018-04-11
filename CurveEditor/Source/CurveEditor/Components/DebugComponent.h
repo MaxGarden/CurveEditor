@@ -6,7 +6,7 @@
 class CCurveEditorDebugComponent final : public CCurveEditorViewComponentBase
 {
 public:
-    CCurveEditorDebugComponent(const CCurveEditorView& editorView, IEditorContext& editorContext);
+    CCurveEditorDebugComponent(const ICurveEditorView& editorView, IEditorContext& editorContext);
     virtual ~CCurveEditorDebugComponent() override final = default;
 
 protected:

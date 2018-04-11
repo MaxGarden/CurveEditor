@@ -4,6 +4,7 @@
 #include "CurveEditorTool.h"
 #include <ImGuiInterop.h>
 
+using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
 static constexpr std::array<ECurveEditorMouseButton, 5> g_MouseButtons = {ECurveEditorMouseButton::Left,
@@ -12,8 +13,8 @@ static constexpr std::array<ECurveEditorMouseButton, 5> g_MouseButtons = {ECurve
                                                                           ECurveEditorMouseButton::User1,
                                                                           ECurveEditorMouseButton::User2};
 
-CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(const CCurveEditorView& editorView) :
-    CCurveEditorViewComponentBase(editorView)
+CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorView& editorView) :
+    m_EditorView(editorView)
 {
     static_assert(g_MouseButtons.size() == static_cast<size_t>(ECurveEditorMouseButton::__Count));
 
@@ -22,7 +23,17 @@ CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(const CCurveE
         m_ButtonHandlers.emplace_back(editorView, *this, button);
 }
 
-void CCurveEditorToolHandlerComponent::OnFrame(ImDrawList&, ICurveEditorController& editorController)
+void CCurveEditorToolHandlerComponent::OnFrame()
+{
+    const auto editorController = m_EditorView.GetController();
+    EDITOR_ASSERT(editorController);
+    if (!editorController)
+        return;
+
+    OnFrame(*editorController);
+}
+
+void CCurveEditorToolHandlerComponent::OnFrame(ICurveEditorController& editorController)
 {
     CaptureMouseState();
     UpdateMouseState(editorController);
@@ -33,7 +44,10 @@ void CCurveEditorToolHandlerComponent::CaptureMouseState()
 {
     auto& io = ImGui::GetIO();
 
+    const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
+
     m_MousePositionBuffer = io.MousePos;
+    io.MousePos = to_imvec(windowCanvas.FromScreen(to_pointf(m_MousePositionBuffer)));
 
     for(auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.OnCapture();
@@ -47,6 +61,8 @@ void CCurveEditorToolHandlerComponent::UpdateMouseState(ICurveEditorController& 
 
     for (auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.Update(*activeTool);
+
+    UpdateWheelState(*activeTool);
 }
 
 void CCurveEditorToolHandlerComponent::ReleaseMouseState()
@@ -64,7 +80,18 @@ void CCurveEditorToolHandlerComponent::VisitButtonHandlers(const ConstVisitorTyp
     VisitObjectsContainer(m_ButtonHandlers, visitor);
 }
 
-CMouseButtonHandler::CMouseButtonHandler(const CCurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
+void CCurveEditorToolHandlerComponent::UpdateWheelState(ICurveEditorTool& activeTool)
+{
+    auto& io = ImGui::GetIO();
+    const auto mouseWheelValue = io.MouseWheel;
+
+    if (mouseWheelValue == 0.0f)
+        return;
+
+    activeTool.OnWheel(CCurveEditorToolMouseWheelEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), mouseWheelValue));
+}
+
+CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
     m_EditorView(editorView),
     m_ToolHandler(toolHandler),
     m_Button(button)
@@ -87,9 +114,14 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     const auto wasDragging = m_IsDragging;
     const auto imGuiButtonIndex = static_cast<int>(m_Button);
 
-    const auto notifyTool = [this, &activeTool](const auto& method)
+    const auto notifyToolButtonEvent = [this, &activeTool](const auto& method)
     {
         (activeTool.*method)(CCurveEditorToolMouseButtonEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), m_Button));
+    };
+
+    const auto notifyToolDragEvent = [this, &activeTool](const auto& method, const auto& currentDragDelta)
+    {
+        (activeTool.*method)(CCurveEditorToolMouseDragEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), m_Button, to_pointf(currentDragDelta), to_pointf(m_TotalDragDelta)));
     };
 
     const auto canStartDrag = [this]()
@@ -112,16 +144,25 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     if (wasDragging != m_IsDragging)
     {
         if (m_IsDragging)
-            notifyTool(&ICurveEditorTool::OnDragBegin);
+            notifyToolDragEvent(&ICurveEditorTool::OnDragBegin, ImVec2{});
         else
-            notifyTool(&ICurveEditorTool::OnDragEnd);
+        {
+            notifyToolDragEvent(&ICurveEditorTool::OnDragEnd, ImVec2{});
+            m_TotalDragDelta = {};
+        }
     }
     else if (m_IsDragging)
-        notifyTool(&ICurveEditorTool::OnDragUpdate);
+    {
+        const auto mouseDragDelta = ImGui::GetMouseDragDelta(imGuiButtonIndex);
+        const auto currentDragDelta = mouseDragDelta - m_TotalDragDelta;
+        m_TotalDragDelta = mouseDragDelta;
+
+        notifyToolDragEvent(&ICurveEditorTool::OnDragUpdate, currentDragDelta);
+    }
     else if (ImGui::IsMouseClicked(imGuiButtonIndex))
-        notifyTool(&ICurveEditorTool::OnClick);
+        notifyToolButtonEvent(&ICurveEditorTool::OnClick);
     else if (ImGui::IsMouseDoubleClicked(imGuiButtonIndex))
-        notifyTool(&ICurveEditorTool::OnDoubleClick);
+        notifyToolButtonEvent(&ICurveEditorTool::OnDoubleClick);
 }
 
 void CMouseButtonHandler::OnRelease()

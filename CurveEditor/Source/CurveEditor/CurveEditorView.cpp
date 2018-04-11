@@ -10,6 +10,47 @@
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
+class CCurveEditorView final : public CEditorViewBase<ICurveEditorView, ICurveEditorController>
+{
+public:
+    CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory);
+    virtual ~CCurveEditorView();
+
+    virtual void OnFrame() override final;
+
+    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
+
+    bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
+    bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
+
+    virtual CEditorCanvas& GetCanvas() noexcept override final;
+    virtual const CEditorCanvas& GetCanvas() const noexcept override final;
+
+    virtual bool AddViewComponent(IEditorViewUniquePtr&& view) override final;
+
+protected:
+    virtual void OnControllerChanged() noexcept override final;
+
+private:
+    void VisitViewComponents(const VisitorType<IEditorView>& visitor) noexcept;
+    void VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept;
+
+    void RecreateSplineViews();
+
+    void OnFrameBegin();
+    void OnFrameEnd();
+
+    void RefreshWindowCanvas();
+
+private:
+    CEditorCanvas m_Canvas = CEditorCanvas({ 100.0f, 100.0f });
+
+    std::vector<IEditorViewUniquePtr> m_Views;
+    std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
+    ICurveEditorSplineViewFactory& m_SplineViewFactory;
+    EditorListenerHandle m_ListenerHandle;
+};
+
 class CCurveEditorViewListener final : public CCurveEditorControllerListenerBase
 {
 public:
@@ -61,14 +102,14 @@ void CCurveEditorView::OnFrameBegin()
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::Begin("CurveEditorView", nullptr, ImVec2(0.0f, 0.0f), 0.0f, editorWindowFlags);
 
-    SetWindowCanvas();
+    RefreshWindowCanvas();
 }
 
 void CCurveEditorView::OnFrame()
 {
     OnFrameBegin();
 
-    VisitViews([](auto& view)
+    VisitViewComponents([](auto& view)
     {
         view.OnFrame();
     });
@@ -83,8 +124,6 @@ void CCurveEditorView::OnFrame()
 
 void CCurveEditorView::OnFrameEnd()
 {
-    ApplyCanvas();
-
     ImGui::End();
 }
 
@@ -142,7 +181,7 @@ const CEditorCanvas& CCurveEditorView::GetCanvas() const noexcept
     return m_Canvas;
 }
 
-bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
+bool CCurveEditorView::AddViewComponent(IEditorViewUniquePtr&& view)
 {
     if (!view)
         return false;
@@ -157,7 +196,7 @@ bool CCurveEditorView::AddView(IEditorViewUniquePtr&& view)
     return true;
 }
 
-void CCurveEditorView::VisitViews(const VisitorType<IEditorView>& visitor) noexcept
+void CCurveEditorView::VisitViewComponents(const VisitorType<IEditorView>& visitor) noexcept
 {
     VisitPointersContainer(m_Views, visitor);
 }
@@ -201,7 +240,7 @@ void CCurveEditorView::OnControllerChanged() noexcept
     auto result = true;
     const auto& controller = GetController();
 
-    VisitViews([&controller, &result](auto& view)
+    VisitViewComponents([&controller, &result](auto& view)
     {
         result &= view.SetController(controller);
     });
@@ -211,40 +250,15 @@ void CCurveEditorView::OnControllerChanged() noexcept
     RecreateSplineViews();
 }
 
-void CCurveEditorView::SetWindowCanvas()
+void CCurveEditorView::RefreshWindowCanvas()
 {
     auto& windowCanvas = GetCanvas().GetWindowCanvas();
 
-    windowCanvas = CWindowCanvas{ to_pointf(ImGui::GetWindowPos()), to_sizef(ImGui::GetWindowSize()), ax::pointf{ 1.0f, 1.0f }, {} };
+    windowCanvas.SetWindowScreenPosition(to_pointf(ImGui::GetWindowPos()));
+    windowCanvas.SetWindowScreenSize(to_sizef(ImGui::GetWindowSize()));
 }
 
-void CCurveEditorView::ApplyCanvas()
+ICurveEditorViewUniquePtr ICurveEditorView::Create(ICurveEditorSplineViewFactory& splinceViewFactory)
 {
-    const auto drawList = ImGui::GetWindowDrawList();
-    EDITOR_ASSERT(drawList);
-    if (!drawList)
-        return;
-
-    const auto& windowCanvas = GetCanvas().GetWindowCanvas();
-
-    const auto windowScreenPosition = to_imvec(windowCanvas.GetWindowScreenPosition());
-    const auto windowSize = to_imvec(windowCanvas.GetWindowScreenSize());
-    const auto clientOrigin = to_imvec(windowCanvas.GetClientOrigin());
-
-    const auto preOffset = ImVec2{ 0, 0 };
-    const auto postOffset = windowScreenPosition + clientOrigin;
-    const auto scale = ImVec2{ 1.0f, 1.0f };
-
-    const auto backgroundChannelStart = ImGuiUtilities::GetBackgroundChannelStart();
-
-    ImGuiUtilities::TransformDrawListChannels(*drawList, 0, 1, preOffset, scale, postOffset);
-    ImGuiUtilities::TransformDrawListChannels(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, preOffset, scale, postOffset);
-
-    const auto windowScreenPositionPoint = windowCanvas.GetWindowScreenPosition();
-    auto clipTranslation = to_imvec(windowScreenPositionPoint - windowCanvas.FromScreen(windowScreenPositionPoint));
-
-    ImGui::PushClipRect(windowScreenPosition, windowScreenPosition + windowSize, false);
-    ImGuiUtilities::TranslateAndClampDrawListClipRects(*drawList, 0, 1, clipTranslation);
-    ImGuiUtilities::TranslateAndClampDrawListClipRects(*drawList, backgroundChannelStart, drawList->_ChannelsCount - 1, clipTranslation);
-    ImGui::PopClipRect();
+    return std::make_unique<CCurveEditorView>(splinceViewFactory);
 }

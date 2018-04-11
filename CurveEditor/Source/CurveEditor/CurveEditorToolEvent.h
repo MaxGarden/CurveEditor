@@ -17,26 +17,19 @@ enum class ECurveEditorMouseButton
 class CCurveEditorToolEvent
 {
 public:
-    CCurveEditorToolEvent(const CCurveEditorView& editorView);
+    CCurveEditorToolEvent(ICurveEditorView& editorView);
     virtual ~CCurveEditorToolEvent() = default;
 
-    const CCurveEditorView& GetEditorView() const noexcept;
+    ICurveEditorView& GetEditorView() const noexcept;
 
 private:
-    const CCurveEditorView& m_EditorView;
-};
-
-class CCurveEditorToolWheelEvent : public CCurveEditorToolEvent
-{
-public:
-    CCurveEditorToolWheelEvent(const CCurveEditorView& editorView);
-    virtual ~CCurveEditorToolWheelEvent() override = default;
+    ICurveEditorView& m_EditorView;
 };
 
 class CCurveEditorToolMouseEvent : public CCurveEditorToolEvent
 {
 public:
-    CCurveEditorToolMouseEvent(const CCurveEditorView& editorView, const ax::pointf& mousePosition);
+    CCurveEditorToolMouseEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition);
     virtual ~CCurveEditorToolMouseEvent() override = default;
 
     const ax::pointf& GetMousePosition() const noexcept;
@@ -45,10 +38,22 @@ private:
     const ax::pointf m_MousePosition;
 };
 
+class CCurveEditorToolMouseWheelEvent final : public CCurveEditorToolMouseEvent
+{
+public:
+    CCurveEditorToolMouseWheelEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, float wheelValue);
+    virtual ~CCurveEditorToolMouseWheelEvent() override final = default;
+
+    float GetWheelValue() const noexcept;
+
+private:
+    float m_WheelValue;
+};
+
 class CCurveEditorToolMouseButtonEvent : public CCurveEditorToolMouseEvent
 {
 public:
-    CCurveEditorToolMouseButtonEvent(const CCurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton);
+    CCurveEditorToolMouseButtonEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton);
     virtual ~CCurveEditorToolMouseButtonEvent() override = default;
 
     ECurveEditorMouseButton GetMouseButton() const noexcept;
@@ -57,11 +62,27 @@ private:
     const ECurveEditorMouseButton m_MouseButton;
 };
 
-class CCurveEditorToolKeyEvent : public CCurveEditorToolEvent
+class CCurveEditorToolMouseDragEvent final : public CCurveEditorToolMouseButtonEvent
 {
 public:
-    CCurveEditorToolKeyEvent(const CCurveEditorView& editorView);
-    virtual ~CCurveEditorToolKeyEvent() override = default;
+    CCurveEditorToolMouseDragEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton, const ax::pointf& currentDragDelta, const ax::pointf& totalDragDelta);
+    virtual ~CCurveEditorToolMouseDragEvent() override final = default;
+
+    const ax::pointf& GetCurrentDragDelta() const noexcept;
+    const ax::pointf& GetTotalDragDelta() const noexcept;
+    const ax::pointf& GetDragStartPosition() const noexcept;
+
+private:
+    const ax::pointf m_CurrentDragDelta;
+    const ax::pointf m_TotalDragDelta;
+    const ax::pointf m_DragStartPosition;
+};
+
+class CCurveEditorToolKeyEvent final : public CCurveEditorToolEvent
+{
+public:
+    CCurveEditorToolKeyEvent(ICurveEditorView& editorView);
+    virtual ~CCurveEditorToolKeyEvent() override final = default;
 };
 
 #endif //__CURVE_EDITOR_TOOL_EVENT_H__

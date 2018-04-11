@@ -9,7 +9,7 @@ public:
     CCurveEditorSplineViewFactory() = default;
     virtual ~CCurveEditorSplineViewFactory() override final = default;
 
-    virtual ICurveEditorSplineViewUniquePtr Create(CCurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr& splineController) override final;
+    virtual ICurveEditorSplineViewUniquePtr Create(ICurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr& splineController) override final;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_VIEW_FACTORY_H__

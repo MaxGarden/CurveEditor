@@ -6,6 +6,9 @@
 #include "CurveEditorDataModel.h"
 #include "SplineControllerFactory.h"
 #include "SplineViewFactory.h"
+#include "CurveEditorTool.h"
+#include "Tools/CurveEditorScrollTool.h"
+#include "Tools/CurveEditorZoomTool.h"
 #include "EditorContext.h"
 
 int main(int argc, char** argv)
@@ -25,7 +28,16 @@ int main(int argc, char** argv)
     CCurveEditorSplineViewFactory splineViewFactory;
 
     curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(*curveEditorContext, splineViewFactory));
-    curveEditorContext->SetController(ICurveEditorController::Create(splineControllerFactory));
+
+    auto controller = ICurveEditorController::Create(splineControllerFactory);
+
+    const auto tool = ICurveEditorComponentToolSharedPtr(ICurveEditorComponentTool::Create());
+    tool->AddComponent(std::make_unique<CCurveEditorScrollTool>(ECurveEditorMouseButton::Right));
+    tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
+
+    controller->SetActiveTool(tool);
+
+    curveEditorContext->SetController(std::move(controller));
     curveEditorContext->SetDataModel(ICurveEditorDataModel::Create());
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);

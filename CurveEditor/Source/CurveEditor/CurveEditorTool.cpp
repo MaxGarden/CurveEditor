@@ -7,13 +7,13 @@ public:
     CCurveEditorComponentTool() = default;
     virtual ~CCurveEditorComponentTool() override final = default;
 
-    virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override final;
-    virtual void OnDragUpdate(const CCurveEditorToolMouseButtonEvent& event) override final;
-    virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override final;
+    virtual void OnDragBegin(const CCurveEditorToolMouseDragEvent& event) override final;
+    virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) override final;
+    virtual void OnDragEnd(const CCurveEditorToolMouseDragEvent& event) override final;
 
     virtual void OnMouseMove(const CCurveEditorToolMouseEvent& event) override final;
 
-    virtual void OnWheel(const CCurveEditorToolWheelEvent& event) override final;
+    virtual void OnWheel(const CCurveEditorToolMouseWheelEvent& event) override final;
 
     virtual void OnClick(const CCurveEditorToolMouseButtonEvent& event) override final;
     virtual void OnDoubleClick(const CCurveEditorToolMouseButtonEvent& event) override final;
@@ -38,17 +38,17 @@ private:
     std::vector<ICurveEditorToolUniquePtr> m_Components;
 };
 
-void CCurveEditorComponentTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
+void CCurveEditorComponentTool::OnDragBegin(const CCurveEditorToolMouseDragEvent& event)
 {
     NotifyComponents(&ICurveEditorTool::OnDragBegin, event);
 }
 
-void CCurveEditorComponentTool::OnDragUpdate(const CCurveEditorToolMouseButtonEvent& event)
+void CCurveEditorComponentTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)
 {
     NotifyComponents(&ICurveEditorTool::OnDragUpdate, event);
 }
 
-void CCurveEditorComponentTool::OnDragEnd(const CCurveEditorToolMouseButtonEvent& event)
+void CCurveEditorComponentTool::OnDragEnd(const CCurveEditorToolMouseDragEvent& event)
 {
     NotifyComponents(&ICurveEditorTool::OnDragEnd, event);
 }
@@ -58,7 +58,7 @@ void CCurveEditorComponentTool::OnMouseMove(const CCurveEditorToolMouseEvent& ev
     NotifyComponents(&ICurveEditorTool::OnMouseMove, event);
 }
 
-void CCurveEditorComponentTool::OnWheel(const CCurveEditorToolWheelEvent& event)
+void CCurveEditorComponentTool::OnWheel(const CCurveEditorToolMouseWheelEvent& event)
 {
     NotifyComponents(&ICurveEditorTool::OnWheel, event);
 }

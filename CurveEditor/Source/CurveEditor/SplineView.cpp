@@ -28,12 +28,12 @@ void CCurveEditorSplineViewBase::OnFrame(ImDrawList&, ICurveEditorSplineControll
     //to override
 }
 
-CCurveEditorView& CCurveEditorSplineViewBase::GetEditorView() noexcept
+ICurveEditorView& CCurveEditorSplineViewBase::GetEditorView() noexcept
 {
     return m_EditorView;
 }
 
-const CCurveEditorView& CCurveEditorSplineViewBase::GetEditorView() const noexcept
+const ICurveEditorView& CCurveEditorSplineViewBase::GetEditorView() const noexcept
 {
     return m_EditorView;
 }
@@ -48,7 +48,7 @@ const SCurveEditorStyle& CCurveEditorSplineViewBase::GetEditorStyle() const noex
     return null;;
 }
 
-CCurveEditorKnotView::CCurveEditorKnotView(CCurveEditorView& editorView, size_t knotIndex) :
+CCurveEditorKnotView::CCurveEditorKnotView(ICurveEditorView& editorView, size_t knotIndex) :
     CCurveEditorSplineViewBase(editorView),
     m_KnotIndex(knotIndex)
 {
@@ -95,7 +95,7 @@ std::optional<ax::rectf> CCurveEditorKnotView::GetBounds() const noexcept
     return ax::rectf{ *editorPosition - halfKnotSize, *editorPosition + halfKnotSize };
 }
 
-CCurveEditorTangentView::CCurveEditorTangentView(CCurveEditorView& editorView, CCurveEditorCurveView& curveView, size_t anchorPointIndex, size_t tangentPointIndex) :
+CCurveEditorTangentView::CCurveEditorTangentView(ICurveEditorView& editorView, CCurveEditorCurveView& curveView, size_t anchorPointIndex, size_t tangentPointIndex) :
     CCurveEditorSplineViewBase(editorView),
     m_CurveView(curveView),
     m_AnchorControlPointIndex(anchorPointIndex),
@@ -126,7 +126,7 @@ void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorSplineCo
     drawList.AddCircleFilled(tangentPosition, style.TangentMarkerRadius, style.Colors[CurveEditorStyleColor_TangentMarker]);
 }
 
-CCurveEditorCurveView::CCurveEditorCurveView(CCurveEditorView& editorView, size_t curveIndex) :
+CCurveEditorCurveView::CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex) :
     CCurveEditorSplineViewBase(editorView),
     m_CurveIndex(curveIndex)
 {
@@ -213,7 +213,7 @@ void CCurveEditorCurveView::VisitTangentsViews(const VisitorType<CCurveEditorSpl
     VisitPointersContainer(m_Tangents, visitor);
 }
 
-CCurveEditorSplineView::CCurveEditorSplineView(CCurveEditorView& editorView) :
+CCurveEditorSplineView::CCurveEditorSplineView(ICurveEditorView& editorView) :
     CCurveEditorSplineViewBase(editorView)
 {
 }
@@ -238,7 +238,7 @@ void CCurveEditorSplineView::OnControllerChanged()
 }
 
 template<typename ViewType, typename ContainerType>
-static void EnsureViews(ContainerType& container, const IEditorControllerSharedPtr& controller, CCurveEditorView& editorView, size_t count)
+static void EnsureViews(ContainerType& container, const IEditorControllerSharedPtr& controller, ICurveEditorView& editorView, size_t count)
 {
     if (count == container.size())
         return;
@@ -282,7 +282,7 @@ void CCurveEditorSplineView::VisitKnotViews(const VisitorType<CCurveEditorKnotVi
     VisitPointersContainer(m_KnotsViews, visitor);
 }
 
-CCurveEditorSplineViewBase::CCurveEditorSplineViewBase(CCurveEditorView& editorView) :
+CCurveEditorSplineViewBase::CCurveEditorSplineViewBase(ICurveEditorView& editorView) :
     m_EditorView(editorView)
 {
 }

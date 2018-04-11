@@ -5,46 +5,19 @@
 #include "CurveEditorController.h"
 #include "EditorViewBase.h"
 
-class CCurveEditorView final : public CEditorViewBase<IEditorView, ICurveEditorController>
+class ICurveEditorView : public IEditorView
 {
 public:
-    CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory);
-    virtual ~CCurveEditorView();
+    virtual ~ICurveEditorView() override = default;
 
-    virtual void OnFrame() override final;
+    virtual CEditorCanvas& GetCanvas() noexcept = 0;
+    virtual const CEditorCanvas& GetCanvas() const noexcept = 0;
 
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
+    virtual bool AddViewComponent(IEditorViewUniquePtr&& view) = 0;
 
-    bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
-    bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
+    virtual const ICurveEditorControllerSharedPtr& GetController() const noexcept = 0;
 
-    CEditorCanvas& GetCanvas() noexcept;
-    const CEditorCanvas& GetCanvas() const noexcept;
-
-    bool AddView(IEditorViewUniquePtr&& view);
-
-protected:
-    virtual void OnControllerChanged() noexcept override final;
-
-private:
-    void VisitViews(const VisitorType<IEditorView>& visitor) noexcept;
-    void VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept;
-
-    void RecreateSplineViews();
-
-    void OnFrameBegin();
-    void OnFrameEnd();
-
-    void SetWindowCanvas();
-    void ApplyCanvas();
-
-private:
-    CEditorCanvas m_Canvas = CEditorCanvas({ 100.0f, 100.0f });
-
-    std::vector<IEditorViewUniquePtr> m_Views;
-    std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
-    ICurveEditorSplineViewFactory& m_SplineViewFactory;
-    EditorListenerHandle m_ListenerHandle;
+    static ICurveEditorViewUniquePtr Create(ICurveEditorSplineViewFactory& splinceViewFactory);
 };
 
 #endif //__CURVE_EDITOR_VIEW_H__
