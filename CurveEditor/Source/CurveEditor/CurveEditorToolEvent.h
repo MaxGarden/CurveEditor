@@ -65,17 +65,13 @@ private:
 class CCurveEditorToolMouseDragEvent final : public CCurveEditorToolMouseButtonEvent
 {
 public:
-    CCurveEditorToolMouseDragEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton, const ax::pointf& currentDragDelta, const ax::pointf& totalDragDelta);
+    CCurveEditorToolMouseDragEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton, const ax::pointf& dragDelta);
     virtual ~CCurveEditorToolMouseDragEvent() override final = default;
 
-    const ax::pointf& GetCurrentDragDelta() const noexcept;
-    const ax::pointf& GetTotalDragDelta() const noexcept;
-    const ax::pointf& GetDragStartPosition() const noexcept;
+    const ax::pointf& GetDragDelta() const noexcept;
 
 private:
-    const ax::pointf m_CurrentDragDelta;
-    const ax::pointf m_TotalDragDelta;
-    const ax::pointf m_DragStartPosition;
+    const ax::pointf m_DragDelta;
 };
 
 class CCurveEditorToolKeyEvent final : public CCurveEditorToolEvent

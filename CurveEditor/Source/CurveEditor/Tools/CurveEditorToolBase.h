@@ -9,9 +9,9 @@ public:
     CCurveEditorToolBase() = default;
     virtual ~CCurveEditorToolBase() override = default;
 
-    virtual void OnDragBegin(const CCurveEditorToolMouseDragEvent& event) override;
+    virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override;
     virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) override;
-    virtual void OnDragEnd(const CCurveEditorToolMouseDragEvent& event) override;
+    virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override;
 
     virtual void OnMouseMove(const CCurveEditorToolMouseEvent& event) override;
 

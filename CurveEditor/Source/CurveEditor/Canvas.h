@@ -25,9 +25,9 @@ public:
 
     const ax::pointf& GetInvertZoom() const noexcept;
 
-    ax::rectf CalculateVisibleBounds(bool zoom = false) const noexcept;
+    ax::rectf CalculateVisibleBounds() const noexcept;
 
-    ax::pointf FromScreen(const ax::pointf& point, bool zoom = false) const noexcept;
+    ax::pointf FromScreen(const ax::pointf& point) const noexcept;
     ax::pointf ToScreen(const ax::pointf& point) const noexcept;
     ax::pointf FromClient(const ax::pointf& point) const noexcept;
     ax::pointf ToClient(const ax::pointf& point) const noexcept;

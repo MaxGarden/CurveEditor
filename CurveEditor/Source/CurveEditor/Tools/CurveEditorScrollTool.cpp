@@ -7,6 +7,14 @@ CCurveEditorScrollTool::CCurveEditorScrollTool(ECurveEditorMouseButton mouseButt
 {
 }
 
+void CCurveEditorScrollTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
+{
+    if (event.GetMouseButton() != m_MouseButton)
+        return;
+
+    m_LastDragDelta = {};
+}
+
 void CCurveEditorScrollTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)
 {
     if (event.GetMouseButton() != m_MouseButton)
@@ -15,7 +23,11 @@ void CCurveEditorScrollTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& 
     auto& editorView = event.GetEditorView();
     auto& windowCanvas = editorView.GetCanvas().GetWindowCanvas();
 
-    const auto& currentDragDelta = event.GetCurrentDragDelta();
+    const auto& dragDelta = event.GetDragDelta().cwise_product(windowCanvas.GetInvertZoom());
 
-    windowCanvas.SetClientOrigin(windowCanvas.GetClientOrigin() + currentDragDelta);
+    if (dragDelta == m_LastDragDelta)
+        return;
+
+    windowCanvas.SetClientOrigin(windowCanvas.GetClientOrigin() + dragDelta - m_LastDragDelta);
+    m_LastDragDelta = dragDelta;
 }

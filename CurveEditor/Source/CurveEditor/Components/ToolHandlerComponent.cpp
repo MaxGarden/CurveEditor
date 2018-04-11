@@ -46,11 +46,11 @@ void CCurveEditorToolHandlerComponent::CaptureMouseState()
 
     const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
 
-    m_MousePositionBuffer = io.MousePos;
-    io.MousePos = to_imvec(windowCanvas.FromScreen(to_pointf(m_MousePositionBuffer)));
-
     for(auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.OnCapture();
+
+    m_MousePositionBuffer = io.MousePos;
+    io.MousePos = to_imvec(windowCanvas.FromScreen(to_pointf(m_MousePositionBuffer)));
 }
 
 void CCurveEditorToolHandlerComponent::UpdateMouseState(ICurveEditorController& editorController)
@@ -69,10 +69,10 @@ void CCurveEditorToolHandlerComponent::ReleaseMouseState()
 {
     auto& io = ImGui::GetIO();
 
+    io.MousePos = m_MousePositionBuffer;
+
     for (auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.OnRelease();
-
-    io.MousePos = m_MousePositionBuffer;
 }
 
 void CCurveEditorToolHandlerComponent::VisitButtonHandlers(const ConstVisitorType<CMouseButtonHandler>& visitor) const noexcept
@@ -103,59 +103,46 @@ void CMouseButtonHandler::OnCapture()
     auto& io = ImGui::GetIO();
     const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
 
-    const auto buttonIndex = GetButtonIndex();
+    const auto imGuiButtonIndex = GetButtonIndex();
 
-    m_ClickPositionBuffer = io.MouseClickedPos[buttonIndex];
-    io.MouseClickedPos[buttonIndex] = to_imvec(windowCanvas.FromScreen(to_pointf(m_ClickPositionBuffer)));
+    if(m_IsDragging = ImGui::IsMouseDragging(static_cast<int>(imGuiButtonIndex), 1.0f))
+        m_DragDelta = to_pointf(ImGui::GetMouseDragDelta(static_cast<int>(imGuiButtonIndex), 1.0f));
+
+    m_ClickPositionBuffer = io.MouseClickedPos[imGuiButtonIndex];
+    io.MouseClickedPos[imGuiButtonIndex] = to_imvec(windowCanvas.FromScreen(to_pointf(m_ClickPositionBuffer)));
 }
 
 void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
 {
-    const auto wasDragging = m_IsDragging;
     const auto imGuiButtonIndex = static_cast<int>(m_Button);
+    const auto mousePosition = to_pointf(ImGui::GetMousePos());
 
-    const auto notifyToolButtonEvent = [this, &activeTool](const auto& method)
+    const auto notifyToolButtonEvent = [this, &activeTool, &mousePosition](const auto& method)
     {
-        (activeTool.*method)(CCurveEditorToolMouseButtonEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), m_Button));
+        (activeTool.*method)(CCurveEditorToolMouseButtonEvent(m_EditorView, mousePosition, m_Button));
     };
 
-    const auto notifyToolDragEvent = [this, &activeTool](const auto& method, const auto& currentDragDelta)
+    const auto notifyToolDragEvent = [this, &activeTool, &mousePosition](const auto& method, const auto& currentDragDelta)
     {
-        (activeTool.*method)(CCurveEditorToolMouseDragEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), m_Button, to_pointf(currentDragDelta), to_pointf(m_TotalDragDelta)));
+        (activeTool.*method)(CCurveEditorToolMouseDragEvent(m_EditorView, mousePosition, m_Button, currentDragDelta));
     };
 
-    const auto canStartDrag = [this]()
-    {
-        bool result = true;
-
-        m_ToolHandler.VisitButtonHandlers([this, &result](const auto& buttonHandler)
-        {
-            EDITOR_ASSERT(GetButton() != buttonHandler.GetButton() || this == &buttonHandler);
-
-            if (this != &buttonHandler && buttonHandler.IsDragging())
-                result = false;
-        });
-
-        return result;
-    };
-
-    m_IsDragging = ImGui::IsMouseDragging(imGuiButtonIndex, 1.0f) && (m_IsDragging || canStartDrag());
-
-    if (wasDragging != m_IsDragging)
+    if (m_WasDragging != m_IsDragging)
     {
         if (m_IsDragging)
-            notifyToolDragEvent(&ICurveEditorTool::OnDragBegin, ImVec2{});
+            notifyToolButtonEvent(&ICurveEditorTool::OnDragBegin);
         else
         {
-            notifyToolDragEvent(&ICurveEditorTool::OnDragEnd, ImVec2{});
-            m_TotalDragDelta = {};
+            notifyToolButtonEvent(&ICurveEditorTool::OnDragEnd);
+            m_DragDelta = {};
         }
+
+        m_WasDragging = m_IsDragging;
     }
     else if (m_IsDragging)
     {
-        const auto mouseDragDelta = ImGui::GetMouseDragDelta(imGuiButtonIndex);
-        const auto currentDragDelta = mouseDragDelta - m_TotalDragDelta;
-        m_TotalDragDelta = mouseDragDelta;
+        const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
+        const auto currentDragDelta = m_DragDelta.cwise_product(windowCanvas.GetZoom());
 
         notifyToolDragEvent(&ICurveEditorTool::OnDragUpdate, currentDragDelta);
     }

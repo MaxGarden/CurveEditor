@@ -102,25 +102,33 @@ const ax::pointf& CWindowCanvas::GetInvertZoom() const noexcept
     return m_InvertZoom;
 }
 
-ax::rectf CWindowCanvas::CalculateVisibleBounds(bool zoom) const noexcept
+ax::rectf CWindowCanvas::CalculateVisibleBounds() const noexcept
 {
     return ax::rectf{
-        FromScreen(m_WindowScreenPosition, zoom),
-        FromScreen(m_WindowScreenPosition + m_WindowScreenSize, zoom) };
+        FromScreen(m_WindowScreenPosition),
+        FromScreen(m_WindowScreenPosition + m_WindowScreenSize) };
 }
 
-ax::pointf CWindowCanvas::FromScreen(const ax::pointf& point, bool zoom) const noexcept
+ax::pointf CWindowCanvas::FromScreen(const ax::pointf& point) const noexcept
 {
+    EDITOR_ASSERT((m_InvertZoom.x != 0.0f && m_InvertZoom.y != 0.0f));
+    if (m_InvertZoom.x == 0.0f || m_InvertZoom.y == 0.0f)
+        return {};
+
     return ax::pointf{
-        (point.x - m_WindowScreenPosition.x - m_ClientOrigin.x) * (zoom ? m_InvertZoom.x : 1.0f),
-        (point.y - m_WindowScreenPosition.y - m_ClientOrigin.y) * (zoom ? m_InvertZoom.y : 1.0f) };
+        (point.x - m_WindowScreenPosition.x - m_ClientOrigin.x) * m_InvertZoom.x,
+        (point.y - m_WindowScreenPosition.y - m_ClientOrigin.y) * m_InvertZoom.y };
 }
 
 ax::pointf CWindowCanvas::ToScreen(const ax::pointf& point) const noexcept
 {
+    EDITOR_ASSERT(m_Zoom.x != 0.0f && m_Zoom.y != 0.0f);
+    if ((m_Zoom.x == 0.0f || m_Zoom.y == 0.0f))
+        return {};
+
     return ax::pointf{
-        (point.x + m_ClientOrigin.x + m_WindowScreenPosition.x),
-        (point.y + m_ClientOrigin.y + m_WindowScreenPosition.y) };
+        (point.x *  m_Zoom.x + m_ClientOrigin.x + m_WindowScreenPosition.x) ,
+        (point.y *  m_Zoom.y + m_ClientOrigin.y + m_WindowScreenPosition.y) , };
 }
 
 ax::pointf CWindowCanvas::FromClient(const ax::pointf& point) const noexcept
@@ -197,24 +205,16 @@ ax::pointf CEditorCanvas::CalculateScaledUnit() const noexcept
 
 ax::pointf CEditorCanvas::FromEditor(const ax::pointf& value) const noexcept
 {
-    const auto& zoom = m_WindowCanvas.GetZoom();
-
-    EDITOR_ASSERT(zoom.x != 0.0f && zoom.y != 0.0f);
-    if (zoom.x == 0.0f || zoom.y == 0.0f)
-        return {};
-
     const auto fromScreenValue = m_WindowCanvas.FromScreen(value);
 
     return ax::pointf{
-        (fromScreenValue.x / m_UnitScaler.x / zoom.x),
-        (-fromScreenValue.y / m_UnitScaler.y / zoom.y) };
+        (fromScreenValue.x / m_UnitScaler.x),
+        (-fromScreenValue.y / m_UnitScaler.y) };
 }
 
 ax::pointf CEditorCanvas::ToEditor(const ax::pointf& position) const noexcept
 {
-    const auto& zoom = m_WindowCanvas.GetZoom();
-
     return m_WindowCanvas.ToScreen(ax::pointf{
-        (position.x * m_UnitScaler.x * zoom.x),
-        (-position.y * m_UnitScaler.y * zoom.y) });
+        (position.x * m_UnitScaler.x),
+        (-position.y * m_UnitScaler.y) });
 }

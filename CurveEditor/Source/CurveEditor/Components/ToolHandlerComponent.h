@@ -26,9 +26,10 @@ private:
     ICurveEditorView& m_EditorView;
     const CCurveEditorToolHandlerComponent& m_ToolHandler;
     bool m_IsDragging = false;
+    bool m_WasDragging = false;
     ECurveEditorMouseButton m_Button;
     ImVec2 m_ClickPositionBuffer;
-    ImVec2 m_TotalDragDelta;
+    ax::pointf m_DragDelta;
 };
 
 class CCurveEditorToolHandlerComponent final : public CEditorViewBase<IEditorView, ICurveEditorController>

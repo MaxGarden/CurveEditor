@@ -11,11 +11,11 @@ void CCurveEditorZoomTool::OnWheel(const CCurveEditorToolMouseWheelEvent& event)
     const auto& mousePosition = event.GetMousePosition();
 
     const auto screenPosition = windowCanvas.ToScreen(mousePosition);
-    const auto previousCanvasPosition = windowCanvas.FromScreen(screenPosition, true);
+    const auto previousCanvasPosition = windowCanvas.FromScreen(screenPosition);
 
     ApplyZoom(static_cast<int>(event.GetWheelValue()), editorView);
 
-    const auto canvasPosition = windowCanvas.FromScreen(screenPosition, true);
+    const auto canvasPosition = windowCanvas.FromScreen(screenPosition);
     const auto& zoom = windowCanvas.GetZoom();
     const auto offset = ax::pointf{ (canvasPosition.x - previousCanvasPosition.x) * zoom.x, (canvasPosition.y - previousCanvasPosition.y) * zoom.y };
 
