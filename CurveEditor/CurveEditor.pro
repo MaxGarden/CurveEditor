@@ -48,6 +48,7 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.cpp        \
     Source/CurveEditor/Tools/CurveEditorScrollTool.cpp          \
     Source/CurveEditor/Tools/CurveEditorZoomTool.cpp            \
+    Source/CurveEditor/Tools/CurveEditorSelectionToolBase.cpp   \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
 HEADERS += \
@@ -91,6 +92,7 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.h          \
     Source/CurveEditor/Tools/CurveEditorScrollTool.h            \
     Source/CurveEditor/Tools/CurveEditorZoomTool.h              \
+    Source/CurveEditor/Tools/CurveEditorSelectionToolBase.h     \
     Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \
