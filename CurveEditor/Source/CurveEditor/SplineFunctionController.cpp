@@ -102,3 +102,19 @@ size_t CCurveEditorFunctionSplineController::GetKnotsCount() const noexcept
 
     return curvesCount + 1;
 }
+
+std::optional<ax::pointf> CCurveEditorFunctionSplineController::GetTangent(size_t tangentIndex) const noexcept
+{
+    const auto actualIndex = 1 + (tangentIndex / 2) * (s_ControlPointsPerCurve - 1) + tangentIndex % 2;
+
+    const auto& controlPoints = GetControlPoints();
+    if (actualIndex >= controlPoints.size())
+        return std::nullopt;
+
+    return controlPoints[actualIndex];
+}
+
+size_t CCurveEditorFunctionSplineController::GetTangentsCount() const noexcept
+{
+    return GetCurvesCount() * 2;
+}

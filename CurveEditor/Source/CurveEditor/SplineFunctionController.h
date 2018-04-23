@@ -22,6 +22,9 @@ public:
     virtual std::optional<ax::pointf> GetKnot(size_t knotIndex) const noexcept override final;
     virtual size_t GetKnotsCount() const noexcept override final;
 
+    virtual std::optional<ax::pointf> GetTangent(size_t tangentIndex) const noexcept override final;
+    virtual size_t GetTangentsCount() const noexcept override final;
+
 protected:
     virtual void OnDataModelChanged() override final;
 

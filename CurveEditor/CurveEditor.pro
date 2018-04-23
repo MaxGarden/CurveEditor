@@ -28,7 +28,12 @@ SOURCES += \
     Source/CurveEditor/SplineControllerFactory.cpp              \
     Source/CurveEditor/SplineFunctionController.cpp             \
     Source/CurveEditor/SplineView.cpp                           \
-    Source/CurveEditor/SplineViewFactory.cpp                    \
+    Source/CurveEditor/SplineViewComponent.cpp                  \
+    Source/CurveEditor/SplineViewComponentBase.cpp              \
+    Source/CurveEditor/SplineViewImplementation.cpp             \
+    Source/CurveEditor/CurveViewComponent.cpp                   \
+    Source/CurveEditor/TangentViewComponent.cpp                 \
+    Source/CurveEditor/KnotViewComponent.cpp                    \
     Source/CurveEditor/EditorContext.cpp                        \
     Source/CurveEditor/EditorView.cpp                           \
     Source/CurveEditor/EditorController.cpp                     \
@@ -44,10 +49,12 @@ SOURCES += \
     Source/CurveEditor/Components/BackgroundComponent.cpp       \
     Source/CurveEditor/Components/DebugComponent.cpp            \
     Source/CurveEditor/Components/ToolHandlerComponent.cpp      \
+    Source/CurveEditor/Components/SplinesComponent.cpp          \
     Source/CurveEditor/Tools/CurveEditorToolBase.cpp            \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.cpp        \
     Source/CurveEditor/Tools/CurveEditorScrollTool.cpp          \
     Source/CurveEditor/Tools/CurveEditorZoomTool.cpp            \
+    Source/CurveEditor/Tools/CurveEditorVisibleToolBase.cpp     \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.cpp   \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
@@ -66,7 +73,12 @@ HEADERS += \
     Source/CurveEditor/SplineControllerFactory.h                \
     Source/CurveEditor/SplineFunctionController.h               \
     Source/CurveEditor/SplineView.h                             \
-    Source/CurveEditor/SplineViewFactory.h                      \
+    Source/CurveEditor/SplineViewComponent.h                    \
+    Source/CurveEditor/SplineViewComponentBase.h                \
+    Source/CurveEditor/SplineViewImplementation.h               \
+    Source/CurveEditor/CurveViewComponent.h                     \
+    Source/CurveEditor/TangentViewComponent.h                   \
+    Source/CurveEditor/KnotViewComponent.h                      \
     Source/CurveEditor/EditorContext.h                          \
     Source/CurveEditor/EditorView.h                             \
     Source/CurveEditor/EditorController.h                       \
@@ -88,10 +100,12 @@ HEADERS += \
     Source/CurveEditor/Components/BackgroundComponent.h         \
     Source/CurveEditor/Components/DebugComponent.h              \
     Source/CurveEditor/Components/ToolHandlerComponent.h        \
+    Source/CurveEditor/Components/SplinesComponent.h            \
     Source/CurveEditor/Tools/CurveEditorToolBase.h              \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.h          \
     Source/CurveEditor/Tools/CurveEditorScrollTool.h            \
     Source/CurveEditor/Tools/CurveEditorZoomTool.h              \
+    Source/CurveEditor/Tools/CurveEditorVisibleToolBase.h       \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.h     \
     Source/EditorWidgets/EditorViewWidget.h
 

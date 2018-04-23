@@ -1,8 +1,8 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_SPLINE_DATA_MODEL_H__)
 
+#include <ax/ax.h>
 #include "EditorDataModel.h"
-#include "ax/ax.h"
 
 enum class ECurveType
 {

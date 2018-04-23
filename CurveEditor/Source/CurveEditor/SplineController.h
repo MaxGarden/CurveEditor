@@ -29,6 +29,9 @@ public:
 
     virtual std::optional<ax::pointf> GetKnot(size_t knotIndex) const noexcept = 0;
     virtual size_t GetKnotsCount() const noexcept = 0;
+
+    virtual std::optional<ax::pointf> GetTangent(size_t tangentIndex) const noexcept = 0;
+    virtual size_t GetTangentsCount() const noexcept = 0;
 };
 
 class ICurveEditorSplineControllerFactory

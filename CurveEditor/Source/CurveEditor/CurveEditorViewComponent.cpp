@@ -4,12 +4,35 @@
 #include "CurveEditorDataModel.h"
 #include "CurveEditorController.h"
 
-CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(const ICurveEditorView& editorView) :
+CCurveEditorViewComponentBase::CCurveEditorViewComponentBase(ICurveEditorView& editorView) :
     m_EditorView(editorView)
 {
+
+}
+
+bool CCurveEditorViewComponentBase::Initialize()
+{
+    //to override
+    return true;
 }
 
 void CCurveEditorViewComponentBase::OnFrame()
+{
+    //to override
+}
+
+ICurveEditorView& CCurveEditorViewComponentBase::GetEditorView() const noexcept
+{
+    return m_EditorView;
+}
+
+
+CCurveEditorViewVisibleComponentBase::CCurveEditorViewVisibleComponentBase(ICurveEditorView& editorView) :
+    CCurveEditorViewComponentBase(editorView)
+{
+}
+
+void CCurveEditorViewVisibleComponentBase::OnFrame()
 {
     EDITOR_ASSERT(ImGui::GetCurrentContext());
     const auto drawList = ImGui::GetWindowDrawList();
@@ -24,12 +47,7 @@ void CCurveEditorViewComponentBase::OnFrame()
     OnFrame(*drawList, *controller);
 }
 
-void CCurveEditorViewComponentBase::OnFrame(ImDrawList&, ICurveEditorController&)
+void CCurveEditorViewVisibleComponentBase::OnFrame(ImDrawList&, ICurveEditorController&)
 {
     //to override
-}
-
-const ICurveEditorView& CCurveEditorViewComponentBase::GetEditorView() const noexcept
-{
-    return m_EditorView;
 }

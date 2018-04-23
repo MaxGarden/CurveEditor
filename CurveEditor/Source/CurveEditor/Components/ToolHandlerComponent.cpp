@@ -14,7 +14,7 @@ static constexpr std::array<ECurveEditorMouseButton, 5> g_MouseButtons = {ECurve
                                                                           ECurveEditorMouseButton::User2};
 
 CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorView& editorView) :
-    m_EditorView(editorView)
+    CCurveEditorViewComponentBase(editorView)
 {
     static_assert(g_MouseButtons.size() == static_cast<size_t>(ECurveEditorMouseButton::__Count));
 
@@ -25,7 +25,7 @@ CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorV
 
 void CCurveEditorToolHandlerComponent::OnFrame()
 {
-    const auto editorController = m_EditorView.GetController();
+    const auto& editorController = GetEditorView().GetController();
     EDITOR_ASSERT(editorController);
     if (!editorController)
         return;
@@ -35,16 +35,32 @@ void CCurveEditorToolHandlerComponent::OnFrame()
 
 void CCurveEditorToolHandlerComponent::OnFrame(ICurveEditorController& editorController)
 {
+    UpdateActivity(editorController);
+    if (!m_IsActive)
+        return;
+
     CaptureMouseState();
     UpdateMouseState(editorController);
     ReleaseMouseState();
+}
+
+void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& editorController)
+{
+    const auto wasActive = m_IsActive;
+    m_IsActive = ImGui::IsWindowFocused();
+
+    if (!m_IsActive || wasActive == m_IsActive)
+        return;
+
+    if (const auto& activeTool = editorController.GetActiveTool())
+        activeTool->OnActiveEditorViewChanged(CCurveEditorToolEvent{ GetEditorView() });
 }
 
 void CCurveEditorToolHandlerComponent::CaptureMouseState()
 {
     auto& io = ImGui::GetIO();
 
-    const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
+    const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
 
     for(auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.OnCapture();
@@ -88,7 +104,7 @@ void CCurveEditorToolHandlerComponent::UpdateWheelState(ICurveEditorTool& active
     if (mouseWheelValue == 0.0f)
         return;
 
-    activeTool.OnWheel(CCurveEditorToolMouseWheelEvent(m_EditorView, to_pointf(ImGui::GetMousePos()), mouseWheelValue));
+    activeTool.OnWheel(CCurveEditorToolMouseWheelEvent{ GetEditorView(), to_pointf(ImGui::GetMousePos()), mouseWheelValue });
 }
 
 CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
@@ -119,12 +135,12 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
 
     const auto notifyToolButtonEvent = [this, &activeTool, &mousePosition](const auto& method)
     {
-        (activeTool.*method)(CCurveEditorToolMouseButtonEvent(m_EditorView, mousePosition, m_Button));
+        (activeTool.*method)(CCurveEditorToolMouseButtonEvent{ m_EditorView, mousePosition, m_Button });
     };
 
     const auto notifyToolDragEvent = [this, &activeTool, &mousePosition](const auto& method, const auto& currentDragDelta)
     {
-        (activeTool.*method)(CCurveEditorToolMouseDragEvent(m_EditorView, mousePosition, m_Button, currentDragDelta));
+        (activeTool.*method)(CCurveEditorToolMouseDragEvent{ m_EditorView, mousePosition, m_Button, currentDragDelta });
     };
 
     if (m_WasDragging != m_IsDragging)

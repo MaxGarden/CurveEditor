@@ -6,8 +6,8 @@
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
-CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(const ICurveEditorView& editorView) :
-    CCurveEditorViewComponentBase(editorView)
+CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(ICurveEditorView& editorView) :
+    CCurveEditorViewVisibleComponentBase(editorView)
 {
 }
 

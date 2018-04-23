@@ -28,6 +28,8 @@ struct SCurveEditorStyle
     float ZoomInMultipler;
     float ZoomOutMultipler;
 
+    bool DrawToolOnEveryView;
+
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;
 };

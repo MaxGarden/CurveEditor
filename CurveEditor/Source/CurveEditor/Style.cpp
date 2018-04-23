@@ -21,4 +21,6 @@ SCurveEditorStyle::SCurveEditorStyle()
     MaximumZoomLevel = 20.0f;
     ZoomInMultipler = 1.3f;
     ZoomOutMultipler = 0.77f;
+
+    DrawToolOnEveryView = true;
 }

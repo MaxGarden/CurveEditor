@@ -7,6 +7,8 @@ public:
     CCurveEditorComponentTool() = default;
     virtual ~CCurveEditorComponentTool() override final = default;
 
+    virtual void OnActiveEditorViewChanged(const CCurveEditorToolEvent& event) override final;
+
     virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override final;
     virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) override final;
     virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override final;
@@ -30,13 +32,18 @@ private:
         for (const auto& component : m_Components)
         {
             if (component)
-                (component.get()->*method)(arguments...);
+                (component.get()->*method)(std::forward<Arguments>(arguments)...);
         }
     }
 
 private:
     std::vector<ICurveEditorToolUniquePtr> m_Components;
 };
+
+void CCurveEditorComponentTool::OnActiveEditorViewChanged(const CCurveEditorToolEvent& event)
+{
+    NotifyComponents(&ICurveEditorTool::OnActiveEditorViewChanged, event);
+}
 
 void CCurveEditorComponentTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
 {

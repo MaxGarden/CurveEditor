@@ -3,8 +3,8 @@
 #include "CurveEditorController.h"
 #include "EditorContext.h"
 
-CCurveEditorDebugComponent::CCurveEditorDebugComponent(const ICurveEditorView& editorView, IEditorContext& editorContext) :
-    CCurveEditorViewComponentBase(editorView),
+CCurveEditorDebugComponent::CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext) :
+    CCurveEditorViewVisibleComponentBase(editorView),
     m_EditorContext(editorContext)
 {
 }

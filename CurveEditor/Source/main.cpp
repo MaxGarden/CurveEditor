@@ -5,11 +5,12 @@
 #include "CurveEditorController.h"
 #include "CurveEditorDataModel.h"
 #include "SplineControllerFactory.h"
-#include "SplineViewFactory.h"
+#include "SplineViewImplementation.h"
 #include "CurveEditorTool.h"
 #include "Tools/CurveEditorScrollTool.h"
 #include "Tools/CurveEditorZoomTool.h"
 #include "Tools/CurveEditorSelectionToolBase.h"
+#include "Tools/CurveEditorHoveringTool.h"
 #include "EditorContext.h"
 
 int main(int argc, char** argv)
@@ -36,6 +37,7 @@ int main(int argc, char** argv)
     tool->AddComponent(std::make_unique<CCurveEditorScrollTool>(ECurveEditorMouseButton::Right));
     tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
     tool->AddComponent(std::make_unique<CCurveEditorSelectionToolBase>(ECurveEditorMouseButton::Left));
+    tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>());
 
     controller->SetActiveTool(tool);
 

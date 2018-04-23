@@ -2,40 +2,76 @@
 #include "CurveEditorView.h"
 #include "CurveEditorViewComponent.h"
 #include "CurveEditorDataModel.h"
-#include "CurveEditorListenerBase.h"
-#include "SplineViewFactory.h"
-#include "SplineController.h"
 #include <ImGuiInterop.h>
 
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
 
+struct SComponentStorage
+{
+    SComponentStorage(EComponentOrder order, ICurveEditorViewComponentUniquePtr&& viewComponent);
+
+    operator bool() const noexcept;
+    ICurveEditorViewComponent& operator*() const;
+
+    bool operator==(void* pointer) const noexcept;
+
+    bool operator<(SComponentStorage& rhs) const noexcept;
+
+    EComponentOrder Order;
+    ICurveEditorViewComponentSharedPtr ViewComponent;
+};
+
+SComponentStorage::SComponentStorage(EComponentOrder order, ICurveEditorViewComponentUniquePtr&& viewComponent) :
+    Order(order),
+    ViewComponent(std::move(viewComponent))
+{
+}
+
+SComponentStorage::operator bool() const noexcept
+{
+    return ViewComponent != nullptr;
+}
+
+ICurveEditorViewComponent& SComponentStorage::operator*() const
+{
+    return *ViewComponent;
+}
+
+bool SComponentStorage::operator==(void* pointer) const noexcept
+{
+    return ViewComponent.get() == pointer;
+}
+
+bool SComponentStorage::operator<(SComponentStorage& rhs) const noexcept
+{
+    return static_cast<size_t>(Order) < static_cast<size_t>(rhs.Order);
+}
+
 class CCurveEditorView final : public CEditorViewBase<ICurveEditorView, ICurveEditorController>
 {
 public:
-    CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory);
+    CCurveEditorView() = default;
     virtual ~CCurveEditorView();
 
+    virtual bool Initialize() override final;
+
     virtual void OnFrame() override final;
-
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-
-    bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
-    bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
 
     virtual CEditorCanvas& GetCanvas() noexcept override final;
     virtual const CEditorCanvas& GetCanvas() const noexcept override final;
 
-    virtual bool AddViewComponent(IEditorViewUniquePtr&& view) override final;
+    virtual std::optional<EditorViewComponentHandle> AddViewComponent(ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order) override final;
+    virtual bool RemoveViewComponent(const EditorViewComponentHandle& handle) override final;
+
+    virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const std::type_info& typeInfo) const noexcept override final;
+    virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const EditorViewComponentHandle& handle) const noexcept override final;
 
 protected:
     virtual void OnControllerChanged() noexcept override final;
 
 private:
-    void VisitViewComponents(const VisitorType<IEditorView>& visitor) noexcept;
-    void VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept;
-
-    void RecreateSplineViews();
+    void VisitViewComponents(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept;
 
     void OnFrameBegin();
     void OnFrameEnd();
@@ -45,50 +81,39 @@ private:
 private:
     CEditorCanvas m_Canvas = CEditorCanvas({ 100.0f, 100.0f });
 
-    std::vector<IEditorViewUniquePtr> m_Views;
-    std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
-    ICurveEditorSplineViewFactory& m_SplineViewFactory;
-    EditorListenerHandle m_ListenerHandle;
+    std::vector<SComponentStorage> m_Components;
+
+    bool m_Initialized = false;
 };
-
-class CCurveEditorViewListener final : public CCurveEditorControllerListenerBase
-{
-public:
-    CCurveEditorViewListener(CCurveEditorView& curveEditorView);
-    virtual ~CCurveEditorViewListener() override final = default;
-
-    virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) override final;
-    virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) override final;
-
-private:
-    CCurveEditorView& m_CurveEditorView;
-};
-
-CCurveEditorViewListener::CCurveEditorViewListener(CCurveEditorView& curveEditorView) :
-    m_CurveEditorView(curveEditorView)
-{
-}
-
-void CCurveEditorViewListener::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController)
-{
-    const auto result = m_CurveEditorView.CreateSplineView(splineController);
-    EDITOR_ASSERT(result);
-}
-
-void CCurveEditorViewListener::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController)
-{
-    const auto result = m_CurveEditorView.DestroySplineView(splineController);
-    EDITOR_ASSERT(result);
-}
-
-CCurveEditorView::CCurveEditorView(ICurveEditorSplineViewFactory& splineViewFactory) :
-    m_SplineViewFactory(splineViewFactory)
-{
-}
 
 CCurveEditorView::~CCurveEditorView()
 {
     SetController(nullptr);
+}
+
+bool CCurveEditorView::Initialize()
+{
+    EDITOR_ASSERT(!m_Initialized);
+
+    bool result = true;
+    std::vector<void*> componentsToRemove;
+
+    VisitViewComponents([&result, &componentsToRemove](auto& viewComponent)
+    {
+        if (viewComponent.Initialize())
+            return;
+
+        result = false;
+        EDITOR_ASSERT(result && "Cannot initialize component");
+        componentsToRemove.emplace_back(&viewComponent);
+    });
+
+    for (const auto& component : componentsToRemove)
+        RemoveFromContainer(m_Components, component);
+
+    m_Initialized = true;
+
+    return result;
 }
 
 void CCurveEditorView::OnFrameBegin()
@@ -114,61 +139,12 @@ void CCurveEditorView::OnFrame()
         view.OnFrame();
     });
 
-    VisitSplineViews([](auto& splineView)
-    {
-        splineView.OnFrame();
-    });
-
     OnFrameEnd();
 }
 
 void CCurveEditorView::OnFrameEnd()
 {
     ImGui::End();
-}
-
-bool CCurveEditorView::SetController(const IEditorControllerSharedPtr& controller) noexcept
-{
-    const auto previousController = GetController();
-
-    if (!Super::SetController(controller))
-        return false;
-
-     if (previousController)
-        previousController->UnregisterListener(m_ListenerHandle);
-
-    if (const auto controller = GetController())
-        m_ListenerHandle = controller->RegisterListener(std::make_unique<CCurveEditorViewListener>(*this)).value_or(0);
-
-    RecreateSplineViews();
-    return true;
-}
-
-bool CCurveEditorView::CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController)
-{
-    if (m_SplineViews.find(splineController) != m_SplineViews.end())
-    {
-        EDITOR_ASSERT(false && "This controller already has a view");
-        return false;
-    }
-
-    auto splineView = m_SplineViewFactory.Create(*this, splineController);
-    if (!splineView)
-        return false;
-
-    auto isValid = true;
-    isValid &= splineView->SetController(splineController);
-
-    if (!isValid)
-        return false;
-
-    m_SplineViews.emplace(splineController, std::move(splineView));
-    return true;
-}
-
-bool CCurveEditorView::DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController)
-{
-    return RemoveFromMap(m_SplineViews, splineController);
 }
 
 CEditorCanvas& CCurveEditorView::GetCanvas() noexcept
@@ -181,58 +157,53 @@ const CEditorCanvas& CCurveEditorView::GetCanvas() const noexcept
     return m_Canvas;
 }
 
-bool CCurveEditorView::AddViewComponent(IEditorViewUniquePtr&& view)
+std::optional<EditorViewComponentHandle> CCurveEditorView::AddViewComponent(ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order)
 {
-    if (!view)
-        return false;
+    if (!viewComponent)
+        return std::nullopt;
 
     auto isValid = true;
-    isValid &= view->SetController(GetController());
+    isValid &= viewComponent->SetController(GetController());
 
     if (!isValid)
+        return std::nullopt;
+
+    if (m_Initialized)
+    {
+        const auto initialized = viewComponent->Initialize();
+        EDITOR_ASSERT(initialized);
+
+        if (!initialized)
+            return std::nullopt;
+    }
+
+    m_Components.emplace_back(order, std::move(viewComponent));
+
+    const auto handle = reinterpret_cast<EditorViewComponentHandle>(m_Components.back().ViewComponent.get());
+
+    std::stable_sort(m_Components.begin(), m_Components.end());
+
+    return handle;
+}
+
+bool CCurveEditorView::RemoveViewComponent(const EditorViewComponentHandle& handle)
+{
+    const auto iterator = std::find_if(m_Components.begin(), m_Components.end(), [&handle](const auto& componentStorage)
+    {
+        return reinterpret_cast<EditorViewComponentHandle>(componentStorage.ViewComponent.get()) == handle;
+    });
+
+    if (iterator == m_Components.end())
         return false;
 
-    m_Views.emplace_back(std::move(view));
+    iterator->ViewComponent.reset();
     return true;
 }
 
-void CCurveEditorView::VisitViewComponents(const VisitorType<IEditorView>& visitor) noexcept
+void CCurveEditorView::VisitViewComponents(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept
 {
-    VisitPointersContainer(m_Views, visitor);
-}
-
-void CCurveEditorView::VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept
-{
-    if (!visitor)
-        return;
-
-    for (const auto& splineViewPair : m_SplineViews)
-    {
-        if (const auto& splineView = splineViewPair.second)
-            visitor(*splineView);
-    }
-}
-
-void CCurveEditorView::RecreateSplineViews()
-{
-    std::vector<ICurveEditorSplineControllerConstSharedPtr> splineControllersToDestroy;
-    std::transform(m_SplineViews.begin(), m_SplineViews.end(), std::back_inserter(splineControllersToDestroy),
-        [](const auto& pair)
-        {
-            return pair.first;
-        });
-
-    for (const auto& splineController : splineControllersToDestroy)
-        DestroySplineView(splineController);
-
-    const auto controller = GetController();
-    if (!controller)
-        return;
-
-    controller->VisitSplineControllers([this](const auto& controller)
-    {
-        CreateSplineView(controller);
-    });
+    RemoveFromContainer(m_Components, nullptr);
+    VisitPointersContainer(m_Components, visitor);
 }
 
 void CCurveEditorView::OnControllerChanged() noexcept
@@ -246,8 +217,6 @@ void CCurveEditorView::OnControllerChanged() noexcept
     });
 
     EDITOR_ASSERT(result && "Views should accept new controller if main view accepts.");
-
-    RecreateSplineViews();
 }
 
 void CCurveEditorView::RefreshWindowCanvas()
@@ -258,7 +227,28 @@ void CCurveEditorView::RefreshWindowCanvas()
     windowCanvas.SetWindowScreenSize(to_sizef(ImGui::GetWindowSize()));
 }
 
-ICurveEditorViewUniquePtr ICurveEditorView::Create(ICurveEditorSplineViewFactory& splinceViewFactory)
+ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const std::type_info& typeInfo) const noexcept
 {
-    return std::make_unique<CCurveEditorView>(splinceViewFactory);
+    for (const auto& storage : m_Components)
+    {
+        const auto& viewComponent = storage.ViewComponent;
+        if (typeid(*viewComponent) == typeInfo)
+            return viewComponent;
+    }
+
+    return nullptr;
+}
+
+ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const EditorViewComponentHandle& handle) const noexcept
+{
+    const auto iterator = std::find(m_Components.begin(), m_Components.end(), reinterpret_cast<void*>(handle));
+    if (iterator == m_Components.end())
+        return nullptr;
+
+    return iterator->ViewComponent;
+}
+
+ICurveEditorViewUniquePtr ICurveEditorView::Create()
+{
+    return std::make_unique<CCurveEditorView>();
 }

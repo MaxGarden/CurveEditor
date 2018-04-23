@@ -3,10 +3,10 @@
 
 #include "CurveEditorViewComponent.h"
 
-class CCurveEditorDebugComponent final : public CCurveEditorViewComponentBase
+class CCurveEditorDebugComponent final : public CCurveEditorViewVisibleComponentBase
 {
 public:
-    CCurveEditorDebugComponent(const ICurveEditorView& editorView, IEditorContext& editorContext);
+    CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext);
     virtual ~CCurveEditorDebugComponent() override final = default;
 
 protected:

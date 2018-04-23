@@ -44,8 +44,8 @@ inline const auto RemoveFromContainer(ContainerType& container, const ValueType&
     return true;
 }
 
-template<typename MapType, typename KeyType>
-inline const auto RemoveFromMap(MapType& map, const KeyType& key)
+template<typename KeyType, typename ValueType>
+inline const auto RemoveFromContainer(std::map<KeyType, ValueType>& map, const KeyType& key)
 {
     const auto iterator = map.find(key);
 
@@ -54,6 +54,12 @@ inline const auto RemoveFromMap(MapType& map, const KeyType& key)
 
     map.erase(iterator);
     return true;
+}
+
+template<typename ViewComponentType, typename EditorViewType>
+inline const auto GetViewComponent(EditorViewType& editorView)
+{
+    return std::dynamic_pointer_cast<ViewComponentType>(editorView.GetViewComponent(typeid(ViewComponentType)));
 }
 
 #endif //__UTILITES_H__

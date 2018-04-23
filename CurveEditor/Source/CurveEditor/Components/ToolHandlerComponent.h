@@ -32,7 +32,7 @@ private:
     ax::pointf m_DragDelta;
 };
 
-class CCurveEditorToolHandlerComponent final : public CEditorViewBase<IEditorView, ICurveEditorController>
+class CCurveEditorToolHandlerComponent final : public CCurveEditorViewComponentBase
 {
 public:
     CCurveEditorToolHandlerComponent(ICurveEditorView& editorView);
@@ -46,16 +46,17 @@ protected:
     void OnFrame(ICurveEditorController& editorController);
 
 private:
+    void UpdateActivity(ICurveEditorController& editorController);
     void CaptureMouseState();
     void UpdateMouseState(ICurveEditorController& editorController);
     void UpdateWheelState(ICurveEditorTool& activeTool);
     void ReleaseMouseState();
 
 private:
-    ICurveEditorView& m_EditorView;
     ImVec2 m_MousePositionBuffer;
     ImVec2 m_MouseClicksPositionBuffers[5];
     std::vector<CMouseButtonHandler> m_ButtonHandlers;
+    bool m_IsActive;
 };
 
 #endif //__CURVE_EDITOR_TOOL_HANDLER_COMPONENT_H__

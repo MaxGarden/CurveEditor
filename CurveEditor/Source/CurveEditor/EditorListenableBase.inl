@@ -12,7 +12,7 @@ std::optional<EditorListenerHandle> CEditorListenableBase<SuperClass, ListenerTy
 template<typename SuperClass, typename ListenerType>
 bool CEditorListenableBase<SuperClass, ListenerType>::UnregisterListener(const EditorListenerHandle& handle)
 {
-    const auto iterator = std::remove_if(m_Listeners.begin(), m_Listeners.end(), [&handle](const auto& listener)
+    const auto iterator = std::find_if(m_Listeners.begin(), m_Listeners.end(), [&handle](const auto& listener)
     {
         return reinterpret_cast<EditorListenerHandle>(listener.get()) == handle;
     });
@@ -31,9 +31,8 @@ void CEditorListenableBase<SuperClass, ListenerType>::NotifyListeners(ListenerMe
     for (const auto& listener : m_Listeners)
     {
         if (listener)
-            (listener.get()->*method)(arguments...);
+            (listener.get()->*method)(std::forward<Arguments>(arguments)...);
     }
 
-    const auto iterator = std::remove(m_Listeners.begin(), m_Listeners.end(), nullptr);
-    m_Listeners.erase(iterator, m_Listeners.end());
+    RemoveFromContainer(m_Listeners, nullptr);
 }
