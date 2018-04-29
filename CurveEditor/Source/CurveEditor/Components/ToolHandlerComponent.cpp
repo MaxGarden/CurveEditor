@@ -1,5 +1,7 @@
 #include "pch.h"
+#include "CurveEditorToolEvent.h"
 #include "ToolHandlerComponent.h"
+#include "CurveEditorViewComponentBase.h"
 #include "CurveEditorController.h"
 #include "CurveEditorTool.h"
 #include <ImGuiInterop.h>
@@ -12,6 +14,61 @@ static constexpr std::array<ECurveEditorMouseButton, 5> g_MouseButtons = {ECurve
                                                                           ECurveEditorMouseButton::Middle,
                                                                           ECurveEditorMouseButton::User1,
                                                                           ECurveEditorMouseButton::User2};
+
+class CCurveEditorToolHandlerComponent;
+
+class CMouseButtonHandler
+{
+public:
+    CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button);
+    virtual ~CMouseButtonHandler() = default;
+
+    void OnCapture();
+    void Update(ICurveEditorTool& activeTool);
+    void OnRelease();
+
+    bool IsDragging() const noexcept;
+    ECurveEditorMouseButton GetButton() const noexcept;
+
+private:
+    size_t GetButtonIndex() const noexcept;
+
+private:
+    ICurveEditorView & m_EditorView;
+    const CCurveEditorToolHandlerComponent& m_ToolHandler;
+    bool m_IsDragging = false;
+    bool m_WasDragging = false;
+    ECurveEditorMouseButton m_Button;
+    ImVec2 m_ClickPositionBuffer;
+    ax::pointf m_DragDelta;
+};
+
+class CCurveEditorToolHandlerComponent final : public CCurveEditorViewComponentBase<ICurveEditorToolHandlerComponent>
+{
+public:
+    CCurveEditorToolHandlerComponent(ICurveEditorView& editorView);
+    virtual ~CCurveEditorToolHandlerComponent() override final = default;
+
+    virtual void OnFrame() override final;
+
+    void VisitButtonHandlers(const ConstVisitorType<CMouseButtonHandler>& visitor) const noexcept;
+
+protected:
+    void OnFrame(ICurveEditorController& editorController);
+
+private:
+    void UpdateActivity(ICurveEditorController& editorController);
+    void CaptureMouseState();
+    void UpdateMouseState(ICurveEditorController& editorController);
+    void UpdateWheelState(ICurveEditorTool& activeTool);
+    void ReleaseMouseState();
+
+private:
+    ImVec2 m_MousePositionBuffer;
+    ImVec2 m_MouseClicksPositionBuffers[5];
+    std::vector<CMouseButtonHandler> m_ButtonHandlers;
+    bool m_IsActive;
+};
 
 CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
@@ -189,4 +246,9 @@ ECurveEditorMouseButton CMouseButtonHandler::GetButton() const noexcept
 size_t CMouseButtonHandler::GetButtonIndex() const noexcept
 {
     return static_cast<size_t>(m_Button);
+}
+
+ICurveEditorToolHandlerComponentUniquePtr ICurveEditorToolHandlerComponent::Create(ICurveEditorView& editorView)
+{
+    return std::make_unique<CCurveEditorToolHandlerComponent>(editorView);
 }

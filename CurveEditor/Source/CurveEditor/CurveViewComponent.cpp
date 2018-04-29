@@ -34,7 +34,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetControlPointsPositio
     return ax::cubic_bezier_t{ controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3] };
 }
 
-std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsPositions() const noexcept
+std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsPositions(bool screenTranslation) const noexcept
 {
     auto controlPoints = GetControlPointsPositions();
     if (!controlPoints)
@@ -42,9 +42,9 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsP
 
     const auto& editorCanvas = GetEditorView().GetCanvas();
 
-    const auto translatePoint = [&editorCanvas](auto& point)
+    const auto translatePoint = [&editorCanvas, &screenTranslation](auto& point)
     {
-        point = editorCanvas.ToEditor(point);
+        point = editorCanvas.ToEditor(point, screenTranslation);
     };
 
     const auto first = &controlPoints->p0;
@@ -57,7 +57,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsP
 
 void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
 {
-    const auto controlPoints = GetEditorControlPointsPositions();
+    const auto controlPoints = GetEditorControlPointsPositions(true);
     EDITOR_ASSERT(controlPoints);
     if (!controlPoints)
         return;
@@ -75,9 +75,9 @@ void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineCont
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
 }
 
-bool CCurveEditorCurveView::IsColliding(const ax::pointf& point, float extraThickness /*= 0.0f*/) const noexcept
+bool CCurveEditorCurveView::IsColliding(const ax::pointf& position, float extraThickness /*= 0.0f*/) const noexcept
 {
-    auto bounds = CalculateBounds();
+    auto bounds = CalculateBounds(false);
     EDITOR_ASSERT(bounds);
     if (!bounds)
         return false;
@@ -85,18 +85,23 @@ bool CCurveEditorCurveView::IsColliding(const ax::pointf& point, float extraThic
     if (extraThickness > 0.0f)
         bounds->expand(extraThickness);
 
-    if (!bounds->contains(point))
+    if (!bounds->contains(position))
         return false;
 
-    const auto controlPoints = GetEditorControlPointsPositions();
-    const auto localResult = ax::cubic_bezier_project_point(point, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, 10000);
+    const auto controlPoints = GetEditorControlPointsPositions(false);
+    const auto distance = ax::cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, 10000).distance;
 
-    return localResult.distance <= GetEditorStyle().SplineThickness + extraThickness;
+    const auto splineThickness = GetEditorStyle().SplineThickness;
+
+    const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
+    const auto splineThickneessBounds = ax::pointf{ splineThickness, splineThickness }.cwise_product(windowCanvas.GetInvertZoom()) + ax::pointf{ extraThickness, extraThickness };
+
+    return distance <= splineThickneessBounds.x && distance <= splineThickneessBounds.y;
 }
 
 bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowIntersect /*= true*/) const noexcept
 {
-    const auto bounds = CalculateBounds();
+    const auto bounds = CalculateBounds(false);
     EDITOR_ASSERT(bounds);
     if (!bounds)
         return false;
@@ -107,7 +112,7 @@ bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowInterse
     if (!allowIntersect || !rect.intersects(*bounds))
         return false;
 
-    const auto controlPoints = GetEditorControlPointsPositions();
+    const auto controlPoints = GetEditorControlPointsPositions(false);
 
     const auto topLeft = rect.top_left();
     const auto topRight = rect.top_right();
@@ -128,9 +133,9 @@ bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowInterse
     return false;
 }
 
-std::optional<ax::rectf> CCurveEditorCurveView::CalculateBounds() const noexcept
+std::optional<ax::rectf> CCurveEditorCurveView::CalculateBounds(bool screenTranslation) const noexcept
 {
-    const auto controlPoints = GetEditorControlPointsPositions();
+    const auto controlPoints = GetEditorControlPointsPositions(screenTranslation);
     if (!controlPoints)
         return std::nullopt;
 

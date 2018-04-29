@@ -22,6 +22,8 @@ private:
     IEditorViewSharedPtr m_EditorView;
     QtImGuiContext m_Context = nullptr;
 
+    bool endedFrame = true;
+
     ImVec4 m_ClearColor = ImColor(127, 127, 127);
 };
 
@@ -76,6 +78,11 @@ void CEditorViewWidget::initializeGL()
 
 void CEditorViewWidget::paintGL()
 {
+    if (!endedFrame)
+        return;
+
+    endedFrame = false;
+
     const auto previousContext = QtImGui::GetCurrentContext();
     QtImGui::SetCurrentContext(m_Context);
 
@@ -90,6 +97,8 @@ void CEditorViewWidget::paintGL()
 
     QtImGui::EndFrame();
     QtImGui::SetCurrentContext(previousContext);
+
+    endedFrame = true;
 }
 
 class CDefaultViewWidgetFactory final : public IEditorViewWidgetFactory

@@ -25,11 +25,12 @@ void CCurveEditorSplineView::OnFrame(ICurveEditorSplineController& controller)
     static const auto onFrameVisitor = [](CCurveEditorSplineViewComponentBase& view)
     {
         view.OnFrame();
+        return true;
     };
 
     VisitCurvesViews(onFrameVisitor);
-    VisitKnotsViews(onFrameVisitor);
     VisitTangentsViews(onFrameVisitor);
+    VisitKnotsViews(onFrameVisitor);
 }
 
 void CCurveEditorSplineView::OnControllerChanged()
@@ -78,27 +79,38 @@ void CCurveEditorSplineView::EnsureTangentsViews(ICurveEditorSplineController& c
     EnsureViews<CCurveEditorTangentView>(m_TangentsViews, GetController(), m_EditorView, controller.GetTangentsCount());
 }
 
-void CCurveEditorSplineView::VisitCurvesViews(const VisitorType<CCurveEditorCurveView>& visitor) noexcept
+void CCurveEditorSplineView::VisitCurvesViews(const InterruptibleVisitorType<CCurveEditorCurveView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_CurvesViews, visitor);
+    VisitPointersContainer(m_CurvesViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitKnotsViews(const VisitorType<CCurveEditorKnotView>& visitor) noexcept
+void CCurveEditorSplineView::VisitKnotsViews(const InterruptibleVisitorType<CCurveEditorKnotView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_KnotsViews, visitor);
+    VisitPointersContainer(m_KnotsViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitTangentsViews(const VisitorType<CCurveEditorTangentView>& visitor) noexcept
+void CCurveEditorSplineView::VisitTangentsViews(const InterruptibleVisitorType<CCurveEditorTangentView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_TangentsViews, visitor);
+    VisitPointersContainer(m_TangentsViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitSplineComponents(const VisitorType<ICurveEditorSplineViewComponent>& visitor) const noexcept
+void CCurveEditorSplineView::VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineViewComponent>& visitor, bool reverse /*= false*/) const noexcept
 {
-    if (!visitor)
-        return;
-
-
+    switch (componentType)
+    {
+    case ECurveEditorSplineComponentType::Knot:
+        VisitKnotsViews(visitor, reverse);
+        break;
+    case ECurveEditorSplineComponentType::Curve:
+        VisitCurvesViews(visitor, reverse);
+        break;
+    case ECurveEditorSplineComponentType::Tangent:
+        VisitTangentsViews(visitor, reverse);
+        break;
+    default:
+        EDITOR_ASSERT(false && "Unsupported component type");
+        break;
+    }
 }
 
 ICurveEditorSplineViewUniquePtr CCurveEditorSplineViewFactory::Create(ICurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr&)

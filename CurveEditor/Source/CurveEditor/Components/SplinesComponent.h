@@ -1,33 +1,18 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_SPLINES_COMPONENT_H__)
 
-#include "CurveEditorViewComponent.h"
+#include "CurveEditorView.h"
+#include "SplineViewComponent.h"
 
-class CCurveEditorSplinesViewComponent final : public CCurveEditorViewComponentBase
+class ICurveEditorSplinesViewComponent : public ICurveEditorViewComponent
 {
 public:
-    CCurveEditorSplinesViewComponent(ICurveEditorView& editorView, ICurveEditorSplineViewFactory& splineViewFactory);
-    virtual ~CCurveEditorSplinesViewComponent() override final = default;
+    virtual ~ICurveEditorSplinesViewComponent() override = default;
 
-    virtual void OnFrame() override final;
+    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, ECurveEditorSplineComponentType componentType, float extraThickness = 0.0f) const noexcept = 0;
+    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, ECurveEditorSplineComponentType componentType, bool allowIntersect = true) const noexcept = 0;
 
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-
-    bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
-    bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
-
-protected:
-    virtual void OnControllerChanged() override final;
-
-private:
-    void VisitSplineViews(const VisitorType<ICurveEditorSplineView>& visitor) noexcept;
-    void RecreateSplineViews();
-
-private:
-    std::map<ICurveEditorSplineControllerConstSharedPtr, ICurveEditorSplineViewUniquePtr> m_SplineViews;
-    ICurveEditorSplineViewFactory& m_SplineViewFactory;
-
-    EditorListenerHandle m_ListenerHandle;
+    static ICurveEditorSplinesViewComponentUniquePtr Create(ICurveEditorView& editorView, ICurveEditorSplineViewFactory& splineViewFactory);
 };
 
 #endif //__CURVE_EDITOR_SPLINES_COMPONENT_H__

@@ -59,8 +59,8 @@ public:
 
     ax::pointf CalculateScaledUnit() const noexcept;
 
-    ax::pointf FromEditor(const ax::pointf& position) const noexcept;
-    ax::pointf ToEditor(const ax::pointf& value) const noexcept;
+    ax::pointf FromEditor(const ax::pointf& value, bool screenTranslation = true) const noexcept;
+    ax::pointf ToEditor(const ax::pointf& position, bool screenTranslation = true) const noexcept;
 
 private:
     ax::pointf m_UnitScaler;

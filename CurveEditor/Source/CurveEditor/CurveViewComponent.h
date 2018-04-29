@@ -15,13 +15,13 @@ public:
     virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
     std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
-    std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions() const noexcept;
+    std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions(bool screenTranslation) const noexcept;
 
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller) override final;
 
 private:
-    std::optional<ax::rectf> CalculateBounds() const noexcept;
+    std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
 
 private:
     size_t m_CurveIndex = 0;

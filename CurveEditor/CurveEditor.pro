@@ -18,7 +18,6 @@ SOURCES += \
     Source/main.cpp \
     Source/MainWindow/MainWindow.cpp                            \
     Source/CurveEditor/CurveEditorView.cpp                      \
-    Source/CurveEditor/CurveEditorViewComponent.cpp             \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
     Source/CurveEditor/CurveEditorListenerBase.cpp              \
@@ -63,7 +62,6 @@ HEADERS += \
     Source/MainWindow/MainWindow.h                              \
     Source/CurveEditor/ImGuiInterop.h                           \
     Source/CurveEditor/CurveEditorView.h                        \
-    Source/CurveEditor/CurveEditorViewComponent.h               \
     Source/CurveEditor/CurveEditorDataModel.h                   \
     Source/CurveEditor/CurveEditorController.h                  \
     Source/CurveEditor/CurveEditorListenerBase.h                \
@@ -76,7 +74,10 @@ HEADERS += \
     Source/CurveEditor/SplineViewComponent.h                    \
     Source/CurveEditor/SplineViewComponentBase.h                \
     Source/CurveEditor/SplineViewImplementation.h               \
-    Source/CurveEditor/CurveViewComponent.h                     \
+    Source/CurveEditor/CurveEditorViewComponentBase.h           \
+    Source/CurveEditor/CurveEditorViewComponentBase.inl         \
+    Source/CurveEditor/CurveEditorViewVisibleComponentBase.h    \
+    Source/CurveEditor/CurveEditorViewVisibleComponentBase.inl  \
     Source/CurveEditor/TangentViewComponent.h                   \
     Source/CurveEditor/KnotViewComponent.h                      \
     Source/CurveEditor/EditorContext.h                          \

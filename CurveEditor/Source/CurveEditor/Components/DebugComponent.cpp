@@ -1,7 +1,25 @@
 #include "pch.h"
 #include "DebugComponent.h"
+#include "CurveEditorViewVisibleComponentBase.h"
 #include "CurveEditorController.h"
 #include "EditorContext.h"
+
+class CCurveEditorDebugComponent final : public CCurveEditorViewVisibleComponentBase<ICurveEditorDebugComponent>
+{
+public:
+    CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext);
+    virtual ~CCurveEditorDebugComponent() override final = default;
+
+protected:
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
+
+private:
+    IEditorContext & m_EditorContext;
+    std::string m_SplineName = std::string(128, '\0');
+    ImColor m_SplineColor = ImColor(0.0f, 1.0f, 0.0f);
+
+    std::stack<ICurveEditorSplineDataModelWeakPtr> m_CreatedSplinesDataModels;
+};
 
 CCurveEditorDebugComponent::CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext) :
     CCurveEditorViewVisibleComponentBase(editorView),
@@ -41,4 +59,9 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
     }
 
     ImGui::End();
+}
+
+ICurveEditorDebugComponentUniquePtr ICurveEditorDebugComponent::Create(ICurveEditorView& editorView, IEditorContext& editorContext)
+{
+    return std::make_unique<CCurveEditorDebugComponent>(editorView, editorContext);
 }

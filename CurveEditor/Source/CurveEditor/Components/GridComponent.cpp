@@ -1,10 +1,21 @@
 #include "pch.h"
 #include "GridComponent.h"
+#include "CurveEditorViewVisibleComponentBase.h"
 #include <ImGuiInterop.h>
 #include "CurveEditorController.h"
 
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
+
+class CCurveEditorGridViewComponent final : public CCurveEditorViewVisibleComponentBase<ICurveEditorGridViewComponent>
+{
+public:
+    CCurveEditorGridViewComponent(ICurveEditorView& editorView);
+    virtual ~CCurveEditorGridViewComponent() override final = default;
+
+protected:
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
+};
 
 CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(ICurveEditorView& editorView) :
     CCurveEditorViewVisibleComponentBase(editorView)
@@ -57,4 +68,9 @@ void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, ICurveEditorCo
             drawList.AddLine(ImVec2{ 0.0f, graduation } + windowPosition, ImVec2{ windowSize.x, graduation } + windowPosition, smallGridColor);
         }
     }
+}
+
+ICurveEditorGridViewComponentUniquePtr ICurveEditorGridViewComponent::Create(ICurveEditorView& editorView)
+{
+    return std::make_unique<CCurveEditorGridViewComponent>(editorView);
 }

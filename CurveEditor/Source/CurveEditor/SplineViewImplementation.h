@@ -14,20 +14,21 @@ public:
 
     virtual void OnFrame() override final;
 
-    virtual void VisitSplineComponents(const VisitorType<ICurveEditorSplineViewComponent>& visitor) const noexcept override final;
+    virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineViewComponent>& visitor, bool reverse = false) const noexcept override final;
 
 protected:
-    virtual void OnFrame(ICurveEditorSplineController& controller);
     virtual void OnControllerChanged() override final;
 
 private:
+    void OnFrame(ICurveEditorSplineController& controller);
+
+    void VisitCurvesViews(const InterruptibleVisitorType<CCurveEditorCurveView>& visitor, bool reverse = false) const noexcept;
+    void VisitKnotsViews(const InterruptibleVisitorType<CCurveEditorKnotView>& visitor, bool reverse = false) const noexcept;
+    void VisitTangentsViews(const InterruptibleVisitorType<CCurveEditorTangentView>& visitor, bool reverse = false) const noexcept;
+
     void EnsureCurvesViews(ICurveEditorSplineController& controller);
     void EnsureKnotsViews(ICurveEditorSplineController& controller);
     void EnsureTangentsViews(ICurveEditorSplineController& controller);
-
-    void VisitCurvesViews(const VisitorType<CCurveEditorCurveView>& visitor) noexcept;
-    void VisitKnotsViews(const VisitorType<CCurveEditorKnotView>& visitor) noexcept;
-    void VisitTangentsViews(const VisitorType<CCurveEditorTangentView>& visitor) noexcept;
 
 private:
     ICurveEditorView& m_EditorView;

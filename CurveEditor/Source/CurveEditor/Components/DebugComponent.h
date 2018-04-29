@@ -1,23 +1,14 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_DEBUG_COMPONENT_H__)
 
-#include "CurveEditorViewComponent.h"
+#include "CurveEditorView.h"
 
-class CCurveEditorDebugComponent final : public CCurveEditorViewVisibleComponentBase
+class ICurveEditorDebugComponent : public ICurveEditorViewComponent
 {
 public:
-    CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext);
-    virtual ~CCurveEditorDebugComponent() override final = default;
+    virtual ~ICurveEditorDebugComponent() override = default;
 
-protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
-
-private:
-    IEditorContext& m_EditorContext;
-    std::string m_SplineName = std::string(128, '\0');
-    ImColor m_SplineColor = ImColor(0.0f, 1.0f, 0.0f);
-
-    std::stack<ICurveEditorSplineDataModelWeakPtr> m_CreatedSplinesDataModels;
+    static ICurveEditorDebugComponentUniquePtr Create(ICurveEditorView& editorView, IEditorContext& editorContext);
 };
 
 #endif //__CURVE_EDITOR_DEBUG_COMPONENT_H__

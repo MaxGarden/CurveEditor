@@ -17,7 +17,7 @@ public:
     ICurveEditorSplineViewComponent() = default;
     virtual ~ICurveEditorSplineViewComponent() override = default;
 
-    virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept = 0;
+    virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept = 0;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept = 0;
 
     virtual ECurveEditorSplineComponentType GetType() const noexcept = 0;

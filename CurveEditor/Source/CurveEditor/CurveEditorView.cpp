@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "CurveEditorView.h"
-#include "CurveEditorViewComponent.h"
 #include "CurveEditorDataModel.h"
 #include <ImGuiInterop.h>
 
@@ -15,7 +14,6 @@ struct SComponentStorage
     ICurveEditorViewComponent& operator*() const;
 
     bool operator==(void* pointer) const noexcept;
-
     bool operator<(SComponentStorage& rhs) const noexcept;
 
     EComponentOrder Order;
@@ -64,14 +62,14 @@ public:
     virtual std::optional<EditorViewComponentHandle> AddViewComponent(ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order) override final;
     virtual bool RemoveViewComponent(const EditorViewComponentHandle& handle) override final;
 
-    virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const std::type_info& typeInfo) const noexcept override final;
+    virtual void VisitViewComponents(const ConstInterruptibleVisitorType<ICurveEditorViewComponentSharedPtr>& visitor) const noexcept override final;
     virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const EditorViewComponentHandle& handle) const noexcept override final;
 
 protected:
     virtual void OnControllerChanged() noexcept override final;
 
 private:
-    void VisitViewComponents(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept;
+    void VisitViewComponentsInternal(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept;
 
     void OnFrameBegin();
     void OnFrameEnd();
@@ -98,7 +96,7 @@ bool CCurveEditorView::Initialize()
     bool result = true;
     std::vector<void*> componentsToRemove;
 
-    VisitViewComponents([&result, &componentsToRemove](auto& viewComponent)
+    VisitViewComponentsInternal([&result, &componentsToRemove](auto& viewComponent)
     {
         if (viewComponent.Initialize())
             return;
@@ -134,7 +132,7 @@ void CCurveEditorView::OnFrame()
 {
     OnFrameBegin();
 
-    VisitViewComponents([](auto& view)
+    VisitViewComponentsInternal([](auto& view)
     {
         view.OnFrame();
     });
@@ -200,7 +198,7 @@ bool CCurveEditorView::RemoveViewComponent(const EditorViewComponentHandle& hand
     return true;
 }
 
-void CCurveEditorView::VisitViewComponents(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept
+void CCurveEditorView::VisitViewComponentsInternal(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept
 {
     RemoveFromContainer(m_Components, nullptr);
     VisitPointersContainer(m_Components, visitor);
@@ -211,7 +209,7 @@ void CCurveEditorView::OnControllerChanged() noexcept
     auto result = true;
     const auto& controller = GetController();
 
-    VisitViewComponents([&controller, &result](auto& view)
+    VisitViewComponentsInternal([&controller, &result](auto& view)
     {
         result &= view.SetController(controller);
     });
@@ -227,16 +225,15 @@ void CCurveEditorView::RefreshWindowCanvas()
     windowCanvas.SetWindowScreenSize(to_sizef(ImGui::GetWindowSize()));
 }
 
-ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const std::type_info& typeInfo) const noexcept
+void CCurveEditorView::VisitViewComponents(const ConstInterruptibleVisitorType<ICurveEditorViewComponentSharedPtr>& visitor) const noexcept
 {
-    for (const auto& storage : m_Components)
-    {
-        const auto& viewComponent = storage.ViewComponent;
-        if (typeid(*viewComponent) == typeInfo)
-            return viewComponent;
-    }
+    if (!visitor)
+        return;
 
-    return nullptr;
+    VisitObjectsContainerInterruptible(m_Components, [&visitor](const auto& storage)
+    {
+        return visitor(storage.ViewComponent);
+    });
 }
 
 ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const EditorViewComponentHandle& handle) const noexcept

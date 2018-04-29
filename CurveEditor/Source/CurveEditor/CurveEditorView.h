@@ -36,7 +36,7 @@ public:
     virtual std::optional<EditorViewComponentHandle> AddViewComponent(ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order) = 0;
     virtual bool RemoveViewComponent(const EditorViewComponentHandle& handle) = 0;
 
-    virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const std::type_info& typeInfo) const noexcept = 0;
+    virtual void VisitViewComponents(const ConstInterruptibleVisitorType <ICurveEditorViewComponentSharedPtr>& visitor) const noexcept = 0;
     virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const EditorViewComponentHandle& handle) const noexcept = 0;
 
     virtual const ICurveEditorControllerSharedPtr& GetController() const noexcept = 0;

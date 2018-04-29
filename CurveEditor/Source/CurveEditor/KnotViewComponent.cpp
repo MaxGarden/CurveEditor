@@ -20,19 +20,19 @@ std::optional<ax::pointf> CCurveEditorKnotView::GetPosition() const noexcept
     return std::nullopt;
 }
 
-std::optional<ax::pointf> CCurveEditorKnotView::GetEditorPosition() const noexcept
+std::optional<ax::pointf> CCurveEditorKnotView::GetEditorPosition(bool screenTranslation) const noexcept
 {
     const auto position = GetPosition();
     if (!position)
         return std::nullopt;
 
     const auto& editorCanvas = GetEditorView().GetCanvas();
-    return editorCanvas.ToEditor(*position);
+    return editorCanvas.ToEditor(*position, screenTranslation);
 }
 
 void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController&)
 {
-    const auto bounds = CalculateBounds();
+    const auto bounds = CalculateBounds(true);
     EDITOR_ASSERT(bounds);
     if (!bounds)
         return;
@@ -43,19 +43,26 @@ void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineContr
     drawList.AddRectFilled(to_imvec(bounds->top_left()), to_imvec(bounds->bottom_right()), fillColor);
 }
 
-std::optional<ax::rectf> CCurveEditorKnotView::CalculateBounds() const noexcept
+std::optional<ax::rectf> CCurveEditorKnotView::CalculateBounds(bool screenTranslation) const noexcept
 {
-    const auto editorPosition = GetEditorPosition();
+    const auto editorPosition = GetEditorPosition(screenTranslation);
     if (!editorPosition)
         return std::nullopt;
 
-    const auto halfKnotSize = to_pointf(GetEditorStyle().KnotSize) * 0.5;
+    auto halfKnotSize = to_pointf(GetEditorStyle().KnotSize) * 0.5;
+
+    if (!screenTranslation)
+    {
+        const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
+        halfKnotSize = halfKnotSize.cwise_product(windowCanvas.GetInvertZoom());
+    }
+
     return ax::rectf{ *editorPosition - halfKnotSize, *editorPosition + halfKnotSize };
 }
 
-bool CCurveEditorKnotView::IsColliding(const ax::pointf& point, float extraThickness /*= 0.0f*/) const noexcept
+bool CCurveEditorKnotView::IsColliding(const ax::pointf& position, float extraThickness /*= 0.0f*/) const noexcept
 {
-    auto bounds = CalculateBounds();
+    auto bounds = CalculateBounds(false);
     EDITOR_ASSERT(bounds);
     if (!bounds)
         return false;
@@ -63,12 +70,12 @@ bool CCurveEditorKnotView::IsColliding(const ax::pointf& point, float extraThick
     if (extraThickness > 0)
         bounds->expand(extraThickness);
 
-    return bounds->contains(point);
+    return bounds->contains(position);
 }
 
 bool CCurveEditorKnotView::IsColliding(const ax::rectf& rect, bool allowIntersect /*= true*/) const noexcept
 {
-    const auto bounds = CalculateBounds();
+    const auto bounds = CalculateBounds(false);
     EDITOR_ASSERT(bounds);
     if (!bounds)
         return false;

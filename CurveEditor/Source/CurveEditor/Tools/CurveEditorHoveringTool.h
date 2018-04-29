@@ -11,11 +11,13 @@ public:
 
     virtual void OnActiveEditorViewChanged(const CCurveEditorToolEvent& event) override final;
 
-    virtual void OnMouseMove(const CCurveEditorToolMouseEvent& event) override final;
+    virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override final;
+    virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) override final;
 
 private:
+    ax::pointf m_DragBeginPosition;
     std::optional<ToolViewHandle> m_HoveringViewHandle;
-    CCurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
+    ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
 };
 
 #endif //__CURVE_EDITOR_HOVERING_TOOL_H__

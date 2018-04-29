@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TangentViewComponent.h"
 #include "CurveViewComponent.h"
+#include "CurveEditorView.h"
 #include <ImGuiInterop.h>
 
 using namespace ax::ImGuiInterop;
@@ -16,66 +17,66 @@ void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorSplineCo
 {
     const auto& style = GetEditorStyle();
 
-    const auto tangentPosition = GetEditorTangentPosition();
+    const auto tangentPosition = GetEditorTangentPosition(true);
     EDITOR_ASSERT(tangentPosition);
     if (!tangentPosition)
         return;
 
     const auto imGuiTangentPosition = to_imvec(*tangentPosition);
 
-    if (const auto anchorPosition = GetEditorAnchorPointPosition())
+    if (const auto anchorPosition = GetEditorAnchorPointPosition(true))
         drawList.AddLine(to_imvec(*anchorPosition), imGuiTangentPosition, style.Colors[CurveEditorStyleColor_TangentLine], style.TangentLineThickness);
 
     drawList.AddCircleFilled(imGuiTangentPosition, style.TangentMarkerRadius, style.Colors[CurveEditorStyleColor_TangentMarker]);
 }
 
-bool CCurveEditorTangentView::IsColliding(const ax::pointf& point, float extraThickness /*= 0.0f*/) const noexcept
+bool CCurveEditorTangentView::IsColliding(const ax::pointf& position, float extraThickness /*= 0.0f*/) const noexcept
 {
-    const auto tangentPosition = GetEditorTangentPosition();
+    const auto tangentPosition = GetEditorTangentPosition(false);
     EDITOR_ASSERT(tangentPosition);
     if (!tangentPosition)
         return false;
 
-    const auto distance = *tangentPosition - point;
+    const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
+
+    const auto distance = (*tangentPosition - position).cwise_product(windowCanvas.GetZoom());
     const auto tangentRadius = GetEditorStyle().TangentMarkerRadius + extraThickness;
 
-    return distance.x * distance.x + distance.y * distance.y <= tangentRadius * tangentRadius;
+    return distance.length_sq() <= tangentRadius * tangentRadius;
 }
 
 bool CCurveEditorTangentView::IsColliding(const ax::rectf& rect, bool allowIntersect /*= true*/) const noexcept
 {
-    const auto tangentRadius = GetEditorStyle().TangentMarkerRadius;
-
     if (allowIntersect)
     {
-        const auto tangentPosition = GetEditorTangentPosition();
+        const auto tangentPosition = GetEditorTangentPosition(false);
         EDITOR_ASSERT(tangentPosition);
         if (!tangentPosition)
             return false;
 
-        const auto distanceX = abs(tangentPosition->x - (rect.x + rect.w / 2.0f));
-        const auto distanceY = abs(tangentPosition->y - (rect.y + rect.h / 2.0f));
+        const auto tangentRadius = GetEditorStyle().TangentMarkerRadius;
 
-        if (distanceX > (rect.w / 2.0f + tangentRadius))
+        const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
+        const auto zoom = windowCanvas.GetZoom();
+
+        const auto distance = (*tangentPosition - rect.center()).cwise_abs().cwise_product(zoom);
+
+        const auto halfWidth = rect.w / 2.0f * zoom.x;
+        const auto halfHeight = rect.h / 2.0f * zoom.y;
+
+        if (distance.x > (halfWidth + tangentRadius) || distance.y > (halfHeight + tangentRadius))
             return false;
 
-        if (distanceY > (rect.h / 2.0f + tangentRadius))
-            return false;
-
-        if (distanceX <= (rect.w / 2.0f))
+        if (distance.x <= halfWidth || distance.y <= halfHeight)
             return true;
 
-        if (distanceY <= (rect.h / 2.0f))
-            return true;
+        const auto delta = distance - ax::pointf{ halfWidth, halfHeight };
 
-        auto deltaX = (distanceX - rect.w / 2.0f);
-        auto deltaY = (distanceY - rect.h / 2.0f);
-
-        return deltaX * deltaX + deltaY * deltaY <= tangentRadius * tangentRadius;
+        return delta.length_sq() <= tangentRadius * tangentRadius;
     }
     else
     {
-        const auto bounds = CalculateBounds();
+        const auto bounds = CalculateBounds(false);
         EDITOR_ASSERT(bounds);
         if (!bounds)
             return false;
@@ -109,10 +110,9 @@ std::optional<ax::pointf> CCurveEditorTangentView::GetAnchorPointPosition() cons
     return std::nullopt;
 }
 
-std::optional<ax::pointf> CCurveEditorTangentView::GetEditorAnchorPointPosition() const noexcept
+std::optional<ax::pointf> CCurveEditorTangentView::GetEditorAnchorPointPosition(bool screenTranslation) const noexcept
 {
-    //TODO
-    return std::nullopt;
+    return ToEditorPosition(GetAnchorPointPosition(), screenTranslation);
 }
 
 std::optional<ax::pointf> CCurveEditorTangentView::GetTangentPosition() const noexcept
@@ -123,20 +123,36 @@ std::optional<ax::pointf> CCurveEditorTangentView::GetTangentPosition() const no
     return std::nullopt;
 }
 
-std::optional<ax::pointf> CCurveEditorTangentView::GetEditorTangentPosition() const noexcept
+std::optional<ax::pointf> CCurveEditorTangentView::GetEditorTangentPosition(bool screenTranslation) const noexcept
 {
-    //TODO
-    return std::nullopt;
+    return ToEditorPosition(GetTangentPosition(), screenTranslation);
 }
 
-std::optional<ax::rectf> CCurveEditorTangentView::CalculateBounds() const noexcept
+std::optional<ax::rectf> CCurveEditorTangentView::CalculateBounds(bool screenTranslation) const noexcept
 {
-    const auto tangentPosition = GetEditorTangentPosition();
+    const auto tangentPosition = GetEditorTangentPosition(screenTranslation);
     EDITOR_ASSERT(tangentPosition);
     if (!tangentPosition)
         return std::nullopt;
 
     const auto tangentRadius = GetEditorStyle().TangentMarkerRadius;
 
-    return ax::rectf{ tangentPosition->x - tangentRadius, tangentPosition->y - tangentRadius, 2 * tangentRadius, 2 * tangentRadius };
+    auto tangentRadiusBounds = ax::pointf{ tangentRadius, tangentRadius };
+
+    if (!screenTranslation)
+    {
+        const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
+        tangentRadiusBounds = tangentRadiusBounds.cwise_product(windowCanvas.GetInvertZoom());
+    }
+
+    return ax::rectf{ tangentPosition->x - tangentRadiusBounds.x, tangentPosition->y - tangentRadiusBounds.x, 2 * tangentRadiusBounds.x, 2 * tangentRadiusBounds.y };
+}
+
+std::optional<ax::pointf> CCurveEditorTangentView::ToEditorPosition(const std::optional<ax::pointf>& position, bool screenTranslation) const noexcept
+{
+    if (!position)
+        return std::nullopt;
+
+    const auto& editorCanvas = GetEditorView().GetCanvas();
+    return editorCanvas.ToEditor(*position, screenTranslation);
 }

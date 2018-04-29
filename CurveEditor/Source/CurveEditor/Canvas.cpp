@@ -127,8 +127,8 @@ ax::pointf CWindowCanvas::ToScreen(const ax::pointf& point) const noexcept
         return {};
 
     return ax::pointf{
-        (point.x *  m_Zoom.x + m_ClientOrigin.x + m_WindowScreenPosition.x) ,
-        (point.y *  m_Zoom.y + m_ClientOrigin.y + m_WindowScreenPosition.y) , };
+        (point.x * m_Zoom.x + m_ClientOrigin.x + m_WindowScreenPosition.x) ,
+        (point.y * m_Zoom.y + m_ClientOrigin.y + m_WindowScreenPosition.y) , };
 }
 
 ax::pointf CWindowCanvas::FromClient(const ax::pointf& point) const noexcept
@@ -203,18 +203,20 @@ ax::pointf CEditorCanvas::CalculateScaledUnit() const noexcept
         calculate(m_UnitScaler.y, zoom.y) };
 }
 
-ax::pointf CEditorCanvas::FromEditor(const ax::pointf& value) const noexcept
+ax::pointf CEditorCanvas::FromEditor(const ax::pointf& value, bool screenTranslation /* = true */) const noexcept
 {
-    const auto fromScreenValue = m_WindowCanvas.FromScreen(value);
+    const auto fromScreenValue = screenTranslation ? m_WindowCanvas.FromScreen(value) : value;
 
     return ax::pointf{
         (fromScreenValue.x / m_UnitScaler.x),
         (-fromScreenValue.y / m_UnitScaler.y) };
 }
 
-ax::pointf CEditorCanvas::ToEditor(const ax::pointf& position) const noexcept
+ax::pointf CEditorCanvas::ToEditor(const ax::pointf& position, bool screenTranslation /* = true */) const noexcept
 {
-    return m_WindowCanvas.ToScreen(ax::pointf{
+    const auto resultPosition = ax::pointf{
         (position.x * m_UnitScaler.x),
-        (-position.y * m_UnitScaler.y) });
+        (-position.y * m_UnitScaler.y) };
+
+    return screenTranslation ? m_WindowCanvas.ToScreen(resultPosition) : resultPosition;
 }

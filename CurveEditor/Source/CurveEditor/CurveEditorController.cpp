@@ -115,14 +115,7 @@ const SCurveEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
 
 void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept
 {
-    if (!visitor)
-        return;
-
-    for (const auto& controllerPair : m_SplineControllers)
-    {
-        if (const auto& controller = controllerPair.second)
-            visitor(controller);
-    }
+    VisitObjectsMap(m_SplineControllers, visitor);
 }
 
 void CCurveEditorController::OnDataModelChanged()

@@ -17,14 +17,14 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
 {
     auto result = ICurveEditorView::Create();
 
-    result->AddViewComponent(std::make_unique<CCurveEditorBackgroundViewComponent>(*result), EComponentOrder::Background);
-    result->AddViewComponent(std::make_unique<CCurveEditorGridViewComponent>(*result), EComponentOrder::Background);
+    result->AddViewComponent(ICurveEditorBackgroundViewComponent::Create(*result), EComponentOrder::Background);
+    result->AddViewComponent(ICurveEditorGridViewComponent::Create(*result), EComponentOrder::Background);
 
-    result->AddViewComponent(std::make_unique<CCurveEditorSplinesViewComponent>(*result, m_SplineViewFactory), EComponentOrder::Splines);
+    result->AddViewComponent(ICurveEditorSplinesViewComponent::Create(*result, m_SplineViewFactory), EComponentOrder::Splines);
 
-    result->AddViewComponent(std::make_unique<CCurveEditorDebugComponent>(*result, m_EditorContext), EComponentOrder::Foreground);
+    result->AddViewComponent(ICurveEditorDebugComponent::Create(*result, m_EditorContext), EComponentOrder::Foreground);
 
-    result->AddViewComponent(std::make_unique<CCurveEditorToolHandlerComponent>(*result), EComponentOrder::Foreground);
+    result->AddViewComponent(ICurveEditorToolHandlerComponent::Create(*result), EComponentOrder::Foreground);
 
     if (!result->Initialize())
         return nullptr;

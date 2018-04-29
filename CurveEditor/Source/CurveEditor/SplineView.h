@@ -2,15 +2,14 @@
 #if !defined(__CURVE_EDITOR_SPLINE_VIEW_H__)
 
 #include "SplineController.h"
-#include "EditorViewBase.h"
-#include "Style.h"
+#include "SplineViewComponent.h"
 
 class ICurveEditorSplineView : public IEditorView
 {
 public:
     virtual ~ICurveEditorSplineView() override = default;
 
-    virtual void VisitSplineComponents(const VisitorType<ICurveEditorSplineViewComponent>& visitor) const noexcept = 0;
+    virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineViewComponent>& visitor, bool reverse = false) const noexcept = 0;
 };
 
 class ICurveEditorSplineViewFactory
