@@ -13,8 +13,8 @@ public:
 
     virtual void OnFrame() override final;
 
-    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, ECurveEditorSplineComponentType componentType, float extraThickness /* = 0.0f */) const noexcept override final;
-    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, ECurveEditorSplineComponentType componentType, bool allowIntersect /* = true */) const noexcept override final;
+    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
+    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
 
@@ -156,33 +156,44 @@ void CCurveEditorSplinesViewComponent::RecreateSplineViews()
     });
 }
 
-ICurveEditorSplineViewComponent* CCurveEditorSplinesViewComponent::GetSplineComponentAt(const ax::pointf& position, ECurveEditorSplineComponentType componentType, float extraThickness) const noexcept
+ICurveEditorSplineViewComponent* CCurveEditorSplinesViewComponent::GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, float extraThickness /* = 0.0f */) const noexcept
 {
     ICurveEditorSplineViewComponent* result = nullptr;
 
-    const auto visitor = [&](const auto& splineView)
+    const auto componentVisitor = [&](auto& splineComponent)
     {
-        const auto componentVisitor = [&](auto& splineComponent)
+        if (splineComponent.IsColliding(position, extraThickness))
         {
-            if (splineComponent.IsColliding(position, extraThickness))
-            {
-                result = &splineComponent;
-                return false;
-            }
+            result = &splineComponent;
+            return false;
+        }
 
-            return true;
-        };
-
-        splineView.VisitSplineComponents(componentType, componentVisitor, true);
-        return result != nullptr;
+        return true;
     };
 
-    VisitSplineViews(visitor, true);
+    if (componentType)
+    {
+        VisitSplineViews([&](const auto& splineView)
+        {
+            splineView.VisitSplineComponents(*componentType, componentVisitor, true);
+            return result != nullptr;
+        }, true);
+    }
+    else
+    {
+        VisitSplineViews([&](const auto& splineView)
+        {
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Tangent, componentVisitor, true);
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Knot, componentVisitor, true);
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Curve, componentVisitor, true);
+            return result != nullptr;
+        }, true);
+    }
 
     return result;
 }
 
-void CCurveEditorSplinesViewComponent::VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, ECurveEditorSplineComponentType componentType, bool allowIntersect /* = true */) const noexcept
+void CCurveEditorSplinesViewComponent::VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, bool allowIntersect /* = true */) const noexcept
 {
     if (!visitor)
         return;
@@ -195,11 +206,24 @@ void CCurveEditorSplinesViewComponent::VisitSplineComponentsInRect(const Visitor
         return true;
     };
 
-    VisitSplineViews([&](const auto& splineView)
+    if (componentType)
     {
-        splineView.VisitSplineComponents(componentType, componentVisitor, true);
-        return true;
-    });
+        VisitSplineViews([&](const auto& splineView)
+        {
+            splineView.VisitSplineComponents(*componentType, componentVisitor, true);
+            return true;
+        });
+    }
+    else
+    {
+        VisitSplineViews([&](const auto& splineView)
+        {
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Tangent, componentVisitor, true);
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Knot, componentVisitor, true);
+            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Curve, componentVisitor, true);
+            return true;
+        });
+    }
 }
 
 ICurveEditorSplinesViewComponentUniquePtr ICurveEditorSplinesViewComponent::Create(ICurveEditorView& editorView, ICurveEditorSplineViewFactory& splineViewFactory)

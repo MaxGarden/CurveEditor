@@ -9,8 +9,8 @@ class ICurveEditorSplinesViewComponent : public ICurveEditorViewComponent
 public:
     virtual ~ICurveEditorSplinesViewComponent() override = default;
 
-    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, ECurveEditorSplineComponentType componentType, float extraThickness = 0.0f) const noexcept = 0;
-    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, ECurveEditorSplineComponentType componentType, bool allowIntersect = true) const noexcept = 0;
+    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept = 0;
+    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept = 0;
 
     static ICurveEditorSplinesViewComponentUniquePtr Create(ICurveEditorView& editorView, ICurveEditorSplineViewFactory& splineViewFactory);
 };

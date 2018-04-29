@@ -23,35 +23,22 @@ void CCurveEditorHoveringTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent
         ++componentsCount;
     };
 
-    splineViews->VisitSplineComponentsInRect(visitor, ax::rectf{ m_DragBeginPosition, event.GetMousePosition() }, ECurveEditorSplineComponentType::Curve, true);
-    splineViews->VisitSplineComponentsInRect(visitor, ax::rectf{ m_DragBeginPosition, event.GetMousePosition() }, ECurveEditorSplineComponentType::Knot, true);
-    splineViews->VisitSplineComponentsInRect(visitor, ax::rectf{ m_DragBeginPosition, event.GetMousePosition() }, ECurveEditorSplineComponentType::Tangent, true);
-
+    splineViews->VisitSplineComponentsInRect(visitor, ax::rectf{ m_DragBeginPosition, event.GetMousePosition() });
     const auto& mousePosition = event.GetMousePosition();
 
     ImGui::Text("Drag begin: %f %f", m_DragBeginPosition.x, m_DragBeginPosition.y);
     ImGui::Text("Mouse: %f %f", mousePosition.x, mousePosition.y);
     ImGui::Text("Components %d", componentsCount);
 
-    if (splineViews->GetSplineComponentAt(event.GetMousePosition(), ECurveEditorSplineComponentType::Tangent))
+    if (const auto component = splineViews->GetSplineComponentAt(event.GetMousePosition()))
     {
-        ImGui::Text("NAD TANGENTEM");
-        return;
+        if (component->GetType() == ECurveEditorSplineComponentType::Tangent)
+            ImGui::Text("NAD TANGENTEM");
+        else if (component->GetType() == ECurveEditorSplineComponentType::Knot)
+            ImGui::Text("NAD WEZLEM");
+        else if (component->GetType() == ECurveEditorSplineComponentType::Curve)
+            ImGui::Text("NAD KRZYWA");
     }
-
-    const auto knotView = splineViews->GetSplineComponentAt(event.GetMousePosition(), ECurveEditorSplineComponentType::Knot);
-
-    if (knotView)
-    {
-        ImGui::Text("NAD WEZLEM");
-        return;
-    }
-
-    if (splineViews->GetSplineComponentAt(event.GetMousePosition(), ECurveEditorSplineComponentType::Curve))
-    {
-        ImGui::Text("NAD KRZYWA");
-    }
-
 }
 
 void CCurveEditorHoveringTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
