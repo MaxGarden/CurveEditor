@@ -6,7 +6,8 @@
 #include "SplineViewComponent.h"
 #include "SplineController.h"
 
-class CCurveEditorSplineViewComponentBase : public CEditorViewBase<ICurveEditorSplineViewComponent, ICurveEditorSplineController>
+template<typename SuperClass>
+class CCurveEditorSplineViewComponentBase : public CEditorViewBase<SuperClass, ICurveEditorSplineController>
 {
 public:
     CCurveEditorSplineViewComponentBase(ICurveEditorView& editorView);
@@ -17,12 +18,36 @@ public:
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller);
 
-    ICurveEditorView& GetEditorView() noexcept;
-    const ICurveEditorView& GetEditorView() const noexcept;
-    const SCurveEditorStyle& GetEditorStyle() const noexcept;
+    ICurveEditorView& GetEditorView() const noexcept;
+
+    using Super = CCurveEditorSplineViewComponentBase<SuperClass>;
 
 private:
     ICurveEditorView& m_EditorView;
 };
+
+template<typename SplineComponentType>
+class CCurveEditorSplineComponentBorderRenderableBase : public CEditorRenderableBase
+{
+    using SplineComponentConstWeakPtr = std::weak_ptr<const SplineComponentType>;
+
+public:
+    CCurveEditorSplineComponentBorderRenderableBase(SplineComponentConstWeakPtr && splineComponentView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle);
+    virtual ~CCurveEditorSplineComponentBorderRenderableBase() override = default;
+
+protected:
+    const SplineComponentConstWeakPtr& GetSplineComponentView() const noexcept;
+    ECurveEditorStyleColor GetBorderStyleColor() const noexcept;
+    ECurveEditorStyleFloat GetThichnessStyle() const noexcept;
+
+    using Super = CCurveEditorSplineComponentBorderRenderableBase<SplineComponentType>;
+
+private:
+    SplineComponentConstWeakPtr m_SplineComponentView;
+    const ECurveEditorStyleColor m_BorderStyleColor;
+    const ECurveEditorStyleFloat m_ThicknessStyle;
+};
+
+#include "SplineViewComponentBase.inl"
 
 #endif //__CURVE_EDITOR_SPLINE_VIEW_COMPONENT_BASE_H__

@@ -12,12 +12,12 @@ public:
 
     virtual void OnFrame() override;
 
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-
-    const std::shared_ptr<ControllerType>& GetController() const noexcept;
+    virtual bool SetController(const IEditorControllerSharedPtr& controller) override;
 
 protected:
     virtual void OnControllerChanged();
+
+    const std::shared_ptr<ControllerType>& GetController() const noexcept;
 
     using Super = CEditorViewBase<SuperClass, ControllerType>;
 

@@ -14,16 +14,19 @@ public:
     virtual ~CCurveEditorVisibleToolBase() override = default;
 
     std::optional<ToolViewHandle> AddToolView(ICurveEditorView& activeEditorView, ToolViewFactory&& viewFactory, EComponentOrder order);
+    std::optional<ToolViewHandle> AddToolView(ICurveEditorView& activeEditorView, ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order);
+
     bool RemoveToolView(const ToolViewHandle& handle);
 
 private:
     struct SToolViewStorage
     {
-        SToolViewStorage(ToolViewFactory&& toolFactory, EComponentOrder order) : ViewFactory(std::move(toolFactory)), Order(order) {};
+        SToolViewStorage(ToolViewFactory&& toolFactory, EComponentOrder order, bool allowMultiView) : ViewFactory(std::move(toolFactory)), Order(order), AllowMultiView(allowMultiView) {};
         std::vector<std::pair<ICurveEditorViewComponentWeakPtr, EditorViewComponentHandle>> ViewComponents;
 
         ToolViewFactory ViewFactory;
         EComponentOrder Order;
+        bool AllowMultiView;
     };
 
     std::map<ToolViewHandle, SToolViewStorage> m_ToolViews;

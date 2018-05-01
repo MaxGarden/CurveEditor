@@ -39,7 +39,7 @@ public:
     virtual void VisitViewComponents(const ConstInterruptibleVisitorType <ICurveEditorViewComponentSharedPtr>& visitor) const noexcept = 0;
     virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const EditorViewComponentHandle& handle) const noexcept = 0;
 
-    virtual const ICurveEditorControllerSharedPtr& GetController() const noexcept = 0;
+    virtual const SCurveEditorStyle& GetEditorStyle() const noexcept = 0;
 
     static ICurveEditorViewUniquePtr Create();
 };

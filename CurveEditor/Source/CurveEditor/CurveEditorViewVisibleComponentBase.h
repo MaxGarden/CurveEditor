@@ -10,10 +10,10 @@ public:
     CCurveEditorViewVisibleComponentBase(ICurveEditorView& editorView);
     virtual ~CCurveEditorViewVisibleComponentBase() override = default;
 
-    virtual void OnFrame() override final;
+    virtual void OnFrame() override;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController);
+    virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 
     using Super = CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>;
 };

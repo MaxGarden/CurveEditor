@@ -28,12 +28,13 @@ SOURCES += \
     Source/CurveEditor/SplineFunctionController.cpp             \
     Source/CurveEditor/SplineView.cpp                           \
     Source/CurveEditor/SplineViewComponent.cpp                  \
-    Source/CurveEditor/SplineViewComponentBase.cpp              \
     Source/CurveEditor/SplineViewImplementation.cpp             \
     Source/CurveEditor/CurveViewComponent.cpp                   \
     Source/CurveEditor/TangentViewComponent.cpp                 \
     Source/CurveEditor/KnotViewComponent.cpp                    \
     Source/CurveEditor/EditorContext.cpp                        \
+    Source/CurveEditor/EditorRenderable.cpp                     \
+    Source/CurveEditor/EditorRenderableBase.cpp                 \
     Source/CurveEditor/EditorView.cpp                           \
     Source/CurveEditor/EditorController.cpp                     \
     Source/CurveEditor/EditorListener.cpp                       \
@@ -73,6 +74,7 @@ HEADERS += \
     Source/CurveEditor/SplineView.h                             \
     Source/CurveEditor/SplineViewComponent.h                    \
     Source/CurveEditor/SplineViewComponentBase.h                \
+    Source/CurveEditor/SplineViewComponentBase.inl              \
     Source/CurveEditor/SplineViewImplementation.h               \
     Source/CurveEditor/CurveEditorViewComponentBase.h           \
     Source/CurveEditor/CurveEditorViewComponentBase.inl         \
@@ -81,6 +83,8 @@ HEADERS += \
     Source/CurveEditor/TangentViewComponent.h                   \
     Source/CurveEditor/KnotViewComponent.h                      \
     Source/CurveEditor/EditorContext.h                          \
+    Source/CurveEditor/EditorRenderable.h                       \
+    Source/CurveEditor/EditorRenderableBase.h                   \
     Source/CurveEditor/EditorView.h                             \
     Source/CurveEditor/EditorController.h                       \
     Source/CurveEditor/EditorControllerBase.h                   \

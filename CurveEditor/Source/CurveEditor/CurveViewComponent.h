@@ -1,30 +1,14 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_CURVE_VIEW_COMPONENT_H__)
 
-#include "SplineViewComponentBase.h"
+#include "SplineViewComponent.h"
 
-class CCurveEditorCurveView final : public CCurveEditorSplineViewComponentBase
+class ICurveEditorCurveView : public ICurveEditorSplineViewComponent
 {
 public:
-    CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex);
-    virtual ~CCurveEditorCurveView() override final = default;
+    virtual ~ICurveEditorCurveView() override = default;
 
-    virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
-    virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
-
-    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
-
-    std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
-    std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions(bool screenTranslation) const noexcept;
-
-protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller) override final;
-
-private:
-    std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
-
-private:
-    size_t m_CurveIndex = 0;
+    static ICurveEditorCurveViewSharedPtr Create(ICurveEditorView& editorView, size_t curveIndex);
 };
 
 #endif //__CURVE_EDITOR_CURVE_VIEW_COMPONENT_H__

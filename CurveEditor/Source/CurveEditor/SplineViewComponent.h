@@ -2,7 +2,9 @@
 #if !defined(__CURVE_EDITOR_SPLINE_VIEW_COMPONENT_H__)
 
 #include <ax/ax.h>
+#include "Style.h"
 #include "EditorView.h"
+#include "EditorRenderable.h"
 
 enum class ECurveEditorSplineComponentType
 {
@@ -21,6 +23,8 @@ public:
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept = 0;
 
     virtual ECurveEditorSplineComponentType GetType() const noexcept = 0;
+
+    virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const = 0;
 
     virtual const ICurveEditorSplineControllerSharedPtr& GetController() const noexcept = 0;
 };

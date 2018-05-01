@@ -11,7 +11,7 @@ const std::shared_ptr<ControllerType>& CEditorViewBase<SuperClass, ControllerTyp
 }
 
 template<typename SuperClass, typename ControllerType>
-bool CEditorViewBase<SuperClass, ControllerType>::SetController(const IEditorControllerSharedPtr& controller) noexcept
+bool CEditorViewBase<SuperClass, ControllerType>::SetController(const IEditorControllerSharedPtr& controller)
 {
     if (!controller)
     {

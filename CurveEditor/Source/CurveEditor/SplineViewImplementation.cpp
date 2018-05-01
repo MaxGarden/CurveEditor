@@ -22,7 +22,7 @@ void CCurveEditorSplineView::OnFrame(ICurveEditorSplineController& controller)
     EnsureKnotsViews(controller);
     EnsureTangentsViews(controller);
 
-    static const auto onFrameVisitor = [](CCurveEditorSplineViewComponentBase& view)
+    static const auto onFrameVisitor = [](auto& view)
     {
         view.OnFrame();
         return true;
@@ -37,6 +37,7 @@ void CCurveEditorSplineView::OnControllerChanged()
 {
     m_CurvesViews.clear();
     m_KnotsViews.clear();
+    m_TangentsViews.clear();
 }
 
 template<typename ViewType, typename ContainerType>
@@ -53,7 +54,7 @@ static void EnsureViews(ContainerType& container, const IEditorControllerSharedP
 
     std::generate(container.begin() + previousSize, container.end(), [index = previousSize, &controller, &editorView]() mutable
     {
-        auto view = std::make_unique<ViewType>(editorView, index++);
+        auto view = ViewType::Create(editorView, index++);
 
         auto isValid = true;
         isValid &= view->SetController(controller);
@@ -66,30 +67,30 @@ static void EnsureViews(ContainerType& container, const IEditorControllerSharedP
 
 void CCurveEditorSplineView::EnsureCurvesViews(ICurveEditorSplineController& controller)
 {
-    EnsureViews<CCurveEditorCurveView>(m_CurvesViews, GetController(), m_EditorView, controller.GetCurvesCount());
+    EnsureViews<ICurveEditorCurveView>(m_CurvesViews, GetController(), m_EditorView, controller.GetCurvesCount());
 }
 
 void CCurveEditorSplineView::EnsureKnotsViews(ICurveEditorSplineController& controller)
 {
-    EnsureViews<CCurveEditorKnotView>(m_KnotsViews, GetController(), m_EditorView, controller.GetKnotsCount());
+    EnsureViews<ICurveEditorKnotView>(m_KnotsViews, GetController(), m_EditorView, controller.GetKnotsCount());
 }
 
 void CCurveEditorSplineView::EnsureTangentsViews(ICurveEditorSplineController& controller)
 {
-    EnsureViews<CCurveEditorTangentView>(m_TangentsViews, GetController(), m_EditorView, controller.GetTangentsCount());
+    EnsureViews<ICurveEditorTangentView>(m_TangentsViews, GetController(), m_EditorView, controller.GetTangentsCount());
 }
 
-void CCurveEditorSplineView::VisitCurvesViews(const InterruptibleVisitorType<CCurveEditorCurveView>& visitor, bool reverse /*= false*/) const noexcept
+void CCurveEditorSplineView::VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse /*= false*/) const noexcept
 {
     VisitPointersContainer(m_CurvesViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitKnotsViews(const InterruptibleVisitorType<CCurveEditorKnotView>& visitor, bool reverse /*= false*/) const noexcept
+void CCurveEditorSplineView::VisitKnotsViews(const InterruptibleVisitorType<ICurveEditorKnotView>& visitor, bool reverse /*= false*/) const noexcept
 {
     VisitPointersContainer(m_KnotsViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitTangentsViews(const InterruptibleVisitorType<CCurveEditorTangentView>& visitor, bool reverse /*= false*/) const noexcept
+void CCurveEditorSplineView::VisitTangentsViews(const InterruptibleVisitorType<ICurveEditorTangentView>& visitor, bool reverse /*= false*/) const noexcept
 {
     VisitPointersContainer(m_TangentsViews, visitor, reverse);
 }

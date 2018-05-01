@@ -21,7 +21,7 @@ void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame()
 }
 
 template<typename SuperClass, typename ControllerType>
-void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame(ImDrawList&, ICurveEditorController&)
+void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame(ImDrawList&, ControllerType&)
 {
     //to override
 }

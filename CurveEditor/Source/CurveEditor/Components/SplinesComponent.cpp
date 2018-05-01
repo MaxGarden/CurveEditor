@@ -181,11 +181,18 @@ ICurveEditorSplineViewComponent* CCurveEditorSplinesViewComponent::GetSplineComp
     }
     else
     {
+        const auto visitComponentType = [&](const auto& splineView, const auto componentType)
+        {
+            if (!result)
+                splineView.VisitSplineComponents(componentType, componentVisitor, true);
+        };
+
         VisitSplineViews([&](const auto& splineView)
         {
-            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Tangent, componentVisitor, true);
-            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Knot, componentVisitor, true);
-            splineView.VisitSplineComponents(ECurveEditorSplineComponentType::Curve, componentVisitor, true);
+            visitComponentType(splineView, ECurveEditorSplineComponentType::Tangent);
+            visitComponentType(splineView, ECurveEditorSplineComponentType::Knot);
+            visitComponentType(splineView, ECurveEditorSplineComponentType::Curve);
+
             return result != nullptr;
         }, true);
     }

@@ -24,12 +24,7 @@ void CCurveEditorZoomTool::OnWheel(const CCurveEditorToolMouseWheelEvent& event)
 
 void CCurveEditorZoomTool::ApplyZoom(int steps, ICurveEditorView& editorView)
 {
-    const auto& editorController = editorView.GetController();
-    EDITOR_ASSERT(editorController);
-    if (!editorController)
-        return;
-
-    const auto& editorStyle = editorController->GetEditorStyle();
+    const auto& editorStyle = editorView.GetEditorStyle();
 
     auto applyAxisZoom = [steps, &editorStyle](float& level, float& zoom)
     {

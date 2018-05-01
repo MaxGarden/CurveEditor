@@ -65,6 +65,8 @@ public:
     virtual void VisitViewComponents(const ConstInterruptibleVisitorType<ICurveEditorViewComponentSharedPtr>& visitor) const noexcept override final;
     virtual ICurveEditorViewComponentSharedPtr GetViewComponent(const EditorViewComponentHandle& handle) const noexcept override final;
 
+    virtual const SCurveEditorStyle& GetEditorStyle() const noexcept override final;
+
 protected:
     virtual void OnControllerChanged() noexcept override final;
 
@@ -80,6 +82,7 @@ private:
     CEditorCanvas m_Canvas = CEditorCanvas({ 100.0f, 100.0f });
 
     std::vector<SComponentStorage> m_Components;
+    std::vector<SComponentStorage> m_QueuedComponents;
 
     bool m_Initialized = false;
 };
@@ -175,31 +178,47 @@ std::optional<EditorViewComponentHandle> CCurveEditorView::AddViewComponent(ICur
             return std::nullopt;
     }
 
-    m_Components.emplace_back(order, std::move(viewComponent));
+    m_QueuedComponents.emplace_back(order, std::move(viewComponent));
 
-    const auto handle = reinterpret_cast<EditorViewComponentHandle>(m_Components.back().ViewComponent.get());
-
-    std::stable_sort(m_Components.begin(), m_Components.end());
+    const auto handle = reinterpret_cast<EditorViewComponentHandle>(m_QueuedComponents.back().ViewComponent.get());
 
     return handle;
 }
 
 bool CCurveEditorView::RemoveViewComponent(const EditorViewComponentHandle& handle)
 {
-    const auto iterator = std::find_if(m_Components.begin(), m_Components.end(), [&handle](const auto& componentStorage)
+    const auto findIn = [&handle](auto& conatiner)
     {
-        return reinterpret_cast<EditorViewComponentHandle>(componentStorage.ViewComponent.get()) == handle;
-    });
+        return std::find_if(conatiner.begin(), conatiner.end(), [&handle](const auto& componentStorage)
+        {
+            return reinterpret_cast<EditorViewComponentHandle>(componentStorage.ViewComponent.get()) == handle;
+        });
+    };
 
-    if (iterator == m_Components.end())
-        return false;
+    const auto componentsInterator = findIn(m_Components);
+    if (componentsInterator == m_Components.end())
+    {
+        const auto queuedComponentsIterator = findIn(m_QueuedComponents);
+        if(queuedComponentsIterator == m_QueuedComponents.end())
+            return false;
 
-    iterator->ViewComponent.reset();
+        m_QueuedComponents.erase(queuedComponentsIterator);
+        return true;
+    }
+
+    componentsInterator->ViewComponent.reset();
     return true;
 }
 
 void CCurveEditorView::VisitViewComponentsInternal(const VisitorType<ICurveEditorViewComponent>& visitor) noexcept
 {
+    if (!m_QueuedComponents.empty())
+    {
+        std::move(m_QueuedComponents.begin(), m_QueuedComponents.end(), std::back_inserter(m_Components));
+        std::stable_sort(m_Components.begin(), m_Components.end());
+        m_QueuedComponents.clear();
+    }
+
     RemoveFromContainer(m_Components, nullptr);
     VisitPointersContainer(m_Components, visitor);
 }
@@ -238,11 +257,27 @@ void CCurveEditorView::VisitViewComponents(const ConstInterruptibleVisitorType<I
 
 ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const EditorViewComponentHandle& handle) const noexcept
 {
-    const auto iterator = std::find(m_Components.begin(), m_Components.end(), reinterpret_cast<void*>(handle));
-    if (iterator == m_Components.end())
-        return nullptr;
+    const auto findIn = [handle = reinterpret_cast<void*>(handle)](const auto& container)->ICurveEditorViewComponentSharedPtr
+    {
+        const auto iterator = std::find(container.begin(), container.end(), handle);
+        if (iterator == container.end())
+            return nullptr;
 
-    return iterator->ViewComponent;
+        return iterator->ViewComponent;
+    };
+
+    auto component = findIn(m_Components);
+    return component ? std::move(component) : findIn(m_QueuedComponents);
+}
+
+const SCurveEditorStyle& CCurveEditorView::GetEditorStyle() const noexcept
+{
+    static SCurveEditorStyle null;
+
+    if (const auto& controller = GetController())
+        return controller->GetEditorStyle();
+
+    return null;
 }
 
 ICurveEditorViewUniquePtr ICurveEditorView::Create()

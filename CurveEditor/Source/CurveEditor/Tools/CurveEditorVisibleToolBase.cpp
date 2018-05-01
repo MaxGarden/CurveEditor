@@ -12,7 +12,7 @@ std::optional<ToolViewHandle> CCurveEditorVisibleToolBase::AddToolView(ICurveEdi
     if (!viewFactory)
         return std::nullopt;
 
-    SToolViewStorage storage{ std::move(viewFactory), order };
+    SToolViewStorage storage{ std::move(viewFactory), order, true};
 
     if (const auto viewHandle = activeEditorView.AddViewComponent(storage.ViewFactory(activeEditorView), order))
     {
@@ -28,6 +28,31 @@ std::optional<ToolViewHandle> CCurveEditorVisibleToolBase::AddToolView(ICurveEdi
     m_ToolViews.try_emplace(resultHandle, std::move(storage));
 
     //TODO add multiple views
+
+    return resultHandle;
+}
+
+std::optional<ToolViewHandle> CCurveEditorVisibleToolBase::AddToolView(ICurveEditorView& activeEditorView, ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order)
+{
+    if (!viewComponent)
+        return std::nullopt;
+
+    SToolViewStorage storage{ {}, order, false };
+
+    const auto viewHandle = activeEditorView.AddViewComponent(std::move(viewComponent), order);
+    EDITOR_ASSERT(viewHandle);
+    if (!viewHandle)
+        return std::nullopt;
+
+    const auto addedViewComponent = activeEditorView.GetViewComponent(*viewHandle);
+    EDITOR_ASSERT(addedViewComponent);
+    if (!addedViewComponent)
+        return std::nullopt;
+
+    storage.ViewComponents.emplace_back(std::make_pair(addedViewComponent, *viewHandle));
+
+    const auto resultHandle = CreateToolHandle();
+    m_ToolViews.try_emplace(resultHandle, std::move(storage));
 
     return resultHandle;
 }

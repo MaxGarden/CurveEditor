@@ -2,14 +2,182 @@
 #include "CurveViewComponent.h"
 #include "SplineController.h"
 #include "CurveEditorView.h"
+#include "EditorRenderableBase.h"
+#include "SplineViewComponentBase.h"
 #include <ImGuiInterop.h>
 
 using namespace ax::ImGuiInterop;
+
+DECLARE_POINTERS(CCurveEditorCurveView);
+
+class CCurveEditorCurveBorderRenderable final : public CCurveEditorSplineComponentBorderRenderableBase<CCurveEditorCurveView>
+{
+public:
+    CCurveEditorCurveBorderRenderable(CCurveEditorCurveViewConstWeakPtr&& curveView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle);
+    virtual ~CCurveEditorCurveBorderRenderable() override final = default;
+
+protected:
+    virtual void OnFrame(ImDrawList& drawList) override final;
+};
+
+class CCurveEditorCurveView final : public CCurveEditorSplineViewComponentBase<ICurveEditorCurveView>, public std::enable_shared_from_this<CCurveEditorCurveView>
+{
+friend CCurveEditorCurveBorderRenderable;
+public:
+    CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex);
+    virtual ~CCurveEditorCurveView() override final = default;
+
+    virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
+    virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
+
+    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
+
+    virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
+
+protected:
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& splineController) override final;
+
+private:
+    std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
+
+    std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
+    std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions(bool screenTranslation) const noexcept;
+
+private:
+    const size_t m_CurveIndex;
+};
+
+CCurveEditorCurveBorderRenderable::CCurveEditorCurveBorderRenderable(CCurveEditorCurveViewConstWeakPtr&& curveView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) :
+    CCurveEditorSplineComponentBorderRenderableBase(std::move(curveView), borderStyleColor, thicknessStyle)
+{
+}
+
+void CCurveEditorCurveBorderRenderable::OnFrame(ImDrawList& drawList)
+{
+    const auto curveView = GetSplineComponentView().lock();
+    if (!curveView)
+        return;
+
+    const auto controlPoints = curveView->GetEditorControlPointsPositions(true);
+    EDITOR_ASSERT(controlPoints);
+    if (!controlPoints)
+        return;
+
+    const auto& editorStyle = curveView->GetEditorView().GetEditorStyle();
+
+    const auto thickness = editorStyle.GetEditorStyleFloat(GetThichnessStyle());
+    if (!thickness || thickness <= 0.0f)
+        return;
+
+    const auto& color = editorStyle.Colors[GetBorderStyleColor()];
+
+    const auto getControlPoint = [&controlPoints](size_t index)
+    {
+        return to_imvec(*(&controlPoints->p0 + index));
+    };
+
+    drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), color, *thickness);
+}
 
 CCurveEditorCurveView::CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex) :
     CCurveEditorSplineViewComponentBase(editorView),
     m_CurveIndex(curveIndex)
 {
+}
+
+bool CCurveEditorCurveView::IsColliding(const ax::pointf& position, float extraThickness /*= 0.0f*/) const noexcept
+{
+    auto bounds = CalculateBounds(false);
+    EDITOR_ASSERT(bounds);
+    if (!bounds)
+        return false;
+
+    if (extraThickness > 0.0f)
+        bounds->expand(extraThickness);
+
+    if (!bounds->contains(position))
+        return false;
+
+    const auto& editorView = GetEditorView();
+
+    const auto controlPoints = GetEditorControlPointsPositions(false);
+    const auto distance = ax::cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, 10000).distance;
+
+    const auto splineThickness = editorView.GetEditorStyle().SplineThickness;
+
+    const auto& windowCanvas = editorView.GetCanvas().GetWindowCanvas();
+    const auto splineThickneessBounds = ax::pointf{ splineThickness, splineThickness }.cwise_product(windowCanvas.GetInvertZoom()) + ax::pointf{ extraThickness, extraThickness };
+
+    return distance <= splineThickneessBounds.x && distance <= splineThickneessBounds.y;
+}
+
+bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowIntersect /*= true*/) const noexcept
+{
+    const auto bounds = CalculateBounds(false);
+    EDITOR_ASSERT(bounds);
+    if (!bounds)
+        return false;
+
+    if (rect.contains(*bounds))
+        return true;
+
+    if (!allowIntersect || !rect.intersects(*bounds))
+        return false;
+
+    const auto controlPoints = GetEditorControlPointsPositions(false);
+
+    const auto topLeft = rect.top_left();
+    const auto topRight = rect.top_right();
+    const auto bottomRight = rect.bottom_right();
+    const auto bottomLeft = rect.bottom_left();
+
+    ax::pointf points[3];
+
+    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topLeft, topRight, points) > 0)
+        return true;
+    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topRight, bottomRight, points) > 0)
+        return true;
+    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomRight, bottomLeft, points) > 0)
+        return true;
+    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomLeft, topLeft, points) > 0)
+        return true;
+
+    return false;
+}
+
+ECurveEditorSplineComponentType CCurveEditorCurveView::GetType() const noexcept
+{
+    return ECurveEditorSplineComponentType::Curve;
+}
+
+IEditorRenderableUniquePtr CCurveEditorCurveView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const
+{
+    return std::make_unique<CCurveEditorCurveBorderRenderable>(weak_from_this(), borderStyleColor, thicknessStyle);
+}
+
+std::optional<ax::rectf> CCurveEditorCurveView::CalculateBounds(bool screenTranslation) const noexcept
+{
+    const auto controlPoints = GetEditorControlPointsPositions(screenTranslation);
+    if (!controlPoints)
+        return std::nullopt;
+
+    auto result = ax::cubic_bezier_bounding_rect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3);
+
+    if (result.w == 0.0f)
+    {
+        result.x -= 0.5f;
+        result.w = 1.0f;
+    }
+
+    if (result.h == 0.0f)
+    {
+        result.y -= 0.5f;
+        result.h = 1.0f;
+    }
+
+    result.expand(GetEditorView().GetEditorStyle().SplineThickness);
+
+    return result;
 }
 
 std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetControlPointsPositions() const noexcept
@@ -55,17 +223,17 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsP
     return controlPoints;
 }
 
-void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller)
+void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& splineController)
 {
     const auto controlPoints = GetEditorControlPointsPositions(true);
     EDITOR_ASSERT(controlPoints);
     if (!controlPoints)
         return;
 
-    const auto& editorStyle = GetEditorStyle();
+    const auto& editorStyle = GetEditorView().GetEditorStyle();
     const auto splineThickness = editorStyle.SplineThickness;
 
-    const auto curveColor = controller.GetColor();
+    const auto curveColor = splineController.GetColor();
 
     const auto getControlPoint = [&controlPoints](size_t index)
     {
@@ -75,90 +243,7 @@ void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineCont
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
 }
 
-bool CCurveEditorCurveView::IsColliding(const ax::pointf& position, float extraThickness /*= 0.0f*/) const noexcept
+ICurveEditorCurveViewSharedPtr ICurveEditorCurveView::Create(ICurveEditorView& editorView, size_t curveIndex)
 {
-    auto bounds = CalculateBounds(false);
-    EDITOR_ASSERT(bounds);
-    if (!bounds)
-        return false;
-
-    if (extraThickness > 0.0f)
-        bounds->expand(extraThickness);
-
-    if (!bounds->contains(position))
-        return false;
-
-    const auto controlPoints = GetEditorControlPointsPositions(false);
-    const auto distance = ax::cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, 10000).distance;
-
-    const auto splineThickness = GetEditorStyle().SplineThickness;
-
-    const auto& windowCanvas = GetEditorView().GetCanvas().GetWindowCanvas();
-    const auto splineThickneessBounds = ax::pointf{ splineThickness, splineThickness }.cwise_product(windowCanvas.GetInvertZoom()) + ax::pointf{ extraThickness, extraThickness };
-
-    return distance <= splineThickneessBounds.x && distance <= splineThickneessBounds.y;
-}
-
-bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowIntersect /*= true*/) const noexcept
-{
-    const auto bounds = CalculateBounds(false);
-    EDITOR_ASSERT(bounds);
-    if (!bounds)
-        return false;
-
-    if (rect.contains(*bounds))
-        return true;
-
-    if (!allowIntersect || !rect.intersects(*bounds))
-        return false;
-
-    const auto controlPoints = GetEditorControlPointsPositions(false);
-
-    const auto topLeft = rect.top_left();
-    const auto topRight = rect.top_right();
-    const auto bottomRight = rect.bottom_right();
-    const auto bottomLeft = rect.bottom_left();
-
-    ax::pointf points[3];
-
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topLeft, topRight, points) > 0)
-        return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topRight, bottomRight, points) > 0)
-        return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomRight, bottomLeft, points) > 0)
-        return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomLeft, topLeft, points) > 0)
-        return true;
-
-    return false;
-}
-
-std::optional<ax::rectf> CCurveEditorCurveView::CalculateBounds(bool screenTranslation) const noexcept
-{
-    const auto controlPoints = GetEditorControlPointsPositions(screenTranslation);
-    if (!controlPoints)
-        return std::nullopt;
-
-    auto result = ax::cubic_bezier_bounding_rect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3);
-
-    if (result.w == 0.0f)
-    {
-        result.x -= 0.5f;
-        result.w = 1.0f;
-    }
-
-    if (result.h == 0.0f)
-    {
-        result.y -= 0.5f;
-        result.h = 1.0f;
-    }
-
-    result.expand(GetEditorStyle().SplineThickness);
-
-    return result;
-}
-
-ECurveEditorSplineComponentType CCurveEditorCurveView::GetType() const noexcept
-{
-    return ECurveEditorSplineComponentType::Curve;
+    return std::make_shared<CCurveEditorCurveView>(editorView, curveIndex);
 }

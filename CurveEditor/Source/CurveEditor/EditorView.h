@@ -3,15 +3,14 @@
 
 #include "EditorDataModel.h"
 #include "EditorController.h"
+#include "EditorRenderable.h"
 
-class IEditorView
+class IEditorView : public IEditorRenderable
 {
 public:
-    virtual ~IEditorView() = default;
+    virtual ~IEditorView() override = default;
 
-    virtual void OnFrame() = 0;
-
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept = 0;
+    virtual bool SetController(const IEditorControllerSharedPtr& controller) = 0;
 };
 
 class IEditorViewFactory

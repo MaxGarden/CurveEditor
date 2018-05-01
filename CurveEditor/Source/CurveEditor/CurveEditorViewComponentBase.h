@@ -11,6 +11,7 @@ public:
     virtual ~CCurveEditorViewComponentBase() override = default;
 
     virtual bool Initialize() override;
+
     virtual void OnFrame() override;
 
     virtual ICurveEditorView& GetEditorView() const noexcept override final;

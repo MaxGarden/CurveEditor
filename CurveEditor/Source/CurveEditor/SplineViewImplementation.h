@@ -2,6 +2,7 @@
 #if !defined(__CURVE_EDITOR_SPLINE_VIEW_FACTORY_H__)
 
 #include "SplineView.h"
+#include "EditorViewBase.h"
 #include "KnotViewComponent.h"
 #include "CurveViewComponent.h"
 #include "TangentViewComponent.h"
@@ -22,9 +23,9 @@ protected:
 private:
     void OnFrame(ICurveEditorSplineController& controller);
 
-    void VisitCurvesViews(const InterruptibleVisitorType<CCurveEditorCurveView>& visitor, bool reverse = false) const noexcept;
-    void VisitKnotsViews(const InterruptibleVisitorType<CCurveEditorKnotView>& visitor, bool reverse = false) const noexcept;
-    void VisitTangentsViews(const InterruptibleVisitorType<CCurveEditorTangentView>& visitor, bool reverse = false) const noexcept;
+    void VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse = false) const noexcept;
+    void VisitKnotsViews(const InterruptibleVisitorType<ICurveEditorKnotView>& visitor, bool reverse = false) const noexcept;
+    void VisitTangentsViews(const InterruptibleVisitorType<ICurveEditorTangentView>& visitor, bool reverse = false) const noexcept;
 
     void EnsureCurvesViews(ICurveEditorSplineController& controller);
     void EnsureKnotsViews(ICurveEditorSplineController& controller);
@@ -32,9 +33,9 @@ private:
 
 private:
     ICurveEditorView& m_EditorView;
-    std::vector<CCurveEditorCurveViewUniquePtr> m_CurvesViews;
-    std::vector<CCurveEditorKnotViewUniquePtr> m_KnotsViews;
-    std::vector<CCurveEditorTangentViewUniquePtr> m_TangentsViews;
+    std::vector<ICurveEditorCurveViewSharedPtr> m_CurvesViews;
+    std::vector<ICurveEditorKnotViewSharedPtr> m_KnotsViews;
+    std::vector<ICurveEditorTangentViewSharedPtr> m_TangentsViews;
 };
 
 class CCurveEditorSplineViewFactory final : public ICurveEditorSplineViewFactory

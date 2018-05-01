@@ -1,3 +1,4 @@
+DECLARE_POINTERS(IEditorRenderable)
 DECLARE_POINTERS(IEditorView)
 DECLARE_POINTERS(IEditorViewFactory)
 DECLARE_POINTERS(IEditorViewWidgetFactory)
@@ -24,9 +25,9 @@ DECLARE_POINTERS(IEditorTool)
 DECLARE_POINTERS(ICurveEditorTool)
 DECLARE_POINTERS(ICurveEditorComponentTool)
 
-DECLARE_POINTERS(CCurveEditorCurveView)
-DECLARE_POINTERS(CCurveEditorKnotView)
-DECLARE_POINTERS(CCurveEditorTangentView)
+DECLARE_POINTERS(ICurveEditorCurveView)
+DECLARE_POINTERS(ICurveEditorKnotView)
+DECLARE_POINTERS(ICurveEditorTangentView)
 
 DECLARE_POINTERS(ICurveEditorBackgroundViewComponent)
 DECLARE_POINTERS(ICurveEditorDebugComponent)
