@@ -11,7 +11,7 @@ class CCurveEditorVisibleToolBase : public CCurveEditorToolBase
 {
 public:
     CCurveEditorVisibleToolBase() = default;
-    virtual ~CCurveEditorVisibleToolBase() override = default;
+    virtual ~CCurveEditorVisibleToolBase() override;
 
     std::optional<ToolViewHandle> AddToolView(ICurveEditorView& activeEditorView, ToolViewFactory&& viewFactory, EComponentOrder order);
     std::optional<ToolViewHandle> AddToolView(ICurveEditorView& activeEditorView, ICurveEditorViewComponentUniquePtr&& viewComponent, EComponentOrder order);

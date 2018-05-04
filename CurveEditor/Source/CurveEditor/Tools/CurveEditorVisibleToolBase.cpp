@@ -7,6 +7,20 @@ static auto CreateToolHandle() noexcept
     return ++handle;
 }
 
+CCurveEditorVisibleToolBase::~CCurveEditorVisibleToolBase()
+{
+    std::vector<ToolViewHandle> viewsToRemove;
+    viewsToRemove.reserve(m_ToolViews.size());
+
+    for (const auto& toolView : m_ToolViews)
+        viewsToRemove.emplace_back(toolView.first);
+
+    for (const auto& viewToRemove : viewsToRemove)
+        RemoveToolView(viewToRemove);
+
+    EDITOR_ASSERT(m_ToolViews.empty());
+}
+
 std::optional<ToolViewHandle> CCurveEditorVisibleToolBase::AddToolView(ICurveEditorView& activeEditorView, ToolViewFactory&& viewFactory, EComponentOrder order)
 {
     if (!viewFactory)
