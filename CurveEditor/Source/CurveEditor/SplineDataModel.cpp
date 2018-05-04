@@ -1,30 +1,31 @@
 #include "pch.h"
 #include "SplineDataModel.h"
 #include "EditorListenableBase.h"
+#include <random>
 
 class CCurveEditorSplineDataModel final : public CEditorListenableBase<ICurveEditorSplineDataModel, IEditorListener>
 {
 public:
-    CCurveEditorSplineDataModel(std::string_view name, unsigned int color);
+    CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color);
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
     virtual std::vector<ax::pointf>& GetControlPoints() noexcept override final;
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
     virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept override final;
 
-    virtual const std::string& GetName() const noexcept override final;
-    virtual unsigned int GetColor() const noexcept override final;
+    virtual const SplineID& GetID() const noexcept override final;
+    virtual const SplineColor& GetColor() const noexcept override final;
 
 private:
     std::vector<ax::pointf> m_ControlPoints;
     std::vector<ECurveType> m_CurvesTypes;
-    std::string m_Name;
-    unsigned int m_Color = 0;
+    const SplineID m_ID;
+    const unsigned int m_Color = 0;
 };
 
-CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(std::string_view name, unsigned int color) :
-    m_Name(name),
-    m_Color(color)
+CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color) :
+    m_ID(std::move(id)),
+    m_Color(std::move(color))
 {
     //for tests
     m_ControlPoints = { { 1.0f, -1.0f }, { 1.01f, -2.0f }, { 1.0f, -5.0f }, { 3.0f, -3.0f },
@@ -47,17 +48,29 @@ const std::vector<ECurveType>& CCurveEditorSplineDataModel::GetCurvesTypes() con
     return m_CurvesTypes;
 }
 
-const std::string& CCurveEditorSplineDataModel::GetName() const noexcept
+const SplineID& CCurveEditorSplineDataModel::GetID() const noexcept
 {
-    return m_Name;
+    return m_ID;
 }
 
-unsigned int CCurveEditorSplineDataModel::GetColor() const noexcept
+const SplineColor& CCurveEditorSplineDataModel::GetColor() const noexcept
 {
     return m_Color;
 }
 
-ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(std::string_view name, unsigned int color)
+ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(SplineID id, SplineColor color)
 {
-    return std::make_unique<CCurveEditorSplineDataModel>(name, color);
+    return std::make_unique<CCurveEditorSplineDataModel>(std::move(id), std::move(color));
+}
+
+SplineID ICurveEditorSplineDataModel::GenerateSplineID() noexcept
+{
+    static std::mt19937_64 generator{ std::random_device{}() };
+    return std::uniform_int_distribution<SplineID>{1, UINT64_MAX}(generator);
+}
+
+const SplineID& ICurveEditorSplineDataModel::InvalidSplineID() noexcept
+{
+    static SplineID invalidID = 0;
+    return invalidID;
 }

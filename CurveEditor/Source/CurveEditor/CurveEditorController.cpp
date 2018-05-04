@@ -32,6 +32,7 @@ public:
     virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept override final;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept override final;
 
+    virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept override final;
     virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept override final;
 
     virtual const SCurveEditorStyle& GetEditorStyle() const noexcept override final;
@@ -111,6 +112,24 @@ const SCurveEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
         return dataModel->GetStyle();
 
     return nullStyle;
+}
+
+const ICurveEditorSplineControllerSharedPtr& CCurveEditorController::GetSplineController(const SplineID& id) const noexcept
+{
+    static const ICurveEditorSplineControllerSharedPtr null;
+
+    const auto dataModel = GetDataModel();
+    if (!dataModel)
+        return null;
+
+    const auto& splineDataModel = dataModel->GetSplineDataModel(id);
+    const auto iterator = m_SplineControllers.find(splineDataModel);
+
+    if (iterator == m_SplineControllers.end())
+        return null;
+
+    EDITOR_ASSERT(iterator->second->GetID() == id);
+    return iterator->second;
 }
 
 void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept

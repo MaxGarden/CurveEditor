@@ -15,7 +15,6 @@ protected:
 
 private:
     IEditorContext & m_EditorContext;
-    std::string m_SplineName = std::string(128, '\0');
     ImColor m_SplineColor = ImColor(0.0f, 1.0f, 0.0f);
 
     std::stack<ICurveEditorSplineDataModelWeakPtr> m_CreatedSplinesDataModels;
@@ -30,7 +29,6 @@ CCurveEditorDebugComponent::CCurveEditorDebugComponent(ICurveEditorView& editorV
 void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
 {
     ImGui::Begin("Debug Component", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::InputText("Spline name", m_SplineName.data(), m_SplineName.size());
 
     ImGui::ColorEdit4("Spline color", &m_SplineColor.Value.x);
 
@@ -43,7 +41,7 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
     {
         if (const auto editorDataModel = getEditorDataModel())
         {
-            auto splineDataModel = editorDataModel->AddSplineDataModel(m_SplineName, static_cast<ImU32>(m_SplineColor));
+            auto splineDataModel = editorDataModel->AddSplineDataModel(static_cast<SplineColor>(m_SplineColor));
             EDITOR_ASSERT(splineDataModel);
             m_CreatedSplinesDataModels.emplace(std::move(splineDataModel));
         }

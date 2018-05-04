@@ -23,6 +23,7 @@ public:
     virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept = 0;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept = 0;
 
+    virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept = 0;
     virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept = 0;
 
     virtual const SCurveEditorStyle& GetEditorStyle() const noexcept = 0;

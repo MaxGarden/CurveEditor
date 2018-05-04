@@ -1,9 +1,10 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_SPLINE_CONTROLLER__)
 
+#include "ax/ax.h"
 #include "EditorListener.h"
 #include "EditorController.h"
-#include "ax/ax.h"
+#include "SplineDataModel.h"
 
 class ICurveEditorSplineListener : public IEditorListener
 {
@@ -19,8 +20,8 @@ public:
 public:
     virtual ~ICurveEditorSplineController() override = default;
 
-    virtual const std::string& GetName() const noexcept = 0;
-    virtual unsigned int GetColor() const noexcept = 0;
+    virtual const SplineID& GetID() const noexcept = 0;
+    virtual const SplineColor& GetColor() const noexcept = 0;
 
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
 

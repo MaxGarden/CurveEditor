@@ -3,22 +3,24 @@
 
 static const auto s_ControlPointsPerCurve = 4u;
 
-const std::string& CCurveEditorFunctionSplineController::GetName() const noexcept
+const SplineID& CCurveEditorFunctionSplineController::GetID() const noexcept
 {
-    static const std::string null;
+    static const SplineID null = ICurveEditorSplineDataModel::InvalidSplineID();
 
     if (const auto& dataModel = GetDataModel())
-        return dataModel->GetName();
+        return dataModel->GetID();
 
     return null;
 }
 
-unsigned int CCurveEditorFunctionSplineController::GetColor() const noexcept
+const SplineColor& CCurveEditorFunctionSplineController::GetColor() const noexcept
 {
+    static const SplineColor null = {};
+
     if (const auto dataModel = GetDataModel())
         return dataModel->GetColor();
 
-    return 0;
+    return null;
 }
 
 const std::vector<ax::pointf>& CCurveEditorFunctionSplineController::GetControlPoints() const noexcept

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "CurveEditorDataModel.h"
-#include "SplineDataModel.h"
 
 class CCurveEditorDataModel final : public CEditorListenableBase<ICurveEditorDataModel, ICurveEditorDataModelListener>
 {
@@ -11,10 +10,15 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) override final;
     virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color) override final;
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color) override final;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
 
+    virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
+
     virtual const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept override final;
+
+private:
+    SplineID GenerateFreeSplineID() const noexcept;
 
 private:
     SCurveEditorStyle m_EditorStyle;
@@ -32,9 +36,9 @@ const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
     return m_EditorStyle;
 }
 
-ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(std::string_view name, unsigned int color)
+ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color)
 {
-    auto splineDataModel = ICurveEditorSplineDataModel::Create(name, color);
+    auto splineDataModel = ICurveEditorSplineDataModel::Create(GenerateFreeSplineID(), color);
     if (!splineDataModel)
         return nullptr;
 
@@ -59,6 +63,31 @@ bool CCurveEditorDataModel::RemoveSplineDataModel(const ICurveEditorSplineDataMo
 const std::vector<ICurveEditorSplineDataModelSharedPtr>& CCurveEditorDataModel::GetSplinesDataModels() const noexcept
 {
     return m_SplinesDataModels;
+}
+
+const ICurveEditorSplineDataModelSharedPtr& CCurveEditorDataModel::GetSplineDataModel(const SplineID& id) const noexcept
+{
+    static const ICurveEditorSplineDataModelSharedPtr null;
+
+    const auto iterator = std::find_if(m_SplinesDataModels.cbegin(), m_SplinesDataModels.cend(), [&id](const auto& splineDataModel)
+    {
+        return splineDataModel && splineDataModel->GetID() == id;
+    });
+
+    if(iterator == m_SplinesDataModels.cend())
+        return null;
+
+    return *iterator;
+}
+
+SplineID CCurveEditorDataModel::GenerateFreeSplineID() const noexcept
+{
+    while (true)
+    {
+        const auto result = ICurveEditorSplineDataModel::GenerateSplineID();
+        if (!GetSplineDataModel(result))
+            return result;
+    }
 }
 
 ICurveEditorDataModelUniquePtr ICurveEditorDataModel::Create()

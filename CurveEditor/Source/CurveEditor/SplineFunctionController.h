@@ -11,8 +11,8 @@ public:
     CCurveEditorFunctionSplineController() = default;
     virtual ~CCurveEditorFunctionSplineController() override final = default;
 
-    virtual const std::string& GetName() const noexcept override final;
-    virtual unsigned int GetColor() const noexcept override final;
+    virtual const SplineID& GetID() const noexcept override final;
+    virtual const SplineColor& GetColor() const noexcept override final;
 
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
 

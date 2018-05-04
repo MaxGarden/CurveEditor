@@ -10,6 +10,9 @@ enum class ECurveType
     Constant
 };
 
+using SplineID = size_t;
+using SplineColor = unsigned int;
+
 class ICurveEditorSplineDataModel : public IEditorDataModel
 {
 public:
@@ -19,10 +22,13 @@ public:
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
     virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept = 0;
 
-    virtual const std::string& GetName() const noexcept = 0;
-    virtual unsigned int GetColor() const noexcept = 0;
+    virtual const SplineID& GetID() const noexcept = 0;
+    virtual const SplineColor& GetColor() const noexcept = 0;
 
-    static ICurveEditorSplineDataModelUniquePtr Create(std::string_view name, unsigned int color);
+    static ICurveEditorSplineDataModelUniquePtr Create(SplineID id, SplineColor color);
+
+    static SplineID GenerateSplineID() noexcept;
+    static const SplineID& InvalidSplineID() noexcept;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_DATA_MODEL_H__

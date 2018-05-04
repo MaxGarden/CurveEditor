@@ -5,6 +5,7 @@
 #include "EditorView.h"
 #include "EditorDataModel.h"
 #include "EditorListenableBase.h"
+#include "SplineDataModel.h"
 
 class ICurveEditorDataModelListener : public IEditorListener
 {
@@ -25,8 +26,10 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) = 0;
     virtual const SCurveEditorStyle& GetStyle() const noexcept = 0;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(std::string_view name, unsigned int color) = 0;
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color) = 0;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+
+    virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept = 0;
 
     virtual const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept = 0;
 
