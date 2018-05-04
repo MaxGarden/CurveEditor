@@ -14,8 +14,7 @@ public:
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
-
-    virtual const std::vector<ICurveEditorSplineDataModelSharedPtr>& GetSplinesDataModels() const noexcept override final;
+    virtual void VisitSplineDataModels(const ConstVisitorType<ICurveEditorSplineDataModelSharedPtr>& visitor) const noexcept override final;
 
 private:
     SplineID GenerateFreeSplineID() const noexcept;
@@ -60,11 +59,6 @@ bool CCurveEditorDataModel::RemoveSplineDataModel(const ICurveEditorSplineDataMo
     return false;
 }
 
-const std::vector<ICurveEditorSplineDataModelSharedPtr>& CCurveEditorDataModel::GetSplinesDataModels() const noexcept
-{
-    return m_SplinesDataModels;
-}
-
 const ICurveEditorSplineDataModelSharedPtr& CCurveEditorDataModel::GetSplineDataModel(const SplineID& id) const noexcept
 {
     static const ICurveEditorSplineDataModelSharedPtr null;
@@ -78,6 +72,11 @@ const ICurveEditorSplineDataModelSharedPtr& CCurveEditorDataModel::GetSplineData
         return null;
 
     return *iterator;
+}
+
+void CCurveEditorDataModel::VisitSplineDataModels(const ConstVisitorType<ICurveEditorSplineDataModelSharedPtr>& visitor) const noexcept
+{
+    VisitObjectsContainer(m_SplinesDataModels, visitor);
 }
 
 SplineID CCurveEditorDataModel::GenerateFreeSplineID() const noexcept

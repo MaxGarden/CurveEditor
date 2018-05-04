@@ -86,9 +86,10 @@ bool CCurveEditorController::CreateSpline(const ICurveEditorSplineDataModelShare
 
     if (!isValid)
         return false;
-    m_SplineControllers.emplace(splineDataModel, splineController);
 
+    m_SplineControllers.emplace(splineDataModel, splineController);
     NotifyListeners(&ICurveEditorControllerListener::OnSplineCreated, splineController);
+
     return true;
 }
 
@@ -144,11 +145,19 @@ void CCurveEditorController::OnDataModelChanged()
 
 void CCurveEditorController::RecreateSplineControllers()
 {
+    for (const auto& splinesPair : m_SplineControllers)
+        NotifyListeners(&ICurveEditorControllerListener::OnSplineDestroyed, splinesPair.second);
+
+    m_SplineControllers.clear();
+
     const auto& dataModel = GetDataModel();
     if (!dataModel)
         return;
 
-    //TODO
+    dataModel->VisitSplineDataModels([this](const auto& splineDataModel)
+    {
+        CreateSpline(splineDataModel);
+    });
 }
 
 bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept
