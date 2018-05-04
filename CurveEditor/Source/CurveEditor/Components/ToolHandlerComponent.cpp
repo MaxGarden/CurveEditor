@@ -5,6 +5,7 @@
 #include "CurveEditorController.h"
 #include "CurveEditorTool.h"
 #include <ImGuiInterop.h>
+#include <mutex>
 
 using namespace ImGuiInterop;
 using namespace ax::ImGuiInterop;
@@ -27,11 +28,15 @@ public:
     void Update(ICurveEditorTool& activeTool);
     void OnRelease();
 
+    void ForceStopWorking(ICurveEditorTool* activeTool);
+
+    bool IsWorking() const noexcept;
     bool IsDragging() const noexcept;
     ECurveEditorMouseButton GetButton() const noexcept;
 
 private:
     size_t GetButtonIndex() const noexcept;
+    void ForceStopDragging(ICurveEditorTool* activeTool);
 
 private:
     ICurveEditorView & m_EditorView;
@@ -48,30 +53,43 @@ class CCurveEditorToolHandlerComponent final : public CCurveEditorViewComponentB
 {
 public:
     CCurveEditorToolHandlerComponent(ICurveEditorView& editorView);
-    virtual ~CCurveEditorToolHandlerComponent() override final = default;
+    virtual ~CCurveEditorToolHandlerComponent() override final;
 
     virtual void OnFrame() override final;
 
     void VisitButtonHandlers(const ConstVisitorType<CMouseButtonHandler>& visitor) const noexcept;
 
 protected:
+    virtual void OnControllerChanged() override final;
     void OnFrame(ICurveEditorController& editorController);
 
 private:
-    void UpdateActivity(ICurveEditorController& editorController);
+    void UpdateActivity(ICurveEditorController& editorController, bool shouldBeActive);
+    bool TryAcquireActivity();
+    bool TryReleaseActivity();
     void CaptureMouseState();
     void UpdateMouseState(ICurveEditorController& editorController);
     void UpdateWheelState(ICurveEditorTool& activeTool);
     void UpdateMouseMoveState(ICurveEditorTool& activeTool);
     void ReleaseMouseState();
 
+    void ForceStopWorkingButtonHandlers(ICurveEditorTool* activeTool);
+    void ResetActivity(ICurveEditorController* controller);
+
 private:
     ImVec2 m_LastMousePosition;
     ImVec2 m_MousePositionBuffer;
     ImVec2 m_MouseClicksPositionBuffers[5];
     std::vector<CMouseButtonHandler> m_ButtonHandlers;
-    bool m_IsActive;
+    bool m_IsActive = false;
+    ICurveEditorControllerWeakPtr m_LastController;
+
+    static std::mutex s_ActivityMutex;
+    static CCurveEditorToolHandlerComponent* s_ActivityOwner;
 };
+
+std::mutex CCurveEditorToolHandlerComponent::s_ActivityMutex;
+CCurveEditorToolHandlerComponent* CCurveEditorToolHandlerComponent::s_ActivityOwner = nullptr;
 
 CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
@@ -95,7 +113,8 @@ void CCurveEditorToolHandlerComponent::OnFrame()
 
 void CCurveEditorToolHandlerComponent::OnFrame(ICurveEditorController& editorController)
 {
-    UpdateActivity(editorController);
+    UpdateActivity(editorController, ImGui::IsWindowHovered());
+
     if (!m_IsActive)
         return;
 
@@ -104,16 +123,75 @@ void CCurveEditorToolHandlerComponent::OnFrame(ICurveEditorController& editorCon
     ReleaseMouseState();
 }
 
-void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& editorController)
+void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& editorController, bool shouldBeActive)
 {
-    const auto wasActive = m_IsActive;
-    m_IsActive = ImGui::IsWindowHovered();
+    const auto& activeTool = editorController.GetActiveTool();
 
-    if (!m_IsActive || wasActive == m_IsActive)
+    if (m_IsActive && !activeTool)
+    {
+        ForceStopWorkingButtonHandlers(nullptr);
+        shouldBeActive = false;
+    }
+
+    if (!activeTool || shouldBeActive == m_IsActive)
         return;
 
-    if (const auto& activeTool = editorController.GetActiveTool())
-        activeTool->OnActiveEditorViewChanged(CCurveEditorToolEvent{ GetEditorView() });
+    if (shouldBeActive)
+    {
+        if (!TryAcquireActivity())
+            return;
+    }
+    else
+    {
+        if (!TryReleaseActivity())
+            return;
+    }
+
+    if (!activeTool)
+        return;
+
+    if (m_IsActive)
+        activeTool->OnAcquired(CCurveEditorToolEvent{ GetEditorView() });
+    else
+        activeTool->OnReleased(CCurveEditorToolEvent{ GetEditorView() });
+}
+
+bool CCurveEditorToolHandlerComponent::TryAcquireActivity()
+{
+    EDITOR_ASSERT(!m_IsActive);
+    if (m_IsActive)
+        return true;
+
+    std::lock_guard<std::mutex> guard(s_ActivityMutex);
+
+    if (s_ActivityOwner)
+        return false;
+
+    s_ActivityOwner = this;
+    return (m_IsActive = true);
+}
+
+bool CCurveEditorToolHandlerComponent::TryReleaseActivity()
+{
+    EDITOR_ASSERT(m_IsActive);
+    if (!m_IsActive)
+        return true;
+
+    std::lock_guard<std::mutex> guard(s_ActivityMutex);
+
+    EDITOR_ASSERT(s_ActivityOwner == this);
+    if (s_ActivityOwner != this)
+        return false;
+
+    for (const auto& buttonHandler : m_ButtonHandlers)
+    {
+        if (buttonHandler.IsWorking())
+            return false;
+    }
+
+    s_ActivityOwner = nullptr;
+    m_IsActive = false;
+    return true;
 }
 
 void CCurveEditorToolHandlerComponent::CaptureMouseState()
@@ -178,6 +256,39 @@ void CCurveEditorToolHandlerComponent::UpdateMouseMoveState(ICurveEditorTool& ac
     m_LastMousePosition = mousePosition;
 }
 
+CCurveEditorToolHandlerComponent::~CCurveEditorToolHandlerComponent()
+{
+    ResetActivity(GetController().get());
+}
+
+void CCurveEditorToolHandlerComponent::ForceStopWorkingButtonHandlers(ICurveEditorTool* activeTool)
+{
+    for (auto& buttonHandler : m_ButtonHandlers)
+        buttonHandler.ForceStopWorking(activeTool);
+}
+
+void CCurveEditorToolHandlerComponent::OnControllerChanged()
+{
+    ResetActivity(m_LastController.lock().get());
+    m_LastController = GetController();
+}
+
+void CCurveEditorToolHandlerComponent::ResetActivity(ICurveEditorController* controller)
+{
+    if (m_IsActive)
+    {
+        if (controller)
+            UpdateActivity(*controller, false);
+        else
+        {
+            ForceStopWorkingButtonHandlers(nullptr);
+            TryReleaseActivity();
+        }
+
+        EDITOR_ASSERT(!m_IsActive);
+    }
+}
+
 CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
     m_EditorView(editorView),
     m_ToolHandler(toolHandler),
@@ -231,7 +342,7 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
         const auto& windowCanvas = m_EditorView.GetCanvas().GetWindowCanvas();
         const auto currentDragDelta = m_DragDelta.cwise_product(windowCanvas.GetZoom());
 
-        //if(currentDragDelta != m_LastDragDelta)
+        if(currentDragDelta != m_LastDragDelta)
             notifyToolDragEvent(&ICurveEditorTool::OnDragUpdate, currentDragDelta);
 
         m_LastDragDelta = currentDragDelta;
@@ -250,6 +361,20 @@ void CMouseButtonHandler::OnRelease()
     io.MouseClickedPos[buttonIndex] = m_ClickPositionBuffer;
 }
 
+void CMouseButtonHandler::ForceStopWorking(ICurveEditorTool* activeTool)
+{
+    if (IsWorking())
+        return;
+
+    if (IsDragging())
+        ForceStopDragging(activeTool);
+}
+
+bool CMouseButtonHandler::IsWorking() const noexcept
+{
+    return IsDragging();
+}
+
 bool CMouseButtonHandler::IsDragging() const noexcept
 {
     return m_IsDragging;
@@ -263,6 +388,16 @@ ECurveEditorMouseButton CMouseButtonHandler::GetButton() const noexcept
 size_t CMouseButtonHandler::GetButtonIndex() const noexcept
 {
     return static_cast<size_t>(m_Button);
+}
+
+void CMouseButtonHandler::ForceStopDragging(ICurveEditorTool* activeTool)
+{
+    if (!IsDragging())
+        return;
+
+    m_IsDragging = false;
+    if(activeTool)
+        Update(*activeTool);
 }
 
 ICurveEditorToolHandlerComponentUniquePtr ICurveEditorToolHandlerComponent::Create(ICurveEditorView& editorView)

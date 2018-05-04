@@ -9,7 +9,8 @@ class ICurveEditorTool : public IEditorTool
 public:
     virtual ~ICurveEditorTool() override = default;
 
-    virtual void OnActiveEditorViewChanged(const CCurveEditorToolEvent& event) = 0;
+    virtual void OnAcquired(const CCurveEditorToolEvent& event) = 0;
+    virtual void OnReleased(const CCurveEditorToolEvent& event) = 0;
 
     virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) = 0;
     virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) = 0;
