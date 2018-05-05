@@ -35,23 +35,43 @@ void CCurveEditorHoveringToolViewComponent::OnFrame()
         m_BorederRenderable->OnFrame();
 }
 
-void CCurveEditorHoveringTool::OnActiveEditorViewChanged(const CCurveEditorToolEvent& event)
+void CCurveEditorHoveringTool::OnAcquired(const CCurveEditorToolEvent& event)
 {
     m_SplinesViewComponent = GetViewComponent<ICurveEditorSplinesViewComponent>(event.GetEditorView());
+    EDITOR_ASSERT(!m_SplinesViewComponent.expired());
+}
+
+void CCurveEditorHoveringTool::OnReleased(const CCurveEditorToolEvent& event)
+{
+    m_SplinesViewComponent.reset();
+    UpdateHoveringView(nullptr, event.GetEditorView());
+}
+
+void CCurveEditorHoveringTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&)
+{
+    m_IsEnabled = false;
+}
+
+void CCurveEditorHoveringTool::OnDragEnd(const CCurveEditorToolMouseButtonEvent&)
+{
+    m_IsEnabled = true;
 }
 
 void CCurveEditorHoveringTool::OnMouseMove(const CCurveEditorToolMouseEvent& event)
 {
-    const auto splineViews = m_SplinesViewComponent.lock();
-    EDITOR_ASSERT(splineViews);
-    if (!splineViews)
+    if (!m_IsEnabled)
         return;
 
-    const auto hoveredComponent = splineViews->GetSplineComponentAt(event.GetMousePosition());
+    const auto splineViewComponent = m_SplinesViewComponent.lock();
+    EDITOR_ASSERT(splineViewComponent);
+    if (!splineViewComponent)
+        return;
+
+    const auto hoveredComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition());
     UpdateHoveringView(hoveredComponent, event.GetEditorView());
 }
 
-void CCurveEditorHoveringTool::UpdateHoveringView(ICurveEditorSplineViewComponent* splineViewComponent, ICurveEditorView& editorView)
+void CCurveEditorHoveringTool::UpdateHoveringView(ICurveEditorSplineComponentView* splineViewComponent, ICurveEditorView& editorView)
 {
     if (splineViewComponent == m_LastHoveredSplineViewComponent)
         return;
@@ -72,6 +92,5 @@ void CCurveEditorHoveringTool::UpdateHoveringView(ICurveEditorSplineViewComponen
         return;
 
     auto hoveringToolViewComponent = std::make_unique<CCurveEditorHoveringToolViewComponent>(editorView, std::move(hoveringBorderRenerable));
-
     m_HoveringViewHandle = AddToolView(editorView, std::move(hoveringToolViewComponent), EComponentOrder::Foreground);
 }

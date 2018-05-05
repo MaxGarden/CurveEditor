@@ -95,7 +95,7 @@ void CCurveEditorSplineView::VisitTangentsViews(const InterruptibleVisitorType<I
     VisitPointersContainer(m_TangentsViews, visitor, reverse);
 }
 
-void CCurveEditorSplineView::VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineViewComponent>& visitor, bool reverse /*= false*/) const noexcept
+void CCurveEditorSplineView::VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse /*= false*/) const noexcept
 {
     switch (componentType)
     {

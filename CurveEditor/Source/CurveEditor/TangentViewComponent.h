@@ -1,9 +1,9 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_TANGENT_VIEW_COMPONENT_H__)
 
-#include "SplineViewComponent.h"
+#include "SplineComponentView.h"
 
-class ICurveEditorTangentView : public ICurveEditorSplineViewComponent
+class ICurveEditorTangentView : public ICurveEditorSplineComponentView
 {
 public:
     virtual ~ICurveEditorTangentView() override = default;

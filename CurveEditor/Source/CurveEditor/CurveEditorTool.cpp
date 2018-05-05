@@ -21,8 +21,8 @@ public:
     virtual void OnClick(const CCurveEditorToolMouseButtonEvent& event) override final;
     virtual void OnDoubleClick(const CCurveEditorToolMouseButtonEvent& event) override final;
 
-    virtual void OnKeyDown(const CCurveEditorToolKeyEvent& event) override final;
-    virtual void OnKeyUp(const CCurveEditorToolKeyEvent& event) override final;
+    virtual void OnModifierActivated(const CCurveEditorToolModifierEvent& event) override final;
+    virtual void OnModifierDeactivated(const CCurveEditorToolModifierEvent& event) override final;
 
     virtual bool AddComponent(ICurveEditorToolUniquePtr&& component) override final;
 
@@ -86,14 +86,14 @@ void CCurveEditorComponentTool::OnDoubleClick(const CCurveEditorToolMouseButtonE
     NotifyComponents(&ICurveEditorTool::OnDoubleClick, event);
 }
 
-void CCurveEditorComponentTool::OnKeyDown(const CCurveEditorToolKeyEvent& event)
+void CCurveEditorComponentTool::OnModifierActivated(const CCurveEditorToolModifierEvent& event)
 {
-    NotifyComponents(&ICurveEditorTool::OnKeyDown, event);
+    NotifyComponents(&ICurveEditorTool::OnModifierActivated, event);
 }
 
-void CCurveEditorComponentTool::OnKeyUp(const CCurveEditorToolKeyEvent& event)
+void CCurveEditorComponentTool::OnModifierDeactivated(const CCurveEditorToolModifierEvent& event)
 {
-    NotifyComponents(&ICurveEditorTool::OnKeyUp, event);
+    NotifyComponents(&ICurveEditorTool::OnModifierDeactivated, event);
 }
 
 bool CCurveEditorComponentTool::AddComponent(ICurveEditorToolUniquePtr&& component)

@@ -25,3 +25,8 @@ void CCurveEditorControllerListenerBase::OnSplineDestroyed(const ICurveEditorSpl
 {
     //to override
 }
+
+void CCurveEditorControllerListenerBase::OnSelectionChanged()
+{
+    //to override
+}

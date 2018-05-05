@@ -3,7 +3,7 @@
 #include "CurveViewComponent.h"
 #include "CurveEditorView.h"
 #include "EditorRenderableBase.h"
-#include "SplineViewComponentBase.h"
+#include "SplineComponentViewBase.h"
 #include <ImGuiInterop.h>
 
 using namespace ax::ImGuiInterop;
@@ -20,7 +20,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorTangentView final : public CCurveEditorSplineViewComponentBase<ICurveEditorTangentView>, public std::enable_shared_from_this<CCurveEditorTangentView>
+class CCurveEditorTangentView final : public CCurveEditorSplineComponentViewBase<ICurveEditorTangentView>, public std::enable_shared_from_this<CCurveEditorTangentView>
 {
 friend CCurveEditorTangentBorderRenderable;
 public:
@@ -81,7 +81,7 @@ void CCurveEditorTangentBorderRenderable::OnFrame(ImDrawList& drawList)
 }
 
 CCurveEditorTangentView::CCurveEditorTangentView(ICurveEditorView& editorView, size_t tangentPointIndex) :
-    CCurveEditorSplineViewComponentBase(editorView),
+    CCurveEditorSplineComponentViewBase(editorView),
     m_AnchorKnotIndex((tangentPointIndex == 0) ? 0 : (tangentPointIndex + 1) / 2),
     m_TangentIndex(tangentPointIndex)
 {

@@ -249,10 +249,18 @@ void CCurveEditorView::VisitViewComponents(const ConstInterruptibleVisitorType<I
     if (!visitor)
         return;
 
-    VisitObjectsContainerInterruptible(m_Components, [&visitor](const auto& storage)
+    auto visitorInterrupted = false;
+
+    const auto visitorProxy = [&visitor, &visitorInterrupted](const auto& storage)
     {
-        return visitor(storage.ViewComponent);
-    });
+        visitorInterrupted = visitor(storage.ViewComponent);
+        return visitorInterrupted;
+    };
+
+    VisitObjectsContainerInterruptible(m_Components, visitorProxy);
+
+    if(!visitorInterrupted)
+        VisitObjectsContainerInterruptible(m_QueuedComponents, visitorProxy);
 }
 
 ICurveEditorViewComponentSharedPtr CCurveEditorView::GetViewComponent(const EditorViewComponentHandle& handle) const noexcept

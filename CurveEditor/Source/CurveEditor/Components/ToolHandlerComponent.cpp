@@ -18,11 +18,28 @@ static constexpr std::array<ECurveEditorMouseButton, 5> g_MouseButtons = {ECurve
 
 class CCurveEditorToolHandlerComponent;
 
-class CMouseButtonHandler
+class CKeyboardKeysHandler final
+{
+public:
+    CKeyboardKeysHandler(ICurveEditorView& editorView);
+    ~CKeyboardKeysHandler() = default;
+
+    void Update(ICurveEditorTool& activeTool);
+    void DeactivateModifiers(ICurveEditorTool* activeTool);
+
+private:
+    void ResetModifiersStates();
+
+private:
+    ICurveEditorView& m_EditorView;
+    std::array<bool, static_cast<size_t>(ECurveEditorModifier::_Count)> m_LastModifiersStates;
+};
+
+class CMouseButtonHandler final
 {
 public:
     CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button);
-    virtual ~CMouseButtonHandler() = default;
+    ~CMouseButtonHandler() = default;
 
     void OnCapture();
     void Update(ICurveEditorTool& activeTool);
@@ -39,7 +56,7 @@ private:
     void ForceStopDragging(ICurveEditorTool* activeTool);
 
 private:
-    ICurveEditorView & m_EditorView;
+    ICurveEditorView& m_EditorView;
     const CCurveEditorToolHandlerComponent& m_ToolHandler;
     bool m_IsDragging = false;
     bool m_WasDragging = false;
@@ -68,12 +85,12 @@ private:
     bool TryAcquireActivity();
     bool TryReleaseActivity();
     void CaptureMouseState();
-    void UpdateMouseState(ICurveEditorController& editorController);
+    void UpdateMouseState(ICurveEditorTool& activeTool);
     void UpdateWheelState(ICurveEditorTool& activeTool);
     void UpdateMouseMoveState(ICurveEditorTool& activeTool);
     void ReleaseMouseState();
 
-    void ForceStopWorkingButtonHandlers(ICurveEditorTool* activeTool);
+    void DeactivateModifiersAndMouseButtons(ICurveEditorTool* activeTool);
     void ResetActivity(ICurveEditorController* controller);
 
 private:
@@ -81,6 +98,9 @@ private:
     ImVec2 m_MousePositionBuffer;
     ImVec2 m_MouseClicksPositionBuffers[5];
     std::vector<CMouseButtonHandler> m_ButtonHandlers;
+
+    CKeyboardKeysHandler m_KeyboardsKeyHandler;
+
     bool m_IsActive = false;
     ICurveEditorControllerWeakPtr m_LastController;
 
@@ -92,7 +112,8 @@ std::mutex CCurveEditorToolHandlerComponent::s_ActivityMutex;
 CCurveEditorToolHandlerComponent* CCurveEditorToolHandlerComponent::s_ActivityOwner = nullptr;
 
 CCurveEditorToolHandlerComponent::CCurveEditorToolHandlerComponent(ICurveEditorView& editorView) :
-    CCurveEditorViewComponentBase(editorView)
+    CCurveEditorViewComponentBase(editorView),
+    m_KeyboardsKeyHandler(editorView)
 {
     static_assert(g_MouseButtons.size() == static_cast<size_t>(ECurveEditorMouseButton::__Count));
 
@@ -118,8 +139,14 @@ void CCurveEditorToolHandlerComponent::OnFrame(ICurveEditorController& editorCon
     if (!m_IsActive)
         return;
 
+    const auto& activeTool = editorController.GetActiveTool();
+    if (!activeTool)
+        return;
+
+    m_KeyboardsKeyHandler.Update(*activeTool);
+
     CaptureMouseState();
-    UpdateMouseState(editorController);
+    UpdateMouseState(*activeTool);
     ReleaseMouseState();
 }
 
@@ -129,7 +156,7 @@ void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& ed
 
     if (m_IsActive && !activeTool)
     {
-        ForceStopWorkingButtonHandlers(nullptr);
+        DeactivateModifiersAndMouseButtons(nullptr);
         shouldBeActive = false;
     }
 
@@ -207,17 +234,13 @@ void CCurveEditorToolHandlerComponent::CaptureMouseState()
     io.MousePos = to_imvec(windowCanvas.FromScreen(to_pointf(m_MousePositionBuffer)));
 }
 
-void CCurveEditorToolHandlerComponent::UpdateMouseState(ICurveEditorController& editorController)
+void CCurveEditorToolHandlerComponent::UpdateMouseState(ICurveEditorTool& activeTool)
 {
-    const auto& activeTool = editorController.GetActiveTool();
-    if (!activeTool)
-        return;
-
     for (auto& buttonHandler : m_ButtonHandlers)
-        buttonHandler.Update(*activeTool);
+        buttonHandler.Update(activeTool);
 
-    UpdateMouseMoveState(*activeTool);
-    UpdateWheelState(*activeTool);
+    UpdateMouseMoveState(activeTool);
+    UpdateWheelState(activeTool);
 }
 
 void CCurveEditorToolHandlerComponent::ReleaseMouseState()
@@ -261,8 +284,10 @@ CCurveEditorToolHandlerComponent::~CCurveEditorToolHandlerComponent()
     ResetActivity(GetController().get());
 }
 
-void CCurveEditorToolHandlerComponent::ForceStopWorkingButtonHandlers(ICurveEditorTool* activeTool)
+void CCurveEditorToolHandlerComponent::DeactivateModifiersAndMouseButtons(ICurveEditorTool* activeTool)
 {
+    m_KeyboardsKeyHandler.DeactivateModifiers(activeTool);
+
     for (auto& buttonHandler : m_ButtonHandlers)
         buttonHandler.ForceStopWorking(activeTool);
 }
@@ -281,7 +306,7 @@ void CCurveEditorToolHandlerComponent::ResetActivity(ICurveEditorController* con
             UpdateActivity(*controller, false);
         else
         {
-            ForceStopWorkingButtonHandlers(nullptr);
+            DeactivateModifiersAndMouseButtons(nullptr);
             TryReleaseActivity();
         }
 
@@ -403,4 +428,66 @@ void CMouseButtonHandler::ForceStopDragging(ICurveEditorTool* activeTool)
 ICurveEditorToolHandlerComponentUniquePtr ICurveEditorToolHandlerComponent::Create(ICurveEditorView& editorView)
 {
     return std::make_unique<CCurveEditorToolHandlerComponent>(editorView);
+}
+
+CKeyboardKeysHandler::CKeyboardKeysHandler(ICurveEditorView& editorView) :
+    m_EditorView(editorView)
+{
+    ResetModifiersStates();
+}
+
+void CKeyboardKeysHandler::Update(ICurveEditorTool& activeTool)
+{
+    decltype(m_LastModifiersStates) modifiersStates;
+
+    const auto& imGuiIO = ImGui::GetIO();
+
+    modifiersStates[static_cast<size_t>(ECurveEditorModifier::Alt)] = imGuiIO.KeyAlt;
+    modifiersStates[static_cast<size_t>(ECurveEditorModifier::Control)] = imGuiIO.KeyCtrl;
+    modifiersStates[static_cast<size_t>(ECurveEditorModifier::Shift)] = imGuiIO.KeyShift;
+    modifiersStates[static_cast<size_t>(ECurveEditorModifier::Super)] = imGuiIO.KeySuper;
+
+    EDITOR_ASSERT(m_LastModifiersStates.size() == modifiersStates.size());
+    if (m_LastModifiersStates.size() != modifiersStates.size())
+        return;
+
+    const auto modifiersSize = m_LastModifiersStates.size();
+    for (auto i = 0u; i < modifiersSize; ++i)
+    {
+        const auto isModifierActive = modifiersStates[i];
+        if (m_LastModifiersStates[i] != isModifierActive)
+        {
+            const auto modifier = static_cast<ECurveEditorModifier>(i);
+            if (isModifierActive)
+                activeTool.OnModifierActivated(CCurveEditorToolModifierEvent{ m_EditorView, modifier });
+            else
+                activeTool.OnModifierDeactivated(CCurveEditorToolModifierEvent{ m_EditorView, modifier });
+        }
+    }
+
+    m_LastModifiersStates = std::move(modifiersStates);
+}
+
+void CKeyboardKeysHandler::DeactivateModifiers(ICurveEditorTool* activeTool)
+{
+    if (activeTool)
+    {
+        const auto modifiersSize = m_LastModifiersStates.size();
+        for (auto i = 0u; i < modifiersSize; ++i)
+        {
+            auto& modifierState = m_LastModifiersStates[i];
+            if (modifierState)
+            {
+                const auto modifier = static_cast<ECurveEditorModifier>(i);
+                activeTool->OnModifierDeactivated(CCurveEditorToolModifierEvent{ m_EditorView, modifier });
+            }
+        }
+    }
+
+    ResetModifiersStates();
+}
+
+void CKeyboardKeysHandler::ResetModifiersStates()
+{
+    std::fill(m_LastModifiersStates.begin(), m_LastModifiersStates.end(), false);
 }

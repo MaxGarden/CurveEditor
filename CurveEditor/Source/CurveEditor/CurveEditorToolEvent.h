@@ -14,6 +14,16 @@ enum class ECurveEditorMouseButton
     __Count
 };
 
+enum class ECurveEditorModifier
+{
+    Control,
+    Alt,
+    Shift,
+    Super,
+
+    _Count
+};
+
 class CCurveEditorToolEvent
 {
 public:
@@ -74,11 +84,16 @@ private:
     const ax::pointf m_DragDelta;
 };
 
-class CCurveEditorToolKeyEvent final : public CCurveEditorToolEvent
+class CCurveEditorToolModifierEvent final : public CCurveEditorToolEvent
 {
 public:
-    CCurveEditorToolKeyEvent(ICurveEditorView& editorView);
-    virtual ~CCurveEditorToolKeyEvent() override final = default;
+    CCurveEditorToolModifierEvent(ICurveEditorView& editorView, ECurveEditorModifier modifier);
+    virtual ~CCurveEditorToolModifierEvent() override final = default;
+
+    ECurveEditorModifier GetModifier() const noexcept;
+
+private:
+    const ECurveEditorModifier m_Modifier;
 };
 
 #endif //__CURVE_EDITOR_TOOL_EVENT_H__

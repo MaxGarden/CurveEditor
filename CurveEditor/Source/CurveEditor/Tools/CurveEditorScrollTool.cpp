@@ -2,14 +2,14 @@
 #include "CurveEditorScrollTool.h"
 #include "CurveEditorView.h"
 
-CCurveEditorScrollTool::CCurveEditorScrollTool(ECurveEditorMouseButton mouseButton) :
-    m_MouseButton(mouseButton)
+CCurveEditorScrollTool::CCurveEditorScrollTool(ECurveEditorMouseButton activationMouseButton) :
+    m_ActivationMouseButton(activationMouseButton)
 {
 }
 
 void CCurveEditorScrollTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
 {
-    if (event.GetMouseButton() != m_MouseButton)
+    if (event.GetMouseButton() != m_ActivationMouseButton)
         return;
 
     m_LastDragDelta = {};
@@ -17,7 +17,7 @@ void CCurveEditorScrollTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&
 
 void CCurveEditorScrollTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)
 {
-    if (event.GetMouseButton() != m_MouseButton)
+    if (event.GetMouseButton() != m_ActivationMouseButton)
         return;
 
     auto& editorView = event.GetEditorView();

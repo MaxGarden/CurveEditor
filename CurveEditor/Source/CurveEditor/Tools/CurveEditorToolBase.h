@@ -9,7 +9,8 @@ public:
     CCurveEditorToolBase() = default;
     virtual ~CCurveEditorToolBase() override = default;
 
-    virtual void OnActiveEditorViewChanged(const CCurveEditorToolEvent& event) override;
+    virtual void OnAcquired(const CCurveEditorToolEvent& event) override;
+    virtual void OnReleased(const CCurveEditorToolEvent& event) override;
 
     virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override;
     virtual void OnDragUpdate(const CCurveEditorToolMouseDragEvent& event) override;
@@ -22,8 +23,8 @@ public:
     virtual void OnClick(const CCurveEditorToolMouseButtonEvent& event) override;
     virtual void OnDoubleClick(const CCurveEditorToolMouseButtonEvent& event) override;
 
-    virtual void OnKeyDown(const CCurveEditorToolKeyEvent& event) override;
-    virtual void OnKeyUp(const CCurveEditorToolKeyEvent& event) override;
+    virtual void OnModifierActivated(const CCurveEditorToolModifierEvent& event) override;
+    virtual void OnModifierDeactivated(const CCurveEditorToolModifierEvent& event) override;
 };
 
 #endif //__CURVE_EDITOR_TOOL_BASE_H__

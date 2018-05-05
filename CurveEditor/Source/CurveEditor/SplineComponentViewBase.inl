@@ -1,11 +1,11 @@
 template<typename SuperClass>
-CCurveEditorSplineViewComponentBase<SuperClass>::CCurveEditorSplineViewComponentBase(ICurveEditorView& editorView) :
+CCurveEditorSplineComponentViewBase<SuperClass>::CCurveEditorSplineComponentViewBase(ICurveEditorView& editorView) :
     m_EditorView(editorView)
 {
 }
 
 template<typename SuperClass>
-void CCurveEditorSplineViewComponentBase<SuperClass>::OnFrame()
+void CCurveEditorSplineComponentViewBase<SuperClass>::OnFrame()
 {
     const auto drawList = ImGui::GetWindowDrawList();
     EDITOR_ASSERT(drawList);
@@ -21,13 +21,13 @@ void CCurveEditorSplineViewComponentBase<SuperClass>::OnFrame()
 }
 
 template<typename SuperClass>
-void CCurveEditorSplineViewComponentBase<SuperClass>::OnFrame(ImDrawList&, ICurveEditorSplineController&)
+void CCurveEditorSplineComponentViewBase<SuperClass>::OnFrame(ImDrawList&, ICurveEditorSplineController&)
 {
     //to override
 }
 
 template<typename SuperClass>
-ICurveEditorView& CCurveEditorSplineViewComponentBase<SuperClass>::GetEditorView() const noexcept
+ICurveEditorView& CCurveEditorSplineComponentViewBase<SuperClass>::GetEditorView() const noexcept
 {
     return m_EditorView;
 }

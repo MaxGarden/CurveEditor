@@ -4,7 +4,7 @@
 #include "SplineController.h"
 #include "EditorRenderableBase.h"
 #include "CurveEditorViewVisibleComponentBase.h"
-#include "SplineViewComponentBase.h"
+#include "SplineComponentViewBase.h"
 #include <ImGuiInterop.h>
 
 using namespace ax::ImGuiInterop;
@@ -21,7 +21,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorKnotView final : public CCurveEditorSplineViewComponentBase<ICurveEditorKnotView>, public std::enable_shared_from_this<CCurveEditorKnotView>
+class CCurveEditorKnotView final : public CCurveEditorSplineComponentViewBase<ICurveEditorKnotView>, public std::enable_shared_from_this<CCurveEditorKnotView>
 {
 friend CCurveEditorKnotBorderRenderable;
 public:
@@ -76,7 +76,7 @@ void CCurveEditorKnotBorderRenderable::OnFrame(ImDrawList& drawList)
 }
 
 CCurveEditorKnotView::CCurveEditorKnotView(ICurveEditorView& editorView, size_t knotIndex) :
-    CCurveEditorSplineViewComponentBase(editorView),
+    CCurveEditorSplineComponentViewBase(editorView),
     m_KnotIndex(knotIndex)
 {
 }

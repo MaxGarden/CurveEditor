@@ -44,7 +44,6 @@ ECurveEditorMouseButton CCurveEditorToolMouseButtonEvent::GetMouseButton() const
     return m_MouseButton;
 }
 
-
 CCurveEditorToolMouseDragEvent::CCurveEditorToolMouseDragEvent(ICurveEditorView& editorView, const ax::pointf& mousePosition, ECurveEditorMouseButton mouseButton, const ax::pointf& dragDelta) :
     CCurveEditorToolMouseButtonEvent(editorView, mousePosition, mouseButton),
     m_DragDelta(dragDelta)
@@ -56,7 +55,13 @@ const ax::pointf& CCurveEditorToolMouseDragEvent::GetDragDelta() const noexcept
     return m_DragDelta;
 }
 
-CCurveEditorToolKeyEvent::CCurveEditorToolKeyEvent(ICurveEditorView& editorView) :
-    CCurveEditorToolEvent(editorView)
+CCurveEditorToolModifierEvent::CCurveEditorToolModifierEvent(ICurveEditorView& editorView, ECurveEditorModifier modifier) :
+    CCurveEditorToolEvent(editorView),
+    m_Modifier(modifier)
 {
+}
+
+ECurveEditorModifier CCurveEditorToolModifierEvent::GetModifier() const noexcept
+{
+    return m_Modifier;
 }

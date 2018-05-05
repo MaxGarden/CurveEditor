@@ -12,6 +12,9 @@ enum ECurveEditorStyleColor
     CurveEditorStyleColor_TangentLine,
     CurveEditorStyleColor_TangentMarker,
     CurveEditorStyleColor_HoveringBorder,
+    CurveEditorStyleColor_SelectionBorder,
+    CurveEditorStyleColor_SelectionRect,
+    CurveEditorStyleColor_SelectionRectBorder,
     CurveEditorStyleColor_Count
 };
 
@@ -26,7 +29,9 @@ enum ECurveEditorStyleFloat
     CurveEditorStyleFloat_ZoomInMultipler,
     CurveEditorStyleFloat_ZoomOutMultipler,
 
-    CurveEditorStyleFloat_HoveringBorderThickness
+    CurveEditorStyleFloat_HoveringBorderThickness,
+
+    CurveEditorStyleFloat_SelectionBorderThickness
 };
 
 enum ECurveEditorStyleVec2
@@ -36,7 +41,8 @@ enum ECurveEditorStyleVec2
 
 enum ECurveEditorStyleBool
 {
-    CurveEditorStyleBool_DrawToolOnEveryView
+    CurveEditorStyleBool_DrawToolOnEveryView,
+    CurveEditorStyleBool_SelectionViaIntersection
 };
 
 struct SCurveEditorStyle
@@ -56,6 +62,9 @@ struct SCurveEditorStyle
     bool DrawToolOnEveryView;
 
     float HoveringBorderThickness;
+    float SelectionBorderThickness;
+
+    bool SelectionViaIntersection;
 
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;

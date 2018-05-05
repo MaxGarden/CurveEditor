@@ -3,7 +3,7 @@
 #include "SplineController.h"
 #include "CurveEditorView.h"
 #include "EditorRenderableBase.h"
-#include "SplineViewComponentBase.h"
+#include "SplineComponentViewBase.h"
 #include <ImGuiInterop.h>
 
 using namespace ax::ImGuiInterop;
@@ -20,7 +20,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorCurveView final : public CCurveEditorSplineViewComponentBase<ICurveEditorCurveView>, public std::enable_shared_from_this<CCurveEditorCurveView>
+class CCurveEditorCurveView final : public CCurveEditorSplineComponentViewBase<ICurveEditorCurveView>, public std::enable_shared_from_this<CCurveEditorCurveView>
 {
 friend CCurveEditorCurveBorderRenderable;
 public:
@@ -80,7 +80,7 @@ void CCurveEditorCurveBorderRenderable::OnFrame(ImDrawList& drawList)
 }
 
 CCurveEditorCurveView::CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex) :
-    CCurveEditorSplineViewComponentBase(editorView),
+    CCurveEditorSplineComponentViewBase(editorView),
     m_CurveIndex(curveIndex)
 {
 }

@@ -16,6 +16,7 @@ public:
 
 protected:
     virtual void OnControllerChanged();
+    virtual IEditorListenerUniquePtr CreateListener();
 
     const std::shared_ptr<ControllerType>& GetController() const noexcept;
 
@@ -23,6 +24,7 @@ protected:
 
 private:
     std::shared_ptr<ControllerType> m_Controller;
+    EditorListenerHandle m_ListenerHandle;
 };
 
 #include "EditorViewBase.inl"

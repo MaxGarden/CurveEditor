@@ -9,7 +9,7 @@
 #include "CurveEditorTool.h"
 #include "Tools/CurveEditorScrollTool.h"
 #include "Tools/CurveEditorZoomTool.h"
-#include "Tools/CurveEditorSelectionToolBase.h"
+#include "Tools/CurveEditorSelectionTool.h"
 #include "Tools/CurveEditorHoveringTool.h"
 #include "EditorContext.h"
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     const auto tool = ICurveEditorComponentToolSharedPtr(ICurveEditorComponentTool::Create());
     tool->AddComponent(std::make_unique<CCurveEditorScrollTool>(ECurveEditorMouseButton::Right));
     tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
-    tool->AddComponent(std::make_unique<CCurveEditorSelectionToolBase>(ECurveEditorMouseButton::Left));
+    tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorModifier::Control));
     tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>());
 
     controller->SetActiveTool(tool);

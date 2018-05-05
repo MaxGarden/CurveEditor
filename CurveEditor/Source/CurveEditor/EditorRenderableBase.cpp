@@ -11,7 +11,7 @@ void CEditorRenderableBase::OnFrame()
     OnFrame(*drawList);
 }
 
-void CEditorRenderableBase::OnFrame(ImDrawList& drawList)
+void CEditorRenderableBase::OnFrame(ImDrawList&)
 {
     //to override
 }

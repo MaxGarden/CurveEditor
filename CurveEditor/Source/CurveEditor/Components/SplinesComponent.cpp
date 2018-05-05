@@ -13,8 +13,8 @@ public:
 
     virtual void OnFrame() override final;
 
-    virtual ICurveEditorSplineViewComponent* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
-    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
+    virtual ICurveEditorSplineComponentView* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
+    virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineComponentView>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
 
     virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
 
@@ -156,9 +156,9 @@ void CCurveEditorSplinesViewComponent::RecreateSplineViews()
     });
 }
 
-ICurveEditorSplineViewComponent* CCurveEditorSplinesViewComponent::GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, float extraThickness /* = 0.0f */) const noexcept
+ICurveEditorSplineComponentView* CCurveEditorSplinesViewComponent::GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, float extraThickness /* = 0.0f */) const noexcept
 {
-    ICurveEditorSplineViewComponent* result = nullptr;
+    ICurveEditorSplineComponentView* result = nullptr;
 
     const auto componentVisitor = [&](auto& splineComponent)
     {
@@ -200,7 +200,7 @@ ICurveEditorSplineViewComponent* CCurveEditorSplinesViewComponent::GetSplineComp
     return result;
 }
 
-void CCurveEditorSplinesViewComponent::VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineViewComponent>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, bool allowIntersect /* = true */) const noexcept
+void CCurveEditorSplinesViewComponent::VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineComponentView>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType /* = std::nullopt */, bool allowIntersect /* = true */) const noexcept
 {
     if (!visitor)
         return;

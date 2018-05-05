@@ -3,15 +3,15 @@
 
 #include "Style.h"
 #include "EditorViewBase.h"
-#include "SplineViewComponent.h"
+#include "SplineComponentView.h"
 #include "SplineController.h"
 
 template<typename SuperClass>
-class CCurveEditorSplineViewComponentBase : public CEditorViewBase<SuperClass, ICurveEditorSplineController>
+class CCurveEditorSplineComponentViewBase : public CEditorViewBase<SuperClass, ICurveEditorSplineController>
 {
 public:
-    CCurveEditorSplineViewComponentBase(ICurveEditorView& editorView);
-    virtual ~CCurveEditorSplineViewComponentBase() override = default;
+    CCurveEditorSplineComponentViewBase(ICurveEditorView& editorView);
+    virtual ~CCurveEditorSplineComponentViewBase() override = default;
 
     virtual void OnFrame() override;
 
@@ -20,7 +20,7 @@ protected:
 
     ICurveEditorView& GetEditorView() const noexcept;
 
-    using Super = CCurveEditorSplineViewComponentBase<SuperClass>;
+    using Super = CCurveEditorSplineComponentViewBase<SuperClass>;
 
 private:
     ICurveEditorView& m_EditorView;
@@ -48,6 +48,6 @@ private:
     const ECurveEditorStyleFloat m_ThicknessStyle;
 };
 
-#include "SplineViewComponentBase.inl"
+#include "SplineComponentViewBase.inl"
 
-#endif //__CURVE_EDITOR_SPLINE_VIEW_COMPONENT_BASE_H__
+#endif //__CURVE_EDITOR_SPLINE_COMPONENT_VIEW_BASE_H__

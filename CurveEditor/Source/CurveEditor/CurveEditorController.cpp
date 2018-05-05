@@ -35,6 +35,11 @@ public:
     virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept override final;
     virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept override final;
 
+    virtual bool AddToSelection(const SplineID& id, size_t controlPointIndex) override final;
+    virtual bool RemoveFromSelection(const SplineID& id, size_t controlPointIndex) override final;
+    virtual bool CheckIfSelected(const SplineID& id, size_t controlPointIndex) const noexcept override final;
+    virtual void ClearSelection() override final;
+
     virtual const SCurveEditorStyle& GetEditorStyle() const noexcept override final;
 
 private:
@@ -47,6 +52,7 @@ private:
     std::map<ICurveEditorSplineDataModelConstSharedPtr, ICurveEditorSplineControllerSharedPtr> m_SplineControllers;
     ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
     ICurveEditorToolSharedPtr m_ActiveTool;
+    std::map<SplineID, std::set<size_t>> m_SelectedControlPoints;
 };
 
 CCurveEditorDataModelControllerListener::CCurveEditorDataModelControllerListener(CCurveEditorController& controller) :
@@ -136,6 +142,56 @@ const ICurveEditorSplineControllerSharedPtr& CCurveEditorController::GetSplineCo
 void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept
 {
     VisitObjectsMap(m_SplineControllers, visitor);
+}
+
+bool CCurveEditorController::AddToSelection(const SplineID& id, size_t controlPointIndex)
+{
+    const auto result = m_SelectedControlPoints[id].emplace(controlPointIndex);
+    if (!result.second)
+        return false;
+
+    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
+    return true;
+}
+
+bool CCurveEditorController::RemoveFromSelection(const SplineID& id, size_t controlPointIndex)
+{
+    const auto iterator = m_SelectedControlPoints.find(id);
+    if (iterator == m_SelectedControlPoints.cend())
+        return false;
+
+    auto& controlPointsSet = iterator->second;
+    EDITOR_ASSERT(!controlPointsSet.empty());
+
+    const auto removedCount = controlPointsSet.erase(controlPointIndex);
+    EDITOR_ASSERT(removedCount <= 1);
+    if (removedCount == 0)
+        return false;
+
+    if (controlPointsSet.empty())
+        m_SelectedControlPoints.erase(iterator);
+
+    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
+    return true;
+}
+
+bool CCurveEditorController::CheckIfSelected(const SplineID& id, size_t controlPointIndex) const noexcept
+{
+    const auto iterator = m_SelectedControlPoints.find(id);
+    if (iterator == m_SelectedControlPoints.cend())
+        return false;
+
+    const auto& controlPointsSet = iterator->second;
+    return controlPointsSet.find(controlPointIndex) == controlPointsSet.cend();
+}
+
+void CCurveEditorController::ClearSelection()
+{
+    if (m_SelectedControlPoints.empty())
+        return;
+
+    m_SelectedControlPoints.clear();
+    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
 }
 
 void CCurveEditorController::OnDataModelChanged()

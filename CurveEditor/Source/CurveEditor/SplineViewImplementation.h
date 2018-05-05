@@ -15,7 +15,7 @@ public:
 
     virtual void OnFrame() override final;
 
-    virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineViewComponent>& visitor, bool reverse = false) const noexcept override final;
+    virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse = false) const noexcept override final;
 
 protected:
     virtual void OnControllerChanged() override final;

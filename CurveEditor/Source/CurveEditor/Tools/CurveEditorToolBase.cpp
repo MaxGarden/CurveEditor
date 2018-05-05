@@ -1,7 +1,12 @@
 #include "pch.h"
 #include "CurveEditorToolBase.h"
 
-void CCurveEditorToolBase::OnActiveEditorViewChanged(const CCurveEditorToolEvent&)
+void CCurveEditorToolBase::OnAcquired(const CCurveEditorToolEvent&)
+{
+    //to override
+}
+
+void CCurveEditorToolBase::OnReleased(const CCurveEditorToolEvent&)
 {
     //to override
 }
@@ -41,12 +46,12 @@ void CCurveEditorToolBase::OnDoubleClick(const CCurveEditorToolMouseButtonEvent&
     //to override
 }
 
-void CCurveEditorToolBase::OnKeyDown(const CCurveEditorToolKeyEvent&)
+void CCurveEditorToolBase::OnModifierActivated(const CCurveEditorToolModifierEvent&)
 {
     //to override
 }
 
-void CCurveEditorToolBase::OnKeyUp(const CCurveEditorToolKeyEvent&)
+void CCurveEditorToolBase::OnModifierDeactivated(const CCurveEditorToolModifierEvent&)
 {
     //to override
 }

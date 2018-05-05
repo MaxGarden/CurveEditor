@@ -1,5 +1,5 @@
 #pragma  once
-#if !defined(__CURVE_EDITOR_SPLINE_VIEW_COMPONENT_H__)
+#if !defined(__CURVE_EDITOR_SPLINE_COMPONENT_VIEW_H__)
 
 #include <ax/ax.h>
 #include "Style.h"
@@ -13,11 +13,11 @@ enum class ECurveEditorSplineComponentType
     Tangent,
 };
 
-class ICurveEditorSplineViewComponent : public IEditorView
+class ICurveEditorSplineComponentView : public IEditorView
 {
 public:
-    ICurveEditorSplineViewComponent() = default;
-    virtual ~ICurveEditorSplineViewComponent() override = default;
+    ICurveEditorSplineComponentView() = default;
+    virtual ~ICurveEditorSplineComponentView() override = default;
 
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept = 0;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept = 0;
@@ -29,4 +29,4 @@ public:
     virtual const ICurveEditorSplineControllerSharedPtr& GetController() const noexcept = 0;
 };
 
-#endif //__CURVE_EDITOR_SPLINE_VIEW_COMPONENT_H__
+#endif //__CURVE_EDITOR_SPLINE_COMPONENT_VIEW_H__

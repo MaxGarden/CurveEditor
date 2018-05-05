@@ -11,7 +11,8 @@ enum class EComponentOrder
 {
     Background,
     Splines,
-    Foreground
+    Foreground,
+    Selection
 };
 
 class ICurveEditorViewComponent : public IEditorView

@@ -6,6 +6,7 @@
 #include "Components/DebugComponent.h"
 #include "Components/ToolHandlerComponent.h"
 #include "Components/SplinesComponent.h"
+#include "Components/SelectionComponent.h"
 
 CCurveEditorViewFactory::CCurveEditorViewFactory(IEditorContext& editorContext, ICurveEditorSplineViewFactory& splineViewFactory) :
     m_EditorContext(editorContext),
@@ -23,6 +24,8 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
     result->AddViewComponent(ICurveEditorSplinesViewComponent::Create(*result, m_SplineViewFactory), EComponentOrder::Splines);
 
     result->AddViewComponent(ICurveEditorDebugComponent::Create(*result, m_EditorContext), EComponentOrder::Foreground);
+
+    result->AddViewComponent(ICurveEditorSelectionViewComponent::Create(*result), EComponentOrder::Selection);
 
     result->AddViewComponent(ICurveEditorToolHandlerComponent::Create(*result), EComponentOrder::Foreground);
 

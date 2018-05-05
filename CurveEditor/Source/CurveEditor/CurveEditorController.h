@@ -13,6 +13,8 @@ public:
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
+
+    virtual void OnSelectionChanged() = 0;
 };
 
 class ICurveEditorController : public IEditorController
@@ -25,6 +27,11 @@ public:
 
     virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept = 0;
     virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept = 0;
+
+    virtual bool AddToSelection(const SplineID& id, size_t controlPointIndex) = 0;
+    virtual bool RemoveFromSelection(const SplineID& id, size_t controlPointIndex) = 0;
+    virtual bool CheckIfSelected(const SplineID& id, size_t controlPointIndex) const noexcept = 0;
+    virtual void ClearSelection() = 0;
 
     virtual const SCurveEditorStyle& GetEditorStyle() const noexcept = 0;
 
