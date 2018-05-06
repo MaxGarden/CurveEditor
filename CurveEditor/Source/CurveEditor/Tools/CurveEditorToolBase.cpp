@@ -36,12 +36,12 @@ void CCurveEditorToolBase::OnWheel(const CCurveEditorToolMouseWheelEvent&)
     //to override
 }
 
-void CCurveEditorToolBase::OnClick(const CCurveEditorToolMouseButtonEvent&)
+void CCurveEditorToolBase::OnClickDown(const CCurveEditorToolMouseButtonEvent&)
 {
     //to override
 }
 
-void CCurveEditorToolBase::OnDoubleClick(const CCurveEditorToolMouseButtonEvent&)
+void CCurveEditorToolBase::OnClickUp(const CCurveEditorToolMouseButtonEvent&)
 {
     //to override
 }

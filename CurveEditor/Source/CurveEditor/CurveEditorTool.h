@@ -20,8 +20,8 @@ public:
 
     virtual void OnWheel(const CCurveEditorToolMouseWheelEvent& event) = 0;
 
-    virtual void OnClick(const CCurveEditorToolMouseButtonEvent& event) = 0;
-    virtual void OnDoubleClick(const CCurveEditorToolMouseButtonEvent& event) = 0;
+    virtual void OnClickDown(const CCurveEditorToolMouseButtonEvent& event) = 0;
+    virtual void OnClickUp(const CCurveEditorToolMouseButtonEvent& event) = 0;
 
     virtual void OnModifierActivated(const CCurveEditorToolModifierEvent& event) = 0;
     virtual void OnModifierDeactivated(const CCurveEditorToolModifierEvent& event) = 0;

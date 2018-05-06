@@ -49,6 +49,8 @@ public:
 
     bool IsWorking() const noexcept;
     bool IsDragging() const noexcept;
+    bool IsMouseClickDown() const noexcept;
+
     ECurveEditorMouseButton GetButton() const noexcept;
 
 private:
@@ -60,6 +62,7 @@ private:
     const CCurveEditorToolHandlerComponent& m_ToolHandler;
     bool m_IsDragging = false;
     bool m_WasDragging = false;
+    bool m_MouseClickDown = false;
     ECurveEditorMouseButton m_Button;
     ImVec2 m_ClickPositionBuffer;
     ax::pointf m_DragDelta;
@@ -353,7 +356,10 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     if (m_WasDragging != m_IsDragging)
     {
         if (m_IsDragging)
+        {
             notifyToolButtonEvent(&ICurveEditorTool::OnDragBegin);
+            m_MouseClickDown = false;
+        }
         else
         {
             notifyToolButtonEvent(&ICurveEditorTool::OnDragEnd);
@@ -372,10 +378,16 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
 
         m_LastDragDelta = currentDragDelta;
     }
-    else if (ImGui::IsMouseClicked(imGuiButtonIndex))
-        notifyToolButtonEvent(&ICurveEditorTool::OnClick);
-    else if (ImGui::IsMouseDoubleClicked(imGuiButtonIndex))
-        notifyToolButtonEvent(&ICurveEditorTool::OnDoubleClick);
+    else if (!m_MouseClickDown && ImGui::IsMouseDown(imGuiButtonIndex))
+    {
+        notifyToolButtonEvent(&ICurveEditorTool::OnClickDown);
+        m_MouseClickDown = true;
+    }
+    if (m_MouseClickDown && ImGui::IsMouseReleased(imGuiButtonIndex))
+    {
+        notifyToolButtonEvent(&ICurveEditorTool::OnClickUp);
+        m_MouseClickDown = false;
+    }
 }
 
 void CMouseButtonHandler::OnRelease()
@@ -393,16 +405,24 @@ void CMouseButtonHandler::ForceStopWorking(ICurveEditorTool* activeTool)
 
     if (IsDragging())
         ForceStopDragging(activeTool);
+
+    if (IsMouseClickDown())
+        m_MouseClickDown = false;
 }
 
 bool CMouseButtonHandler::IsWorking() const noexcept
 {
-    return IsDragging();
+    return IsDragging() || IsMouseClickDown();
 }
 
 bool CMouseButtonHandler::IsDragging() const noexcept
 {
     return m_IsDragging;
+}
+
+bool CMouseButtonHandler::IsMouseClickDown() const noexcept
+{
+    return m_MouseClickDown;
 }
 
 ECurveEditorMouseButton CMouseButtonHandler::GetButton() const noexcept
