@@ -4,5 +4,5 @@
 
 ICurveEditorSplineControllerUniquePtr CCurveEditorSplineControllerFactory::Create(const ICurveEditorSplineDataModelSharedPtr&)
 {
-    return std::make_unique<CCurveEditorFunctionSplineController>();
+    return ICurveEditorFunctionSplineController::Create();
 }

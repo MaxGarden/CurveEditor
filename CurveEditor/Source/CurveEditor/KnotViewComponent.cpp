@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "KnotViewComponent.h"
 #include "CurveEditorView.h"
-#include "SplineController.h"
+#include "KnotController.h"
 #include "EditorRenderableBase.h"
 #include "CurveEditorViewVisibleComponentBase.h"
 #include "SplineComponentViewBase.h"
@@ -21,18 +21,18 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorKnotView final : public CCurveEditorSplineComponentViewBase<ICurveEditorKnotView, ECurveEditorSplineComponentType::Knot>, public std::enable_shared_from_this<CCurveEditorKnotView>
+class CCurveEditorKnotView final : public CCurveEditorSplineComponentViewBase<ICurveEditorKnotView, ICurveEditorKnotController, ECurveEditorSplineComponentType::Knot>, public std::enable_shared_from_this<CCurveEditorKnotView>
 {
 friend CCurveEditorKnotBorderRenderable;
 public:
-    CCurveEditorKnotView(ICurveEditorView& editorView, size_t knotIndex);
+    CCurveEditorKnotView(ICurveEditorView& editorView);
     virtual ~CCurveEditorKnotView() override final = default;
 
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorKnotController& controller) override final;
 
 private:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
@@ -41,9 +41,6 @@ private:
     std::optional<ax::pointf> GetEditorPosition(bool screenTranslation) const noexcept;
 
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
-
-private:
-    const size_t m_KnotIndex;
 };
 
 CCurveEditorKnotBorderRenderable::CCurveEditorKnotBorderRenderable(CCurveEditorKnotViewConstWeakPtr&& knotView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) :
@@ -73,9 +70,8 @@ void CCurveEditorKnotBorderRenderable::OnFrame(ImDrawList& drawList)
     drawList.AddRect(to_imvec(bounds->top_left()), to_imvec(bounds->bottom_right()), color, 0.0f, 15, *thickness);
 }
 
-CCurveEditorKnotView::CCurveEditorKnotView(ICurveEditorView& editorView, size_t knotIndex) :
-    CCurveEditorSplineComponentViewBase(editorView),
-    m_KnotIndex(knotIndex)
+CCurveEditorKnotView::CCurveEditorKnotView(ICurveEditorView& editorView) :
+    CCurveEditorSplineComponentViewBase(editorView)
 {
 }
 
@@ -110,7 +106,7 @@ IEditorRenderableUniquePtr CCurveEditorKnotView::CreateBorderRenderable(ECurveEd
 std::optional<ax::pointf> CCurveEditorKnotView::CCurveEditorKnotView::GetPosition() const noexcept
 {
     if (const auto& controller = GetController())
-        return controller->GetKnot(m_KnotIndex);
+        return controller->GetPosition();
 
     return std::nullopt;
 }
@@ -144,7 +140,7 @@ std::optional<ax::rectf> CCurveEditorKnotView::CalculateBounds(bool screenTransl
     return ax::rectf{ *editorPosition - halfKnotSize, *editorPosition + halfKnotSize };
 }
 
-void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController&)
+void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorKnotController&)
 {
     const auto bounds = CalculateBounds(true);
     EDITOR_ASSERT(bounds);
@@ -157,7 +153,7 @@ void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorSplineContr
     drawList.AddRectFilled(to_imvec(bounds->top_left()), to_imvec(bounds->bottom_right()), fillColor);
 }
 
-ICurveEditorKnotViewSharedPtr ICurveEditorKnotView::Create(ICurveEditorView& editorView, size_t knotIndex)
+ICurveEditorKnotViewSharedPtr ICurveEditorKnotView::Create(ICurveEditorView& editorView)
 {
-    return std::make_shared<CCurveEditorKnotView>(editorView, knotIndex);
+    return std::make_shared<CCurveEditorKnotView>(editorView);
 }

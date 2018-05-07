@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TangentViewComponent.h"
 #include "CurveViewComponent.h"
+#include "TangentController.h"
 #include "CurveEditorView.h"
 #include "EditorRenderableBase.h"
 #include "SplineComponentViewBase.h"
@@ -20,11 +21,11 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorTangentView final : public CCurveEditorSplineComponentViewBase<ICurveEditorTangentView, ECurveEditorSplineComponentType::Tangent>, public std::enable_shared_from_this<CCurveEditorTangentView>
+class CCurveEditorTangentView final : public CCurveEditorSplineComponentViewBase<ICurveEditorTangentView, ICurveEditorTangentController, ECurveEditorSplineComponentType::Tangent>, public std::enable_shared_from_this<CCurveEditorTangentView>
 {
 friend CCurveEditorTangentBorderRenderable;
 public:
-    CCurveEditorTangentView(ICurveEditorView& editorView, size_t tangentPointIndex);
+    CCurveEditorTangentView(ICurveEditorView& editorView);
     virtual ~CCurveEditorTangentView() override final = default;
 
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
@@ -33,7 +34,7 @@ public:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorTangentController& controller) override final;
 
 private:
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
@@ -45,10 +46,6 @@ private:
     std::optional<ax::pointf> GetEditorTangentPosition(bool screenTranslation) const noexcept;
 
     std::optional<ax::pointf> ToEditorPosition(const std::optional<ax::pointf>& position, bool screenTranslation) const noexcept;
-
-private:
-    const size_t m_AnchorKnotIndex = 0;
-    const size_t m_TangentIndex = 0;
 };
 
 CCurveEditorTangentBorderRenderable::CCurveEditorTangentBorderRenderable(CCurveEditorTangentViewConstWeakPtr&& tangentView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) :
@@ -78,10 +75,8 @@ void CCurveEditorTangentBorderRenderable::OnFrame(ImDrawList& drawList)
     drawList.AddCircle(to_imvec(*editorPosition), editorStyle.TangentMarkerRadius, color, 12, *thickness);
 }
 
-CCurveEditorTangentView::CCurveEditorTangentView(ICurveEditorView& editorView, size_t tangentPointIndex) :
-    CCurveEditorSplineComponentViewBase(editorView),
-    m_AnchorKnotIndex((tangentPointIndex == 0) ? 0 : (tangentPointIndex + 1) / 2),
-    m_TangentIndex(tangentPointIndex)
+CCurveEditorTangentView::CCurveEditorTangentView(ICurveEditorView& editorView) :
+    CCurveEditorSplineComponentViewBase(editorView)
 {
 }
 
@@ -149,7 +144,7 @@ IEditorRenderableUniquePtr CCurveEditorTangentView::CreateBorderRenderable(ECurv
     return std::make_unique<CCurveEditorTangentBorderRenderable>(weak_from_this(), borderStyleColor, thicknessStyle);
 }
 
-void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController&)
+void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorTangentController&)
 {
     const auto& style = GetEditorView().GetEditorStyle();
 
@@ -190,7 +185,7 @@ std::optional<ax::rectf> CCurveEditorTangentView::CalculateBounds(bool screenTra
 std::optional<ax::pointf> CCurveEditorTangentView::GetAnchorPointPosition() const noexcept
 {
     if (const auto& controller = GetController())
-        return controller->GetKnot(m_AnchorKnotIndex);
+        return controller->GetAnchorPosition();
 
     return std::nullopt;
 }
@@ -203,7 +198,7 @@ std::optional<ax::pointf> CCurveEditorTangentView::GetEditorAnchorPointPosition(
 std::optional<ax::pointf> CCurveEditorTangentView::GetTangentPosition() const noexcept
 {
     if (const auto& controller = GetController())
-        return controller->GetTangent(m_TangentIndex);
+        return controller->GetPosition();
 
     return std::nullopt;
 }
@@ -222,7 +217,7 @@ std::optional<ax::pointf> CCurveEditorTangentView::ToEditorPosition(const std::o
     return editorCanvas.ToEditor(*position, screenTranslation);
 }
 
-ICurveEditorTangentViewSharedPtr ICurveEditorTangentView::Create(ICurveEditorView& editorView, size_t tangentPointIndex)
+ICurveEditorTangentViewSharedPtr ICurveEditorTangentView::Create(ICurveEditorView& editorView)
 {
-    return std::make_shared<CCurveEditorTangentView>(editorView, tangentPointIndex);
+    return std::make_shared<CCurveEditorTangentView>(editorView);
 }

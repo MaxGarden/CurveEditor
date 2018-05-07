@@ -13,6 +13,15 @@ enum class ECurveType
 using SplineID = size_t;
 using SplineColor = unsigned int;
 
+class ICurveEditorSplineDataModelListener : public IEditorListener
+{
+public:
+    virtual ~ICurveEditorSplineDataModelListener() override = default;
+
+    virtual void OnKnotInserted(size_t controlPointIndex) = 0;
+    virtual void OnKnotRemoved(size_t controlPointIndex) = 0;
+};
+
 class ICurveEditorSplineDataModel : public IEditorDataModel
 {
 public:

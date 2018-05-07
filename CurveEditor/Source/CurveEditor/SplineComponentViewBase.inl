@@ -1,11 +1,11 @@
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::CCurveEditorSplineComponentViewBase(ICurveEditorView& editorView) :
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::CCurveEditorSplineComponentViewBase(ICurveEditorView& editorView) :
     m_EditorView(editorView)
 {
 }
 
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-void CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::OnFrame()
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::OnFrame()
 {
     const auto drawList = ImGui::GetWindowDrawList();
     EDITOR_ASSERT(drawList);
@@ -20,31 +20,20 @@ void CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::OnFra
     OnFrame(*drawList, *controller);
 }
 
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-const SplineID& CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::GetSplineID() const noexcept
-{
-    const auto controller = GetController();
-    EDITOR_ASSERT(controller);
-    if (!controller)
-        return ICurveEditorSplineDataModel::InvalidSplineID();
-
-    return controller->GetID();
-}
-
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-ECurveEditorSplineComponentType CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::GetType() const noexcept
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+ECurveEditorSplineComponentType CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::GetType() const noexcept
 {
     return SplineComponentType;
 }
 
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-void CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::OnFrame(ImDrawList&, ICurveEditorSplineController&)
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::OnFrame(ImDrawList&, ControllerType&)
 {
     //to override
 }
 
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-ICurveEditorView& CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>::GetEditorView() const noexcept
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+ICurveEditorView& CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::GetEditorView() const noexcept
 {
     return m_EditorView;
 }

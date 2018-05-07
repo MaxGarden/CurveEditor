@@ -23,12 +23,9 @@ public:
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept = 0;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept = 0;
 
-    virtual const SplineID& GetSplineID() const noexcept = 0;
     virtual ECurveEditorSplineComponentType GetType() const noexcept = 0;
 
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const = 0;
-
-    virtual const ICurveEditorSplineControllerSharedPtr& GetController() const noexcept = 0;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_COMPONENT_VIEW_H__

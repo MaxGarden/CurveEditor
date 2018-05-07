@@ -10,6 +10,15 @@ class ICurveEditorSplineListener : public IEditorListener
 {
 public:
     virtual ~ICurveEditorSplineListener() override = default;
+
+    virtual void OnKnotCreated(const ICurveEditorKnotControllerSharedPtr& knotController) = 0;
+    virtual void OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController) = 0;
+
+    virtual void OnTangentCreated(const ICurveEditorTangentControllerSharedPtr& tangentController) = 0;
+    virtual void OnTangentDestroyed(const ICurveEditorTangentControllerSharedPtr& tangentController) = 0;
+
+    virtual void OnCurveCreated(const ICurveEditorCurveControllerSharedPtr& curveController) = 0;
+    virtual void OnCurveDestroyed(const ICurveEditorCurveControllerSharedPtr& curveController) = 0;
 };
 
 class ICurveEditorSplineController : public IEditorController
@@ -23,16 +32,11 @@ public:
     virtual const SplineID& GetID() const noexcept = 0;
     virtual const SplineColor& GetColor() const noexcept = 0;
 
-    virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
+    virtual void VisitKnotsControllers(const VisitorCopyType<ICurveEditorKnotControllerSharedPtr>& visitor) const = 0;
+    virtual void VisitTangentsControllers(const VisitorCopyType<ICurveEditorTangentControllerSharedPtr>& visitor) const = 0;
+    virtual void VisitCurvesControllers(const VisitorCopyType<ICurveEditorCurveControllerSharedPtr>& visitor) const = 0;
 
-    virtual bool VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept = 0;
-    virtual size_t GetCurvesCount() const noexcept = 0;
-
-    virtual std::optional<ax::pointf> GetKnot(size_t knotIndex) const noexcept = 0;
-    virtual size_t GetKnotsCount() const noexcept = 0;
-
-    virtual std::optional<ax::pointf> GetTangent(size_t tangentIndex) const noexcept = 0;
-    virtual size_t GetTangentsCount() const noexcept = 0;
+    static size_t ControlPointsPerCurve() noexcept;
 };
 
 class ICurveEditorSplineControllerFactory

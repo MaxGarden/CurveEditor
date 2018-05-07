@@ -7,8 +7,8 @@
 #include "SplineController.h"
 #include "SplineComponentView.h"
 
-template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
-class CCurveEditorSplineComponentViewBase : public CEditorViewBase<SuperClass, ICurveEditorSplineController>
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+class CCurveEditorSplineComponentViewBase : public CEditorViewBase<SuperClass, ControllerType>
 {
 public:
     CCurveEditorSplineComponentViewBase(ICurveEditorView& editorView);
@@ -16,15 +16,14 @@ public:
 
     virtual void OnFrame() override;
 
-    virtual const SplineID& GetSplineID() const noexcept override final;
     virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller);
+    virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 
     ICurveEditorView& GetEditorView() const noexcept;
 
-    using Super = CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>;
+    using Super = CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>;
 
 private:
     ICurveEditorView& m_EditorView;

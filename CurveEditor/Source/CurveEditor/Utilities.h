@@ -4,6 +4,9 @@
 #include <imgui.h>
 
 template<typename Type>
+using VisitorCopyType = std::function<void(Type)>;
+
+template<typename Type>
 using VisitorType = std::function<void(Type&)>;
 
 template<typename Type>

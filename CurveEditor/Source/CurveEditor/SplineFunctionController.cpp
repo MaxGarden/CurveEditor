@@ -1,7 +1,80 @@
 #include "pch.h"
 #include "SplineFunctionController.h"
+#include "CurveEditorController.h"
+#include "CurveEditorSplineListenerBase.h"
+#include "KnotController.h"
+#include "TangentController.h"
+#include "CurveController.h"
 
-static const auto s_ControlPointsPerCurve = 4u;
+class CCurveEditorFunctionSplineController final : public CEditorControllerBase<ICurveEditorFunctionSplineController, ICurveEditorSplineDataModel, ICurveEditorSplineListener>
+{
+public:
+    CCurveEditorFunctionSplineController() = default;
+    virtual ~CCurveEditorFunctionSplineController() override final = default;
+
+    virtual const SplineID& GetID() const noexcept override final;
+    virtual const SplineColor& GetColor() const noexcept override final;
+
+    virtual void VisitKnotsControllers(const VisitorCopyType<ICurveEditorKnotControllerSharedPtr>& visitor) const override final;
+    virtual void VisitTangentsControllers(const VisitorCopyType<ICurveEditorTangentControllerSharedPtr>& visitor) const override final;
+    virtual void VisitCurvesControllers(const VisitorCopyType<ICurveEditorCurveControllerSharedPtr>& visitor) const override final;
+
+    void OnKnotInserted(size_t controlPointIndex);
+    void OnKnotRemoved(size_t controlPointIndex);
+
+protected:
+    virtual void OnDataModelChanged() override final;
+    virtual IEditorListenerUniquePtr CreateListener() override final;
+
+private:
+    virtual size_t GetKnotsCount() const noexcept;
+    virtual size_t GetTangentsCount() const noexcept;
+    virtual size_t GetCurvesCount() const noexcept;
+
+    const std::vector<ax::pointf>& GetControlPoints() const noexcept;
+
+    void CreateControllers();
+    void DestroyControllers();
+    void OnSplineModified() noexcept;
+    void SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept;
+
+    ICurveEditorKnotControllerPrivateSharedPtr AddKnotController(size_t knotIndex);
+    ICurveEditorTangentControllerPrivateSharedPtr AddTangentController(size_t tangentIndex);
+    ICurveEditorCurveControllerPrivateSharedPtr AddCurveController(size_t curveIndex);
+
+private:
+    std::vector<ICurveEditorKnotControllerPrivateSharedPtr> m_KnotsControllers;
+    std::vector<ICurveEditorTangentControllerPrivateSharedPtr> m_TangentsControllers;
+    std::vector<ICurveEditorCurveControllerPrivateSharedPtr> m_CurvesControllers;
+};
+
+class CCurveEditorFunctionSplineControllerListener final : public CCurveEditorSplineDataModelListenerBase
+{
+public:
+    CCurveEditorFunctionSplineControllerListener(CCurveEditorFunctionSplineController& functionSplineController);
+    virtual ~CCurveEditorFunctionSplineControllerListener() override final = default;
+
+    virtual void OnKnotInserted(size_t controlPointIndex) override final;
+    virtual void OnKnotRemoved(size_t controlPointIndex) override final;
+
+private:
+    CCurveEditorFunctionSplineController& m_FunctionSplineController;
+};
+
+CCurveEditorFunctionSplineControllerListener::CCurveEditorFunctionSplineControllerListener(CCurveEditorFunctionSplineController& functionSplineController) :
+    m_FunctionSplineController(functionSplineController)
+{
+}
+
+void CCurveEditorFunctionSplineControllerListener::OnKnotInserted(size_t controlPointIndex)
+{
+    m_FunctionSplineController.OnKnotInserted(controlPointIndex);
+}
+
+void CCurveEditorFunctionSplineControllerListener::OnKnotRemoved(size_t controlPointIndex)
+{
+    m_FunctionSplineController.OnKnotRemoved(controlPointIndex);
+}
 
 const SplineID& CCurveEditorFunctionSplineController::GetID() const noexcept
 {
@@ -23,42 +96,31 @@ const SplineColor& CCurveEditorFunctionSplineController::GetColor() const noexce
     return null;
 }
 
-const std::vector<ax::pointf>& CCurveEditorFunctionSplineController::GetControlPoints() const noexcept
+void CCurveEditorFunctionSplineController::VisitKnotsControllers(const VisitorCopyType<ICurveEditorKnotControllerSharedPtr>& visitor) const
 {
-    static const std::vector<ax::pointf> null;
-
-    if (const auto& dataModel = GetDataModel())
-        return dataModel->GetControlPoints();
-
-    return null;
+    VisitObjectsContainer(m_KnotsControllers, visitor);
 }
 
-bool CCurveEditorFunctionSplineController::VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept
+void CCurveEditorFunctionSplineController::VisitTangentsControllers(const VisitorCopyType<ICurveEditorTangentControllerSharedPtr>& visitor) const
 {
-    if (!visitor)
-        return false;
-
-    const auto& controlPoints = GetControlPoints();
-    const auto actualIndex = curveIndex * (s_ControlPointsPerCurve - 1);
-
-    if (actualIndex >= controlPoints.size())
-        return false;
-
-    const auto endIndex = actualIndex + s_ControlPointsPerCurve;
-
-    for (auto i = actualIndex; i < endIndex; ++i)
-        visitor(controlPoints[i]);
-
-    return true;
+    VisitObjectsContainer(m_TangentsControllers, visitor);
 }
 
-size_t CCurveEditorFunctionSplineController::GetCurvesCount() const noexcept
+void CCurveEditorFunctionSplineController::VisitCurvesControllers(const VisitorCopyType<ICurveEditorCurveControllerSharedPtr>& visitor) const
 {
-    const auto controlPointsCount = GetControlPoints().size();
-    if (controlPointsCount < s_ControlPointsPerCurve)
-        return 0;
+    VisitObjectsContainer(m_CurvesControllers, visitor);
+}
 
-    return 1 + (controlPointsCount - s_ControlPointsPerCurve) / (s_ControlPointsPerCurve - 1);
+void CCurveEditorFunctionSplineController::OnKnotInserted(size_t)
+{
+    //TODO
+    EDITOR_ASSERT(false);
+}
+
+void CCurveEditorFunctionSplineController::OnKnotRemoved(size_t)
+{
+    //TODO
+    EDITOR_ASSERT(false);
 }
 
 void CCurveEditorFunctionSplineController::OnSplineModified() noexcept
@@ -72,7 +134,87 @@ void CCurveEditorFunctionSplineController::OnSplineModified() noexcept
 
 void CCurveEditorFunctionSplineController::OnDataModelChanged()
 {
-    OnSplineModified();
+    DestroyControllers();
+    CreateControllers();
+}
+
+IEditorListenerUniquePtr CCurveEditorFunctionSplineController::CreateListener()
+{
+    return std::make_unique<CCurveEditorFunctionSplineControllerListener>(*this);
+}
+
+size_t CCurveEditorFunctionSplineController::GetKnotsCount() const noexcept
+{
+    const auto curvesCount = GetCurvesCount();
+    if (curvesCount == 0)
+        return 0;
+
+    return curvesCount + 1;
+}
+
+size_t CCurveEditorFunctionSplineController::GetTangentsCount() const noexcept
+{
+    return GetCurvesCount() * 2;
+}
+
+size_t CCurveEditorFunctionSplineController::GetCurvesCount() const noexcept
+{
+    const auto controlPointsPerCurve = ControlPointsPerCurve();
+
+    const auto controlPointsCount = GetControlPoints().size();
+    if (controlPointsCount < controlPointsPerCurve)
+        return 0;
+
+    return 1 + (controlPointsCount - controlPointsPerCurve) / (controlPointsPerCurve - 1);
+}
+
+const std::vector<ax::pointf>& CCurveEditorFunctionSplineController::GetControlPoints() const noexcept
+{
+    static const std::vector<ax::pointf> null;
+
+    if (const auto& dataModel = GetDataModel())
+        return dataModel->GetControlPoints();
+
+    return null;
+}
+
+void CCurveEditorFunctionSplineController::CreateControllers()
+{
+    const auto createControllers = [this](const auto controllersCount, const auto addMethod, const auto listenerMethod)
+    {
+        for (auto i = 0u; i < controllersCount; ++i)
+        {
+            const auto addedController = (this->*addMethod)(i);
+            EDITOR_ASSERT(addedController);
+            if (!addedController)
+                continue;
+
+            NotifyListeners(listenerMethod, addedController);
+        }
+    };
+
+    createControllers(GetKnotsCount(), &CCurveEditorFunctionSplineController::AddKnotController, &ICurveEditorSplineListener::OnKnotCreated);
+    createControllers(GetTangentsCount(), &CCurveEditorFunctionSplineController::AddTangentController, &ICurveEditorSplineListener::OnTangentCreated);
+    createControllers(GetCurvesCount(), &CCurveEditorFunctionSplineController::AddCurveController, &ICurveEditorSplineListener::OnCurveCreated);
+}
+
+void CCurveEditorFunctionSplineController::DestroyControllers()
+{
+    const auto notifyDestroyControllers = [this](const auto& container, const auto method)
+    {
+        VisitObjectsContainer(container, [&](const auto& controlller)
+        {
+            NotifyListeners(method, controlller);
+        });
+    };
+
+    notifyDestroyControllers(m_CurvesControllers, &ICurveEditorSplineListener::OnCurveDestroyed);
+    notifyDestroyControllers(m_TangentsControllers, &ICurveEditorSplineListener::OnTangentCreated);
+    notifyDestroyControllers(m_KnotsControllers, &ICurveEditorSplineListener::OnKnotDestroyed);
+
+    m_CurvesControllers.clear();
+    m_TangentsControllers.clear();
+    m_KnotsControllers.clear();
 }
 
 void CCurveEditorFunctionSplineController::SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept
@@ -85,38 +227,54 @@ void CCurveEditorFunctionSplineController::SortControlPoints(std::vector<ax::poi
     std::sort(controlPoints.begin(), controlPoints.end(), prediction);
 }
 
-std::optional<ax::pointf> CCurveEditorFunctionSplineController::GetKnot(size_t knotIndex) const noexcept
+template<typename ControllerType, typename DataModelType, typename Method>
+static auto CreateSplineControllerComponent(const DataModelType& dataModel, const Method setMethod, size_t controlPointIndex)
 {
-    const auto actualIndex = knotIndex * (s_ControlPointsPerCurve - 1);
+    auto result = std::shared_ptr<ControllerType>(ControllerType::Create());
 
-    const auto& controlPoints = GetControlPoints();
-    if (actualIndex >= controlPoints.size())
-        return std::nullopt;
+    if (result)
+    {
+        auto isValid = true;
 
-    return controlPoints[actualIndex];
+        isValid &= result->SetDataModel(dataModel);
+        isValid &= (result.get()->*setMethod)(controlPointIndex);
+        EDITOR_ASSERT(isValid);
+
+        if (!isValid)
+            result.reset();
+    }
+
+    return result;
 }
 
-size_t CCurveEditorFunctionSplineController::GetKnotsCount() const noexcept
+ICurveEditorKnotControllerPrivateSharedPtr CCurveEditorFunctionSplineController::AddKnotController(size_t knotIndex)
 {
-    const auto curvesCount = GetCurvesCount();
-    if (curvesCount == 0)
-        return 0;
+    auto result = CreateSplineControllerComponent<ICurveEditorKnotControllerPrivate>(GetDataModel(), &ICurveEditorKnotControllerPrivate::SetKnotIndex, knotIndex);
+    if (result)
+        m_KnotsControllers.emplace_back(result);
 
-    return curvesCount + 1;
+    return result;
 }
 
-std::optional<ax::pointf> CCurveEditorFunctionSplineController::GetTangent(size_t tangentIndex) const noexcept
+ICurveEditorTangentControllerPrivateSharedPtr CCurveEditorFunctionSplineController::AddTangentController(size_t tangentIndex)
 {
-    const auto actualIndex = 1 + (tangentIndex / 2) * (s_ControlPointsPerCurve - 1) + tangentIndex % 2;
+    auto result = CreateSplineControllerComponent<ICurveEditorTangentControllerPrivate>(GetDataModel(), &ICurveEditorTangentControllerPrivate::SetTangentIndex, tangentIndex);
+    if (result)
+        m_TangentsControllers.emplace_back(result);
 
-    const auto& controlPoints = GetControlPoints();
-    if (actualIndex >= controlPoints.size())
-        return std::nullopt;
-
-    return controlPoints[actualIndex];
+    return result;
 }
 
-size_t CCurveEditorFunctionSplineController::GetTangentsCount() const noexcept
+ICurveEditorCurveControllerPrivateSharedPtr CCurveEditorFunctionSplineController::AddCurveController(size_t curveIndex)
 {
-    return GetCurvesCount() * 2;
+    auto result = CreateSplineControllerComponent<ICurveEditorCurveControllerPrivate>(GetDataModel(), &ICurveEditorCurveControllerPrivate::SetCurveIndex, curveIndex);
+    if (result)
+        m_CurvesControllers.emplace_back(result);
+
+    return result;
+}
+
+ICurveEditorFunctionSplineControllerUniquePtr ICurveEditorFunctionSplineController::Create()
+{
+    return std::make_unique<CCurveEditorFunctionSplineController>();
 }

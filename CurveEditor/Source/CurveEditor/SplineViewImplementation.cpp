@@ -1,5 +1,106 @@
 #include "pch.h"
 #include "SplineViewImplementation.h"
+#include "CurveEditorSplineListenerBase.h"
+#include "KnotController.h"
+#include "TangentController.h"
+#include "CurveController.h"
+
+class CCurveEditorSplineView final : public CEditorViewBase<ICurveEditorSplineView, ICurveEditorSplineController>
+{
+public:
+    CCurveEditorSplineView(ICurveEditorView& editorView);
+    virtual ~CCurveEditorSplineView() override final = default;
+
+    virtual void OnFrame() override final;
+    virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse = false) const noexcept override final;
+
+    bool CreateKnotView(const ICurveEditorKnotControllerSharedPtr& knotController);
+    bool DestroyKnotView(const ICurveEditorKnotControllerSharedPtr& knotController);
+
+    bool CreateTangentView(const ICurveEditorTangentControllerSharedPtr& tangentController);
+    bool DestroyTangentView(const ICurveEditorTangentControllerSharedPtr& tangentController);
+
+    bool CreateCurveView(const ICurveEditorCurveControllerSharedPtr& curveController);
+    bool DestroyCurveView(const ICurveEditorCurveControllerSharedPtr& curveController);
+
+protected:
+    virtual void OnControllerChanged() override final;
+
+private:
+    void VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse = false) const noexcept;
+    void VisitKnotsViews(const InterruptibleVisitorType<ICurveEditorKnotView>& visitor, bool reverse = false) const noexcept;
+    void VisitTangentsViews(const InterruptibleVisitorType<ICurveEditorTangentView>& visitor, bool reverse = false) const noexcept;
+
+    void CreateKnotViews(ICurveEditorSplineController& controller);
+    void CreateTangentViews(ICurveEditorSplineController& controller);
+    void CreateCurveViews(ICurveEditorSplineController& controller);
+
+private:
+    ICurveEditorView & m_EditorView;
+    std::map<ICurveEditorCurveControllerSharedPtr, ICurveEditorCurveViewSharedPtr> m_CurvesViews;
+    std::map<ICurveEditorKnotControllerSharedPtr, ICurveEditorKnotViewSharedPtr> m_KnotsViews;
+    std::map<ICurveEditorTangentControllerSharedPtr, ICurveEditorTangentViewSharedPtr> m_TangentsViews;
+};
+
+class CCurveEditorSplineViewListener final : public CCurveEditorSplineControllerListenerBase
+{
+public:
+    CCurveEditorSplineViewListener(CCurveEditorSplineView& splineView);
+    virtual ~CCurveEditorSplineViewListener() override final = default;
+
+    virtual void OnKnotCreated(const ICurveEditorKnotControllerSharedPtr& knotController) override final;
+    virtual void OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController) override final;
+
+    virtual void OnTangentCreated(const ICurveEditorTangentControllerSharedPtr& tangentController) override final;
+    virtual void OnTangentDestroyed(const ICurveEditorTangentControllerSharedPtr& tangentController) override final;
+
+    virtual void OnCurveCreated(const ICurveEditorCurveControllerSharedPtr& curveController) override final;
+    virtual void OnCurveDestroyed(const ICurveEditorCurveControllerSharedPtr& curveController) override final;
+
+private:
+    CCurveEditorSplineView& m_SplineView;
+};
+
+CCurveEditorSplineViewListener::CCurveEditorSplineViewListener(CCurveEditorSplineView& splineView) :
+    m_SplineView(splineView)
+{
+}
+
+void CCurveEditorSplineViewListener::OnKnotCreated(const ICurveEditorKnotControllerSharedPtr& knotController)
+{
+    const auto result = m_SplineView.CreateKnotView(knotController);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSplineViewListener::OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController)
+{
+    const auto result = m_SplineView.DestroyKnotView(knotController);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSplineViewListener::OnTangentCreated(const ICurveEditorTangentControllerSharedPtr& tangentController)
+{
+    const auto result = m_SplineView.CreateTangentView(tangentController);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSplineViewListener::OnTangentDestroyed(const ICurveEditorTangentControllerSharedPtr& tangentController)
+{
+    const auto result = m_SplineView.DestroyTangentView(tangentController);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSplineViewListener::OnCurveCreated(const ICurveEditorCurveControllerSharedPtr& curveController)
+{
+    const auto result = m_SplineView.CreateCurveView(curveController);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSplineViewListener::OnCurveDestroyed(const ICurveEditorCurveControllerSharedPtr& curveController)
+{
+    const auto result = m_SplineView.DestroyCurveView(curveController);
+    EDITOR_ASSERT(result);
+}
 
 CCurveEditorSplineView::CCurveEditorSplineView(ICurveEditorView& editorView) :
     m_EditorView(editorView)
@@ -8,20 +109,6 @@ CCurveEditorSplineView::CCurveEditorSplineView(ICurveEditorView& editorView) :
 
 void CCurveEditorSplineView::OnFrame()
 {
-    const auto& controller = GetController();
-    EDITOR_ASSERT(controller);
-    if (!controller)
-        return;
-
-    OnFrame(*controller);
-}
-
-void CCurveEditorSplineView::OnFrame(ICurveEditorSplineController& controller)
-{
-    EnsureCurvesViews(controller);
-    EnsureKnotsViews(controller);
-    EnsureTangentsViews(controller);
-
     static const auto onFrameVisitor = [](auto& view)
     {
         view.OnFrame();
@@ -38,61 +125,29 @@ void CCurveEditorSplineView::OnControllerChanged()
     m_CurvesViews.clear();
     m_KnotsViews.clear();
     m_TangentsViews.clear();
-}
 
-template<typename ViewType, typename ContainerType>
-static void EnsureViews(ContainerType& container, const IEditorControllerSharedPtr& controller, ICurveEditorView& editorView, size_t count)
-{
-    if (count == container.size())
+    const auto& controller = GetController();
+    if (!controller)
         return;
 
-    const auto previousSize = container.size();
-    container.resize(count);
-
-    if (count < previousSize)
-        return;
-
-    std::generate(container.begin() + previousSize, container.end(), [index = previousSize, &controller, &editorView]() mutable
-    {
-        auto view = ViewType::Create(editorView, index++);
-
-        auto isValid = true;
-        isValid &= view->SetController(controller);
-
-        EDITOR_ASSERT(isValid);
-
-        return isValid ? std::move(view) : nullptr;
-    });
-}
-
-void CCurveEditorSplineView::EnsureCurvesViews(ICurveEditorSplineController& controller)
-{
-    EnsureViews<ICurveEditorCurveView>(m_CurvesViews, GetController(), m_EditorView, controller.GetCurvesCount());
-}
-
-void CCurveEditorSplineView::EnsureKnotsViews(ICurveEditorSplineController& controller)
-{
-    EnsureViews<ICurveEditorKnotView>(m_KnotsViews, GetController(), m_EditorView, controller.GetKnotsCount());
-}
-
-void CCurveEditorSplineView::EnsureTangentsViews(ICurveEditorSplineController& controller)
-{
-    EnsureViews<ICurveEditorTangentView>(m_TangentsViews, GetController(), m_EditorView, controller.GetTangentsCount());
+    CreateTangentViews(*controller);
+    CreateKnotViews(*controller);
+    CreateCurveViews(*controller);
 }
 
 void CCurveEditorSplineView::VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_CurvesViews, visitor, reverse);
+    VisitPointersMap(m_CurvesViews, visitor, reverse);
 }
 
 void CCurveEditorSplineView::VisitKnotsViews(const InterruptibleVisitorType<ICurveEditorKnotView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_KnotsViews, visitor, reverse);
+    VisitPointersMap(m_KnotsViews, visitor, reverse);
 }
 
 void CCurveEditorSplineView::VisitTangentsViews(const InterruptibleVisitorType<ICurveEditorTangentView>& visitor, bool reverse /*= false*/) const noexcept
 {
-    VisitPointersContainer(m_TangentsViews, visitor, reverse);
+    VisitPointersMap(m_TangentsViews, visitor, reverse);
 }
 
 void CCurveEditorSplineView::VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse /*= false*/) const noexcept
@@ -112,6 +167,78 @@ void CCurveEditorSplineView::VisitSplineComponents(ECurveEditorSplineComponentTy
         EDITOR_ASSERT(false && "Unsupported component type");
         break;
     }
+}
+
+template<typename ViewType, typename Container, typename ControllerType>
+static auto CreateView(Container& container, ICurveEditorView& editorView, const ControllerType& controller)
+{
+    EDITOR_ASSERT(controller);
+
+    auto view = ViewType::Create(editorView);
+
+    auto isValid = true;
+    isValid &= view->SetController(controller);
+    EDITOR_ASSERT(isValid);
+
+    if (!isValid)
+        return false;
+
+    const auto result = container.try_emplace(controller, std::move(view));
+    return result.second;
+}
+
+bool CCurveEditorSplineView::CreateKnotView(const ICurveEditorKnotControllerSharedPtr& knotController)
+{
+    return CreateView<ICurveEditorKnotView>(m_KnotsViews, m_EditorView, knotController);
+}
+
+bool CCurveEditorSplineView::DestroyKnotView(const ICurveEditorKnotControllerSharedPtr& knotController)
+{
+    return RemoveFromContainer(m_KnotsViews, knotController);
+}
+
+bool CCurveEditorSplineView::CreateTangentView(const ICurveEditorTangentControllerSharedPtr& tangentController)
+{
+    return CreateView<ICurveEditorTangentView>(m_TangentsViews, m_EditorView, tangentController);
+}
+
+bool CCurveEditorSplineView::DestroyTangentView(const ICurveEditorTangentControllerSharedPtr& tangentController)
+{
+    return RemoveFromContainer(m_TangentsViews, tangentController);
+}
+
+bool CCurveEditorSplineView::CreateCurveView(const ICurveEditorCurveControllerSharedPtr& curveController)
+{
+    return CreateView<ICurveEditorCurveView>(m_CurvesViews, m_EditorView, curveController);
+}
+
+bool CCurveEditorSplineView::DestroyCurveView(const ICurveEditorCurveControllerSharedPtr& curveController)
+{
+    return RemoveFromContainer(m_CurvesViews, curveController);
+}
+
+void CCurveEditorSplineView::CreateKnotViews(ICurveEditorSplineController& controller)
+{
+    controller.VisitKnotsControllers([this](auto& knotController)
+    {
+        CreateKnotView(knotController);
+    });
+}
+
+void CCurveEditorSplineView::CreateTangentViews(ICurveEditorSplineController& controller)
+{
+    controller.VisitTangentsControllers([this](auto& tangentController)
+    {
+        CreateTangentView(tangentController);
+    });
+}
+
+void CCurveEditorSplineView::CreateCurveViews(ICurveEditorSplineController& controller)
+{
+    controller.VisitCurvesControllers([this](auto& curveController)
+    {
+        CreateCurveView(curveController);
+    });
 }
 
 ICurveEditorSplineViewUniquePtr CCurveEditorSplineViewFactory::Create(ICurveEditorView& editorView, const ICurveEditorSplineControllerSharedPtr&)

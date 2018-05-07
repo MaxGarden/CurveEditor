@@ -8,7 +8,7 @@ class ICurveEditorCurveView : public ICurveEditorSplineComponentView
 public:
     virtual ~ICurveEditorCurveView() override = default;
 
-    static ICurveEditorCurveViewSharedPtr Create(ICurveEditorView& editorView, size_t curveIndex);
+    static ICurveEditorCurveViewSharedPtr Create(ICurveEditorView& editorView);
 };
 
 #endif //__CURVE_EDITOR_CURVE_VIEW_COMPONENT_H__

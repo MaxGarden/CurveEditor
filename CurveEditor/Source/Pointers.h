@@ -14,6 +14,14 @@ DECLARE_POINTERS(ICurveEditorDataModel)
 DECLARE_POINTERS(ICurveEditorControllerListener)
 DECLARE_POINTERS(ICurveEditorController)
 
+DECLARE_POINTERS(ICurveEditorKnotController)
+DECLARE_POINTERS(ICurveEditorTangentController)
+DECLARE_POINTERS(ICurveEditorCurveController)
+
+DECLARE_POINTERS(ICurveEditorKnotControllerPrivate)
+DECLARE_POINTERS(ICurveEditorTangentControllerPrivate)
+DECLARE_POINTERS(ICurveEditorCurveControllerPrivate)
+
 DECLARE_POINTERS(ICurveEditorSplineDataModel)
 DECLARE_POINTERS(ICurveEditorSplineController)
 DECLARE_POINTERS(ICurveEditorSplineControllerFactory)
@@ -21,9 +29,13 @@ DECLARE_POINTERS(ICurveEditorSplineView)
 DECLARE_POINTERS(ICurveEditorSplineViewFactory)
 DECLARE_POINTERS(ICurveEditorSplineComponentView)
 
+DECLARE_POINTERS(ICurveEditorFunctionSplineController)
+
 DECLARE_POINTERS(IEditorTool)
 DECLARE_POINTERS(ICurveEditorTool)
 DECLARE_POINTERS(ICurveEditorComponentTool)
+
+DECLARE_POINTERS(ICurveEditorSplineView)
 
 DECLARE_POINTERS(ICurveEditorCurveView)
 DECLARE_POINTERS(ICurveEditorKnotView)

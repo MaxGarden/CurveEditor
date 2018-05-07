@@ -21,8 +21,12 @@ SOURCES += \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
     Source/CurveEditor/CurveEditorListenerBase.cpp              \
+    Source/CurveEditor/CurveEditorSplineListenerBase.cpp        \
     Source/CurveEditor/CurveEditorFactory.cpp                   \
     Source/CurveEditor/SplineDataModel.cpp                      \
+    Source/CurveEditor/KnotController.cpp                       \
+    Source/CurveEditor/TangentController.cpp                    \
+    Source/CurveEditor/CurveController.cpp                      \
     Source/CurveEditor/SplineController.cpp                     \
     Source/CurveEditor/SplineControllerFactory.cpp              \
     Source/CurveEditor/SplineFunctionController.cpp             \
@@ -68,8 +72,12 @@ HEADERS += \
     Source/CurveEditor/CurveEditorDataModel.h                   \
     Source/CurveEditor/CurveEditorController.h                  \
     Source/CurveEditor/CurveEditorListenerBase.h                \
+    Source/CurveEditor/CurveEditorSplineListenerBase.h          \
     Source/CurveEditor/CurveEditorFactory.h                     \
     Source/CurveEditor/SplineDataModel.h                        \
+    Source/CurveEditor/KnotController.h                         \
+    Source/CurveEditor/TangentController.h                      \
+    Source/CurveEditor/CurveController.h                        \
     Source/CurveEditor/SplineController.h                       \
     Source/CurveEditor/SplineControllerFactory.h                \
     Source/CurveEditor/SplineFunctionController.h               \

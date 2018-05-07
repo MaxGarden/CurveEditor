@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CurveViewComponent.h"
-#include "SplineController.h"
+#include "CurveController.h"
 #include "CurveEditorView.h"
 #include "EditorRenderableBase.h"
 #include "SplineComponentViewBase.h"
@@ -20,11 +20,11 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorCurveView final : public CCurveEditorSplineComponentViewBase<ICurveEditorCurveView, ECurveEditorSplineComponentType::Curve>, public std::enable_shared_from_this<CCurveEditorCurveView>
+class CCurveEditorCurveView final : public CCurveEditorSplineComponentViewBase<ICurveEditorCurveView, ICurveEditorCurveController,ECurveEditorSplineComponentType::Curve>, public std::enable_shared_from_this<CCurveEditorCurveView>
 {
 friend CCurveEditorCurveBorderRenderable;
 public:
-    CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex);
+    CCurveEditorCurveView(ICurveEditorView& editorView);
     virtual ~CCurveEditorCurveView() override final = default;
 
     virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
@@ -33,16 +33,13 @@ public:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& splineController) override final;
+    virtual void OnFrame(ImDrawList& drawList, ICurveEditorCurveController& splineController) override final;
 
 private:
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
 
     std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
     std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions(bool screenTranslation) const noexcept;
-
-private:
-    const size_t m_CurveIndex;
 };
 
 CCurveEditorCurveBorderRenderable::CCurveEditorCurveBorderRenderable(CCurveEditorCurveViewConstWeakPtr&& curveView, ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) :
@@ -77,9 +74,8 @@ void CCurveEditorCurveBorderRenderable::OnFrame(ImDrawList& drawList)
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), color, *thickness);
 }
 
-CCurveEditorCurveView::CCurveEditorCurveView(ICurveEditorView& editorView, size_t curveIndex) :
-    CCurveEditorSplineComponentViewBase(editorView),
-    m_CurveIndex(curveIndex)
+CCurveEditorCurveView::CCurveEditorCurveView(ICurveEditorView& editorView) :
+    CCurveEditorSplineComponentViewBase(editorView)
 {
 }
 
@@ -181,7 +177,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetControlPointsPositio
 
     std::array<ax::pointf, 4> controlPoints;
 
-    const auto visitationResult = controller->VisitCurvePoints(m_CurveIndex, [iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
+    const auto visitationResult = controller->VisitCurvePoints([iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
     {
         EDITOR_ASSERT(iterator != endIterator);
         if (iterator != endIterator)
@@ -216,7 +212,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetEditorControlPointsP
     return controlPoints;
 }
 
-void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineController& splineController)
+void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorCurveController& splineController)
 {
     const auto controlPoints = GetEditorControlPointsPositions(true);
     EDITOR_ASSERT(controlPoints);
@@ -236,7 +232,7 @@ void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorSplineCont
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
 }
 
-ICurveEditorCurveViewSharedPtr ICurveEditorCurveView::Create(ICurveEditorView& editorView, size_t curveIndex)
+ICurveEditorCurveViewSharedPtr ICurveEditorCurveView::Create(ICurveEditorView& editorView)
 {
-    return std::make_shared<CCurveEditorCurveView>(editorView, curveIndex);
+    return std::make_shared<CCurveEditorCurveView>(editorView);
 }

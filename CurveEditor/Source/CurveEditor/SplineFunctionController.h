@@ -5,33 +5,12 @@
 #include "SplineController.h"
 #include "EditorControllerBase.h"
 
-class CCurveEditorFunctionSplineController final : public CEditorControllerBase<ICurveEditorSplineController, ICurveEditorSplineDataModel, ICurveEditorSplineListener>
+class ICurveEditorFunctionSplineController : public ICurveEditorSplineController
 {
 public:
-    CCurveEditorFunctionSplineController() = default;
-    virtual ~CCurveEditorFunctionSplineController() override final = default;
+    virtual ~ICurveEditorFunctionSplineController() override = default;
 
-    virtual const SplineID& GetID() const noexcept override final;
-    virtual const SplineColor& GetColor() const noexcept override final;
-
-    virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
-
-    virtual bool VisitCurvePoints(size_t curveIndex, const CurveConstVisitor& visitor) const noexcept override final;
-    virtual size_t GetCurvesCount() const noexcept override final;
-
-    virtual std::optional<ax::pointf> GetKnot(size_t knotIndex) const noexcept override final;
-    virtual size_t GetKnotsCount() const noexcept override final;
-
-    virtual std::optional<ax::pointf> GetTangent(size_t tangentIndex) const noexcept override final;
-    virtual size_t GetTangentsCount() const noexcept override final;
-
-protected:
-    virtual void OnDataModelChanged() override final;
-
-private:
-    void OnSplineModified() noexcept;
-    void SortControlPoints(std::vector<ax::pointf>& controlPoints) noexcept;
+    static ICurveEditorFunctionSplineControllerUniquePtr Create();
 };
-
 
 #endif //__CURVE_EDITOR_FUNCTION_SPLINE_CONTROLLER__
