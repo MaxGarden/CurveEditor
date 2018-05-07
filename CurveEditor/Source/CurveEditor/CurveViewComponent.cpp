@@ -20,7 +20,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorCurveView final : public CCurveEditorSplineComponentViewBase<ICurveEditorCurveView>, public std::enable_shared_from_this<CCurveEditorCurveView>
+class CCurveEditorCurveView final : public CCurveEditorSplineComponentViewBase<ICurveEditorCurveView, ECurveEditorSplineComponentType::Curve>, public std::enable_shared_from_this<CCurveEditorCurveView>
 {
 friend CCurveEditorCurveBorderRenderable;
 public:
@@ -29,8 +29,6 @@ public:
 
     virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
-
-    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
@@ -143,11 +141,6 @@ bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowInterse
         return true;
 
     return false;
-}
-
-ECurveEditorSplineComponentType CCurveEditorCurveView::GetType() const noexcept
-{
-    return ECurveEditorSplineComponentType::Curve;
 }
 
 IEditorRenderableUniquePtr CCurveEditorCurveView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const

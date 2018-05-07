@@ -20,7 +20,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorTangentView final : public CCurveEditorSplineComponentViewBase<ICurveEditorTangentView>, public std::enable_shared_from_this<CCurveEditorTangentView>
+class CCurveEditorTangentView final : public CCurveEditorSplineComponentViewBase<ICurveEditorTangentView, ECurveEditorSplineComponentType::Tangent>, public std::enable_shared_from_this<CCurveEditorTangentView>
 {
 friend CCurveEditorTangentBorderRenderable;
 public:
@@ -29,8 +29,6 @@ public:
 
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
-
-    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
@@ -144,11 +142,6 @@ bool CCurveEditorTangentView::IsColliding(const ax::rectf& rect, bool allowInter
 
         return rect.contains(*bounds);
     }
-}
-
-ECurveEditorSplineComponentType CCurveEditorTangentView::GetType() const noexcept
-{
-    return ECurveEditorSplineComponentType::Tangent;
 }
 
 IEditorRenderableUniquePtr CCurveEditorTangentView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const

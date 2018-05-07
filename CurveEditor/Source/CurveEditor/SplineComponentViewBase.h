@@ -3,10 +3,11 @@
 
 #include "Style.h"
 #include "EditorViewBase.h"
-#include "SplineComponentView.h"
+#include "SplineDataModel.h"
 #include "SplineController.h"
+#include "SplineComponentView.h"
 
-template<typename SuperClass>
+template<typename SuperClass, ECurveEditorSplineComponentType SplineComponentType>
 class CCurveEditorSplineComponentViewBase : public CEditorViewBase<SuperClass, ICurveEditorSplineController>
 {
 public:
@@ -15,12 +16,15 @@ public:
 
     virtual void OnFrame() override;
 
+    virtual const SplineID& GetSplineID() const noexcept override final;
+    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
+
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller);
 
     ICurveEditorView& GetEditorView() const noexcept;
 
-    using Super = CCurveEditorSplineComponentViewBase<SuperClass>;
+    using Super = CCurveEditorSplineComponentViewBase<SuperClass, SplineComponentType>;
 
 private:
     ICurveEditorView& m_EditorView;

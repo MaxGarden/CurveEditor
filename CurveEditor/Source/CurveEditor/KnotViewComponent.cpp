@@ -21,7 +21,7 @@ protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
-class CCurveEditorKnotView final : public CCurveEditorSplineComponentViewBase<ICurveEditorKnotView>, public std::enable_shared_from_this<CCurveEditorKnotView>
+class CCurveEditorKnotView final : public CCurveEditorSplineComponentViewBase<ICurveEditorKnotView, ECurveEditorSplineComponentType::Knot>, public std::enable_shared_from_this<CCurveEditorKnotView>
 {
 friend CCurveEditorKnotBorderRenderable;
 public:
@@ -30,8 +30,6 @@ public:
 
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
-
-    virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorSplineController& controller) override final;
@@ -102,11 +100,6 @@ bool CCurveEditorKnotView::IsColliding(const ax::rectf& rect, bool allowIntersec
         return false;
 
     return !bounds->is_empty() && (allowIntersect ? bounds->intersects(rect) : rect.contains(*bounds));
-}
-
-ECurveEditorSplineComponentType CCurveEditorKnotView::GetType() const noexcept
-{
-    return ECurveEditorSplineComponentType::Knot;
 }
 
 IEditorRenderableUniquePtr CCurveEditorKnotView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const
