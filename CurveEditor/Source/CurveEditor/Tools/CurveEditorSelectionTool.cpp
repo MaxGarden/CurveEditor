@@ -26,9 +26,9 @@ void CCurveEditorSelectionTool::OnReleased(const CCurveEditorToolEvent&)
     m_SelectionViewComponent.reset();
 }
 
-void CCurveEditorSelectionTool::OnClick(const CCurveEditorToolMouseButtonEvent& event)
+void CCurveEditorSelectionTool::OnClickUp(const CCurveEditorToolMouseButtonEvent& event)
 {
-    if (event.GetMouseButton() != GetActivationMouseButton())
+    if (!CheckActivationButton(event))
         return;
 
     const auto splineViewComponent = m_SplinesViewComponent.lock();
@@ -36,7 +36,7 @@ void CCurveEditorSelectionTool::OnClick(const CCurveEditorToolMouseButtonEvent& 
     if (!splineViewComponent)
         return;
 
-    const auto clickedSplineComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition(), ECurveEditorSplineComponentType::Knot);
+    const auto clickedSplineComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition(), m_SelectionType);
 
     const auto selectionViewComponent = m_SelectionViewComponent.lock();
     EDITOR_ASSERT(selectionViewComponent);
@@ -77,6 +77,27 @@ void CCurveEditorSelectionTool::OnModifierDeactivated(const CCurveEditorToolModi
         m_TogglingMode = false;
 }
 
+bool CCurveEditorSelectionTool::AcceptSelection(const CCurveEditorToolMouseButtonEvent& event)
+{
+    const auto splineViewComponent = m_SplinesViewComponent.lock();
+    EDITOR_ASSERT(splineViewComponent);
+    if (!splineViewComponent)
+        return false;
+
+    return splineViewComponent->GetSplineComponentAt(event.GetMousePosition()) == nullptr;
+}
+
+void CCurveEditorSelectionTool::OnSelectionBegin(ICurveEditorView&)
+{
+    if (m_TogglingMode)
+        return;
+
+    const auto selectionViewComponent = m_SelectionViewComponent.lock();
+    EDITOR_ASSERT(selectionViewComponent);
+    if (selectionViewComponent)
+        selectionViewComponent->ClearSelection();
+}
+
 void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, const ax::rectf& selectionRect)
 {
     const auto splineViewComponent = m_SplinesViewComponent.lock();
@@ -92,7 +113,7 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
         componentsInRect.emplace(&splineComponent);
     };
 
-    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, ECurveEditorSplineComponentType::Knot, editorStyle.SelectionViaIntersection);
+    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_SelectionType, editorStyle.SelectionViaIntersection);
 
     if (m_LastSelectedSplineComponents == componentsInRect)
         return;

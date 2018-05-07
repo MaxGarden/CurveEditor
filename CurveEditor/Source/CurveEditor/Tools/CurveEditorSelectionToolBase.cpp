@@ -54,7 +54,10 @@ CCurveEditorSelectionToolBase::CCurveEditorSelectionToolBase(ECurveEditorMouseBu
 
 void CCurveEditorSelectionToolBase::OnDragBegin(const CCurveEditorToolMouseButtonEvent& event)
 {
-    if (event.GetMouseButton() != m_ActivationMouseButton)
+    if(!CheckActivationButton(event))
+        return;
+
+    if (!(m_SelectionAccepted = AcceptSelection(event)))
         return;
 
     m_DragStartPosition = event.GetMousePosition();
@@ -73,7 +76,7 @@ void CCurveEditorSelectionToolBase::OnDragBegin(const CCurveEditorToolMouseButto
 
 void CCurveEditorSelectionToolBase::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)
 {
-    if (event.GetMouseButton() != m_ActivationMouseButton)
+    if (!m_SelectionAccepted || !CheckActivationButton(event))
         return;
 
     const auto& mousePosition = event.GetMousePosition();
@@ -91,7 +94,7 @@ void CCurveEditorSelectionToolBase::OnDragUpdate(const CCurveEditorToolMouseDrag
 
 void CCurveEditorSelectionToolBase::OnDragEnd(const CCurveEditorToolMouseButtonEvent& event)
 {
-    if (event.GetMouseButton() != m_ActivationMouseButton)
+    if (!m_SelectionAccepted || !CheckActivationButton(event))
         return;
 
     OnSelectionEnd(event.GetEditorView());
@@ -111,6 +114,12 @@ const std::optional<ax::rectf>& CCurveEditorSelectionToolBase::GetSelectionRect(
     return m_SelectionRect;
 }
 
+bool CCurveEditorSelectionToolBase::AcceptSelection(const CCurveEditorToolMouseButtonEvent&)
+{
+    //to override
+    return true;
+}
+
 void CCurveEditorSelectionToolBase::OnSelectionBegin(ICurveEditorView&)
 {
     //to override
@@ -126,7 +135,7 @@ void CCurveEditorSelectionToolBase::OnSelectionEnd(ICurveEditorView&)
     //to override
 }
 
-ECurveEditorMouseButton CCurveEditorSelectionToolBase::GetActivationMouseButton() const noexcept
+bool CCurveEditorSelectionToolBase::CheckActivationButton(const CCurveEditorToolMouseButtonEvent& event) const noexcept
 {
-    return m_ActivationMouseButton;
+    return event.GetMouseButton() == m_ActivationMouseButton;
 }

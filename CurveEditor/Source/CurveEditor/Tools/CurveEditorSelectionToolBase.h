@@ -16,15 +16,18 @@ public:
     const std::optional<ax::rectf>& GetSelectionRect() const noexcept;
 
 protected:
+    virtual bool AcceptSelection(const CCurveEditorToolMouseButtonEvent& event);
+
     virtual void OnSelectionBegin(ICurveEditorView& editorView);
     virtual void OnSelectionUpdate(ICurveEditorView& editorView, const ax::rectf& selectionRect);
     virtual void OnSelectionEnd(ICurveEditorView& editorView);
 
-    ECurveEditorMouseButton GetActivationMouseButton() const noexcept;
+    bool CheckActivationButton(const CCurveEditorToolMouseButtonEvent& event) const noexcept;
 
 private:
     const ECurveEditorMouseButton m_ActivationMouseButton = ECurveEditorMouseButton::Left;
 
+    bool m_SelectionAccepted = false;
     ax::pointf m_DragStartPosition;
     std::optional<ax::rectf> m_SelectionRect;
     std::optional<ToolViewHandle> m_SelectionViewHandle;
