@@ -177,6 +177,9 @@ void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& ed
             return;
     }
 
+    if(!m_IsActive)
+        m_KeyboardsKeyHandler.DeactivateModifiers(activeTool.get());
+
     if (!activeTool)
         return;
 
