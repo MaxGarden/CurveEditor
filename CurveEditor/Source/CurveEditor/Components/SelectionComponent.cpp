@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "SelectionComponent.h"
-#include "CurveEditorListenerBase.h"
 #include "Components/SplinesComponent.h"
 #include "CurveEditorViewVisibleComponentBase.h"
+#include "CurveEditorSelectionView.h"
+#include "CurveEditorSelectionController.h"
 
 class CCurveEditorSelectionViewComponent final : public CCurveEditorViewVisibleComponentBase<ICurveEditorSelectionViewComponent>
 {
@@ -16,46 +17,24 @@ public:
 
     virtual void ClearSelection() override final;
 
-    virtual bool AddToSelection(const ICurveEditorSplineComponentView& splineComponent) override final;
-    virtual bool AddToSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents) override final;
-
-    virtual bool RemoveFromSelection(const ICurveEditorSplineComponentView& splineComponent) override final;
-    virtual bool RemoveFromSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents) override final;
+    virtual bool AddToSelection(const CurveEditorViewSelection& selection) override final;
+    virtual bool RemoveFromSelection(const CurveEditorViewSelection& selection) override final;
 
     virtual bool CheckIfSelected(const ICurveEditorSplineComponentView& splineComponent) const noexcept override final;
 
-    void OnSelectionChanged();
-
 protected:
-    virtual IEditorListenerUniquePtr CreateListener() override final;
+    virtual void OnControllerChanged() override final;
 
 private:
-    ICurveEditorSplinesViewComponentWeakPtr m_SplineViewComponent;
-    std::map<const ICurveEditorSplineComponentView*, IEditorRenderableUniquePtr> m_SelectionBorders;
-};
+    ICurveEditorSelectionController* GetSelectionController() const noexcept;
 
-class CCurveEditorSelectionViewComponentListener final : public CCurveEditorControllerListenerBase
-{
-public:
-    CCurveEditorSelectionViewComponentListener(CCurveEditorSelectionViewComponent& selectionViewComponent);
-    virtual ~CCurveEditorSelectionViewComponentListener() override final = default;
-
-    virtual void OnSelectionChanged() override final;
+    CurveEditorDataModelSingleSelection TransformSingleSelection(const ICurveEditorSplineComponentView& splineComponentView) const noexcept;
+    CurveEditorDataModelSelection TransformSelectiom(const CurveEditorViewSelection& selection) const noexcept;
 
 private:
-    CCurveEditorSelectionViewComponent& m_SelectionViewComponent;
+    ICurveEditorSelectionViewUniquePtr m_SelectionView;
+    ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
 };
-
-
-CCurveEditorSelectionViewComponentListener::CCurveEditorSelectionViewComponentListener(CCurveEditorSelectionViewComponent& selectionViewComponent) :
-    m_SelectionViewComponent(selectionViewComponent)
-{
-}
-
-void CCurveEditorSelectionViewComponentListener::OnSelectionChanged()
-{
-    m_SelectionViewComponent.OnSelectionChanged();
-}
 
 CCurveEditorSelectionViewComponent::CCurveEditorSelectionViewComponent(ICurveEditorView& editorView) :
     CCurveEditorViewVisibleComponentBase(editorView)
@@ -64,89 +43,126 @@ CCurveEditorSelectionViewComponent::CCurveEditorSelectionViewComponent(ICurveEdi
 
 bool CCurveEditorSelectionViewComponent::Initialize()
 {
-    m_SplineViewComponent = GetViewComponent<ICurveEditorSplinesViewComponent>(GetEditorView());
+    m_SelectionView = ICurveEditorSelectionView::Create();
+    EDITOR_ASSERT(m_SelectionView);
+    if (!m_SelectionView)
+        return false;
 
-    return !m_SplineViewComponent.expired();
+    m_SplinesViewComponent = GetViewComponent<ICurveEditorSplinesViewComponent>(GetEditorView());
+    if (m_SplinesViewComponent.expired())
+        return false;
+
+    const auto result = m_SelectionView->SetSplineViewGetter([this](const auto& splineID) -> ICurveEditorSplineView*
+    {
+        if (const auto splineViewComponent = m_SplinesViewComponent.lock())
+            return splineViewComponent->GetSplineView(splineID);
+
+        return nullptr;
+    });
+
+    EDITOR_ASSERT(result);
+    if (!result)
+        return false;
+
+    return !m_SplinesViewComponent.expired();
 }
 
 void CCurveEditorSelectionViewComponent::OnFrame()
 {
-    VisitPointersMap(m_SelectionBorders, [](auto& selectionBorder)
-    {
-        selectionBorder.OnFrame();
-    });
+    EDITOR_ASSERT(m_SelectionView);
+    if (m_SelectionView)
+        m_SelectionView->OnFrame();
 }
 
 void CCurveEditorSelectionViewComponent::ClearSelection()
 {
-    m_SelectionBorders.clear();
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return;
+
+    const auto result = selectionController->ClearSelection();
+    EDITOR_ASSERT(result);
 }
 
-bool CCurveEditorSelectionViewComponent::AddToSelection(const ICurveEditorSplineComponentView& splineComponent)
+bool CCurveEditorSelectionViewComponent::AddToSelection(const CurveEditorViewSelection& selection)
 {
-    return AddToSelection(std::set<const ICurveEditorSplineComponentView*>{ &splineComponent });
-}
-
-bool CCurveEditorSelectionViewComponent::AddToSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents)
-{
-    for (const auto splineComponent : splineComponents)
-    {
-        EDITOR_ASSERT(splineComponent);
-        if (!splineComponent || m_SelectionBorders.find(splineComponent) != m_SelectionBorders.cend())
-            continue;
-
-        auto selectionBorder = splineComponent->CreateBorderRenderable(CurveEditorStyleColor_SelectionBorder, CurveEditorStyleFloat_SelectionBorderThickness);
-        EDITOR_ASSERT(selectionBorder);
-        if (!selectionBorder)
-            continue;
-
-        m_SelectionBorders.emplace(splineComponent, std::move(selectionBorder));
-    }
-
-    return true;
-}
-
-bool CCurveEditorSelectionViewComponent::RemoveFromSelection(const ICurveEditorSplineComponentView& splineComponent)
-{
-    const auto iterator = m_SelectionBorders.find(&splineComponent);
-    if (iterator == m_SelectionBorders.cend())
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
         return false;
 
-    m_SelectionBorders.erase(iterator);
-    return true;
+    const auto result = selectionController->AddToSelection(TransformSelectiom(selection));
+    EDITOR_ASSERT(result);
+
+    return result;
 }
 
-bool CCurveEditorSelectionViewComponent::RemoveFromSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents)
+bool CCurveEditorSelectionViewComponent::RemoveFromSelection(const CurveEditorViewSelection& selection)
 {
-    for (const auto splineComponent : splineComponents)
-    {
-        EDITOR_ASSERT(splineComponent);
-        if (!splineComponent)
-            continue;
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return false;
 
-        const auto iterator = m_SelectionBorders.find(splineComponent);
-        EDITOR_ASSERT(iterator != m_SelectionBorders.cend());
-        if (iterator == m_SelectionBorders.cend())
-            continue;
+    const auto result = selectionController->RemoveFromSelection(TransformSelectiom(selection));
+    EDITOR_ASSERT(result);
 
-        m_SelectionBorders.erase(iterator);
-    }
-
-    return true;
+    return result;
 }
 
 bool CCurveEditorSelectionViewComponent::CheckIfSelected(const ICurveEditorSplineComponentView& splineComponent) const noexcept
 {
-    return m_SelectionBorders.find(&splineComponent) != m_SelectionBorders.cend();
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return false;
+
+    return selectionController->CheckIfSelected(TransformSingleSelection(splineComponent));
 }
 
-void CCurveEditorSelectionViewComponent::OnSelectionChanged()
+void CCurveEditorSelectionViewComponent::OnControllerChanged()
 {
+    if (!m_SelectionView)
+        return;
+
+    if (const auto& controller = GetController())
+        m_SelectionView->SetController(controller->GetSelectionController());
+    else
+        m_SelectionView->SetController(nullptr);
 }
 
-IEditorListenerUniquePtr CCurveEditorSelectionViewComponent::CreateListener()
+ICurveEditorSelectionController* CCurveEditorSelectionViewComponent::GetSelectionController() const noexcept
 {
-    return std::make_unique<CCurveEditorSelectionViewComponentListener>(*this);
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return nullptr;
+
+    return controller->GetSelectionController().get();
+}
+
+CurveEditorDataModelSingleSelection CCurveEditorSelectionViewComponent::TransformSingleSelection(const ICurveEditorSplineComponentView& splineComponentView) const noexcept
+{
+    const auto& componentIndex = splineComponentView.GetIndex();
+    EDITOR_ASSERT(componentIndex);
+    if (!componentIndex)
+        return{};
+
+    return std::make_pair<>(splineComponentView.GetSplineID(), *componentIndex);
+}
+
+CurveEditorDataModelSelection CCurveEditorSelectionViewComponent::TransformSelectiom(const CurveEditorViewSelection& selection) const noexcept
+{
+    CurveEditorDataModelSelection result;
+
+    VisitPointersContainer(selection, [this, &result](const auto& splineComponentView)
+    {
+        result.emplace(TransformSingleSelection(splineComponentView));
+    });
+
+    EDITOR_ASSERT(result.size() == selection.size());
+    return result;
 }
 
 ICurveEditorSelectionViewComponentUniquePtr ICurveEditorSelectionViewComponent::Create(ICurveEditorView& editorView)

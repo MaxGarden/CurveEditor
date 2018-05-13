@@ -2,9 +2,9 @@
 #if !defined(__CURVE_EDITOR_KNOT_CONTROLLER__)
 
 #include "ax/ax.h"
-#include "EditorController.h"
+#include "SplineController.h"
 
-class ICurveEditorKnotController : public IEditorController
+class ICurveEditorKnotController : public ICurveEditorSplineComponentController
 {
 public:
     virtual ~ICurveEditorKnotController() override = default;

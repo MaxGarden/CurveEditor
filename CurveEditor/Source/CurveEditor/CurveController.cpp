@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "CurveController.h"
-#include "SplineController.h"
-#include "EditorControllerBase.h"
+#include "SplineComponentControllerBase.h"
 
-class CCurveEditorCurveControllerPrivate final : public CEditorControllerBase<ICurveEditorCurveControllerPrivate, ICurveEditorSplineDataModel, IEditorListener>
+class CCurveEditorCurveControllerPrivate final : public CCurveEditorSplineComponentControllerBase<ICurveEditorCurveControllerPrivate, ECurveEditorSplineComponentType::Curve>
 {
 public:
     CCurveEditorCurveControllerPrivate() = default;
@@ -13,8 +12,10 @@ public:
     virtual const SplineColor& GetColor() const noexcept override final;
 
     virtual bool SetCurveIndex(size_t curveIndex) noexcept override final;
+    virtual std::optional<size_t> GetIndex() const noexcept override final;
 
 private:
+    std::optional<size_t> m_CurveIndex;
     std::optional<std::pair<size_t, size_t>> m_ControlPointsRange;
 };
 
@@ -34,12 +35,7 @@ bool CCurveEditorCurveControllerPrivate::VisitCurvePoints(const ConstVisitorType
     if (firstControlPointIndex >= lastControlPointIndex)
         return false;
 
-    const auto& dataModel = GetDataModel();
-    EDITOR_ASSERT(dataModel);
-    if (!dataModel)
-        return false;
-
-    const auto& controlPoints = dataModel->GetControlPoints();
+    const auto& controlPoints = GetControlPoints();
     EDITOR_ASSERT(lastControlPointIndex <= controlPoints.size());
     if (lastControlPointIndex > controlPoints.size())
         return false;
@@ -63,12 +59,7 @@ const SplineColor& CCurveEditorCurveControllerPrivate::GetColor() const noexcept
 
 bool CCurveEditorCurveControllerPrivate::SetCurveIndex(size_t curveIndex) noexcept
 {
-    const auto& dataModel = GetDataModel();
-    EDITOR_ASSERT(dataModel);
-    if (!dataModel)
-        return false;
-
-    const auto& controlPoints = dataModel->GetControlPoints();
+   const auto& controlPoints = GetControlPoints();
 
     const auto controlPointsPerCurve = ICurveEditorSplineController::ControlPointsPerCurve();
     const auto firstControlPointIndex = curveIndex * (controlPointsPerCurve - 1);
@@ -78,8 +69,14 @@ bool CCurveEditorCurveControllerPrivate::SetCurveIndex(size_t curveIndex) noexce
     if (lastControlPointIndex > controlPoints.size())
         return false;
 
+    m_CurveIndex = curveIndex;
     m_ControlPointsRange = { firstControlPointIndex, lastControlPointIndex };
     return true;
+}
+
+std::optional<size_t> CCurveEditorCurveControllerPrivate::GetIndex() const noexcept
+{
+    return m_CurveIndex;
 }
 
 ICurveEditorCurveControllerPrivateUniquePtr ICurveEditorCurveControllerPrivate::Create()

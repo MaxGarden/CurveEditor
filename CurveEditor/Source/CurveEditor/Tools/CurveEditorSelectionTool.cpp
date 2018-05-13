@@ -43,26 +43,28 @@ void CCurveEditorSelectionTool::OnClickUp(const CCurveEditorToolMouseButtonEvent
     if (!selectionViewComponent)
         return;
 
-    const auto selectionResult = [this, &selectionViewComponent, &clickedSplineComponent]()
+    if (!m_TogglingMode)
     {
-        if (!m_TogglingMode)
+        selectionViewComponent->ClearSelection();
+        if (clickedSplineComponent)
         {
-            selectionViewComponent->ClearSelection();
-            if (clickedSplineComponent)
-                return selectionViewComponent->AddToSelection(*clickedSplineComponent);
+            const auto result = selectionViewComponent->AddToSelection({ clickedSplineComponent });
+            EDITOR_ASSERT(result);
         }
-        else if (clickedSplineComponent)
+    }
+    else if (clickedSplineComponent)
+    {
+        if (selectionViewComponent->CheckIfSelected(*clickedSplineComponent))
         {
-            if (selectionViewComponent->CheckIfSelected(*clickedSplineComponent))
-                return selectionViewComponent->RemoveFromSelection(*clickedSplineComponent);
-            else
-                return selectionViewComponent->AddToSelection(*clickedSplineComponent);
+            const auto result = selectionViewComponent->RemoveFromSelection({ clickedSplineComponent });
+            EDITOR_ASSERT(result);
         }
-
-        return true;
-    }();
-
-    EDITOR_ASSERT(selectionResult);
+        else
+        {
+            const auto result = selectionViewComponent->AddToSelection({ clickedSplineComponent });
+            EDITOR_ASSERT(result);
+        }
+    }
 }
 
 void CCurveEditorSelectionTool::OnModifierActivated(const CCurveEditorToolModifierEvent& event)
@@ -89,7 +91,8 @@ bool CCurveEditorSelectionTool::AcceptSelection(const CCurveEditorToolMouseButto
 
 void CCurveEditorSelectionTool::OnSelectionBegin(ICurveEditorView&)
 {
-    if (m_TogglingMode)
+    m_TogglingSelection = m_TogglingMode;
+    if (m_TogglingSelection)
         return;
 
     const auto selectionViewComponent = m_SelectionViewComponent.lock();
@@ -105,22 +108,29 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
     if (!splineViewComponent)
         return;
 
+    const auto selectionViewComponent = m_SelectionViewComponent.lock();
+    EDITOR_ASSERT(selectionViewComponent);
+    if (!selectionViewComponent)
+        return;
+
     const auto& editorStyle = editorView.GetEditorStyle();
 
     decltype(m_LastSelectedSplineComponents) componentsInRect;
-    const auto visitor = [&componentsInRect](auto& splineComponent)
+    const auto visitor = [this, &componentsInRect, &selectionViewComponent](auto& splineComponent)
     {
+        if (m_TogglingSelection)
+        {
+            if (selectionViewComponent->CheckIfSelected(splineComponent) &&
+                m_LastSelectedSplineComponents.find(&splineComponent) == m_LastSelectedSplineComponents.cend())
+                return;
+        }
+
         componentsInRect.emplace(&splineComponent);
     };
 
     splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_SelectionType, editorStyle.SelectionViaIntersection);
 
     if (m_LastSelectedSplineComponents == componentsInRect)
-        return;
-
-    const auto selectionViewComponent = m_SelectionViewComponent.lock();
-    EDITOR_ASSERT(selectionViewComponent);
-    if (!selectionViewComponent)
         return;
 
     decltype(componentsInRect) componentsToDeselect;

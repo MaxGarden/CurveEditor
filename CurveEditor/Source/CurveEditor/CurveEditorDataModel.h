@@ -4,7 +4,6 @@
 #include "Style.h"
 #include "EditorView.h"
 #include "EditorDataModel.h"
-#include "EditorListenableBase.h"
 #include "SplineDataModel.h"
 
 class ICurveEditorDataModelListener : public IEditorListener
@@ -16,6 +15,8 @@ public:
 
     virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
+
+    virtual void OnSelectionDataModelChanged(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel) = 0;
 };
 
 class ICurveEditorDataModel : public IEditorDataModel
@@ -31,6 +32,9 @@ public:
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept = 0;
     virtual void VisitSplineDataModels(const ConstVisitorType<ICurveEditorSplineDataModelSharedPtr>& visitor) const noexcept = 0;
+
+    virtual void SetSelectionDataModel(ICurveEditorSelectionDataModelSharedPtr&& selectionDataModel) = 0;
+    virtual const ICurveEditorSelectionDataModelSharedPtr& GetSelectionDataModel() const noexcept = 0;
 
     static ICurveEditorDataModelUniquePtr Create();
 };

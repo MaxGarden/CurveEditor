@@ -22,7 +22,11 @@ SOURCES += \
     Source/CurveEditor/CurveEditorController.cpp                \
     Source/CurveEditor/CurveEditorListenerBase.cpp              \
     Source/CurveEditor/CurveEditorSplineListenerBase.cpp        \
+    Source/CurveEditor/CurveEditorSelectionListenerBase.cpp     \
     Source/CurveEditor/CurveEditorFactory.cpp                   \
+    Source/CurveEditor/CurveEditorSelectionDataModel.cpp        \
+    Source/CurveEditor/CurveEditorSelectionController.cpp       \
+    Source/CurveEditor/CurveEditorSelectionView.cpp             \
     Source/CurveEditor/SplineDataModel.cpp                      \
     Source/CurveEditor/KnotController.cpp                       \
     Source/CurveEditor/TangentController.cpp                    \
@@ -73,7 +77,11 @@ HEADERS += \
     Source/CurveEditor/CurveEditorController.h                  \
     Source/CurveEditor/CurveEditorListenerBase.h                \
     Source/CurveEditor/CurveEditorSplineListenerBase.h          \
+    Source/CurveEditor/CurveEditorSelectionListenerBase.h       \
     Source/CurveEditor/CurveEditorFactory.h                     \
+    Source/CurveEditor/CurveEditorSelectionDataModel.h          \
+    Source/CurveEditor/CurveEditorSelectionController.h         \
+    Source/CurveEditor/CurveEditorSelectionView.h               \
     Source/CurveEditor/SplineDataModel.h                        \
     Source/CurveEditor/KnotController.h                         \
     Source/CurveEditor/TangentController.h                      \
@@ -82,6 +90,8 @@ HEADERS += \
     Source/CurveEditor/SplineControllerFactory.h                \
     Source/CurveEditor/SplineFunctionController.h               \
     Source/CurveEditor/SplineView.h                             \
+    Source/CurveEditor/SplineComponentControllerBase.h          \
+    Source/CurveEditor/SplineComponentControllerBase.inl        \
     Source/CurveEditor/SplineComponentView.h                    \
     Source/CurveEditor/SplineComponentViewBase.h                \
     Source/CurveEditor/SplineComponentViewBase.inl              \

@@ -1,11 +1,13 @@
 #include "pch.h"
 #include "CurveEditorDataModel.h"
+#include "EditorListenableBase.h"
+#include "CurveEditorSelectionDataModel.h"
 
 class CCurveEditorDataModel final : public CEditorListenableBase<ICurveEditorDataModel, ICurveEditorDataModelListener>
 {
 public:
     CCurveEditorDataModel() = default;
-    virtual ~CCurveEditorDataModel() override final = default;
+    virtual ~CCurveEditorDataModel() override final;
 
     virtual void SetStyle(SCurveEditorStyle&& style) override final;
     virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
@@ -16,13 +18,26 @@ public:
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
     virtual void VisitSplineDataModels(const ConstVisitorType<ICurveEditorSplineDataModelSharedPtr>& visitor) const noexcept override final;
 
+    virtual void SetSelectionDataModel(ICurveEditorSelectionDataModelSharedPtr&& selectionDataModel) override final;
+    virtual const ICurveEditorSelectionDataModelSharedPtr& GetSelectionDataModel() const noexcept override final;
+
 private:
     SplineID GenerateFreeSplineID() const noexcept;
 
 private:
     SCurveEditorStyle m_EditorStyle;
     std::vector<ICurveEditorSplineDataModelSharedPtr> m_SplinesDataModels;
+    ICurveEditorSelectionDataModelSharedPtr m_SelectionDataModel;
 };
+
+CCurveEditorDataModel::~CCurveEditorDataModel()
+{
+    if (m_SelectionDataModel)
+    {
+        NotifyListeners(&ICurveEditorDataModelListener::OnSelectionDataModelChanged, nullptr);
+        m_SelectionDataModel.reset();
+    }
+}
 
 void CCurveEditorDataModel::SetStyle(SCurveEditorStyle&& style)
 {
@@ -87,6 +102,18 @@ SplineID CCurveEditorDataModel::GenerateFreeSplineID() const noexcept
         if (!GetSplineDataModel(result))
             return result;
     }
+}
+
+void CCurveEditorDataModel::SetSelectionDataModel(ICurveEditorSelectionDataModelSharedPtr&& selectionDataModel)
+{
+    const auto buffer = std::move(m_SelectionDataModel);
+    m_SelectionDataModel = std::move(selectionDataModel);
+    NotifyListeners(&ICurveEditorDataModelListener::OnSelectionDataModelChanged, m_SelectionDataModel);
+}
+
+const ICurveEditorSelectionDataModelSharedPtr& CCurveEditorDataModel::GetSelectionDataModel() const noexcept
+{
+    return m_SelectionDataModel;
 }
 
 ICurveEditorDataModelUniquePtr ICurveEditorDataModel::Create()

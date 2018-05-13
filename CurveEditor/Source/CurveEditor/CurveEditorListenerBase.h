@@ -13,6 +13,8 @@ public:
 
     virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override;
     virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override;
+
+    virtual void OnSelectionDataModelChanged(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel) override;
 };
 
 class CCurveEditorControllerListenerBase : public ICurveEditorControllerListener
@@ -23,8 +25,6 @@ public:
 
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) override;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) override;
-
-    virtual void OnSelectionChanged() override;
 };
 
 #endif //__CURVE_EDITOR_LISTENER_BASE_H__

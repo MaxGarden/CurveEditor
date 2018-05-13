@@ -27,6 +27,25 @@ ECurveEditorSplineComponentType CCurveEditorSplineComponentViewBase<SuperClass, 
 }
 
 template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+const SplineID& CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::GetSplineID() const noexcept
+{
+    if (const auto& controller = GetController())
+        return controller->GetSplineID();
+
+    return ICurveEditorSplineDataModel::InvalidSplineID();
+}
+
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+std::optional<size_t> CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::GetIndex() const noexcept
+{
+    if (const auto& controller = GetController())
+        return controller->GetIndex();
+
+    return std::nullopt;
+}
+
+
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
 void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::OnFrame(ImDrawList&, ControllerType&)
 {
     //to override

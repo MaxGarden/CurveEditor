@@ -13,6 +13,8 @@ public:
 
     virtual void OnFrame() override final;
 
+    virtual ICurveEditorSplineView* GetSplineView(const SplineID& id) const noexcept override final;
+
     virtual ICurveEditorSplineComponentView* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
     virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineComponentView>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
 
@@ -78,6 +80,20 @@ void CCurveEditorSplinesViewComponent::OnFrame()
         splineView.OnFrame();
         return true;
     });
+}
+
+ICurveEditorSplineView* CCurveEditorSplinesViewComponent::GetSplineView(const SplineID& id) const noexcept
+{
+    const auto iterator = std::find_if(m_SplineViews.cbegin(), m_SplineViews.cend(), [&id](const auto& pair)
+    {
+        const auto& splineController = pair.first;
+        return splineController && splineController->GetID() == id;
+    });
+
+    if (iterator == m_SplineViews.cend())
+        return nullptr;
+
+    return iterator->second.get();
 }
 
 bool CCurveEditorSplinesViewComponent::SetController(const IEditorControllerSharedPtr& controller) noexcept

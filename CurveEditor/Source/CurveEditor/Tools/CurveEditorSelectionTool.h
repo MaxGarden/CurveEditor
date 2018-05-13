@@ -30,6 +30,8 @@ private:
 
     bool m_TogglingMode = false;
 
+    bool m_TogglingSelection = false;
+
     ECurveEditorSplineComponentType m_SelectionType = ECurveEditorSplineComponentType::Knot;
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
     ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewComponent;

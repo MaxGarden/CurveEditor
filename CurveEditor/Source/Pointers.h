@@ -14,6 +14,13 @@ DECLARE_POINTERS(ICurveEditorDataModel)
 DECLARE_POINTERS(ICurveEditorControllerListener)
 DECLARE_POINTERS(ICurveEditorController)
 
+DECLARE_POINTERS(ICurveEditorSelectionDataModel)
+DECLARE_POINTERS(ICurveEditorSelectionController)
+DECLARE_POINTERS(ICurveEditorSelectionControllerPrivate)
+DECLARE_POINTERS(ICurveEditorSelectionView)
+
+DECLARE_POINTERS(ICurveEditorSplineComponentController)
+
 DECLARE_POINTERS(ICurveEditorKnotController)
 DECLARE_POINTERS(ICurveEditorTangentController)
 DECLARE_POINTERS(ICurveEditorCurveController)

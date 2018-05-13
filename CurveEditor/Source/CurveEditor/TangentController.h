@@ -2,9 +2,9 @@
 #if !defined(__CURVE_EDITOR_TANGENT_CONTROLLER__)
 
 #include "ax/ax.h"
-#include "EditorController.h"
+#include "SplineController.h"
 
-class ICurveEditorTangentController : public IEditorController
+class ICurveEditorTangentController : public ICurveEditorSplineComponentController
 {
 public:
     virtual ~ICurveEditorTangentController() override = default;

@@ -9,6 +9,8 @@ class ICurveEditorSplineView : public IEditorView
 public:
     virtual ~ICurveEditorSplineView() override = default;
 
+    virtual ICurveEditorSplineComponentViewSharedPtr GetSplineComponent(const ICurveEditorSplineComponentController& splineComponentController) const noexcept = 0;
+
     virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse = false) const noexcept = 0;
 };
 

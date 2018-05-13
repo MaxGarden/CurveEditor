@@ -4,7 +4,7 @@
 #include "ax/ax.h"
 #include "SplineController.h"
 
-class ICurveEditorCurveController : public IEditorController
+class ICurveEditorCurveController : public ICurveEditorSplineComponentController
 {
 public:
     virtual ~ICurveEditorCurveController() override = default;

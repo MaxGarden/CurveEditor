@@ -12,6 +12,7 @@
 #include "Tools/CurveEditorSelectionTool.h"
 #include "Tools/CurveEditorHoveringTool.h"
 #include "EditorContext.h"
+#include "CurveEditorSelectionDataModel.h"
 
 int main(int argc, char** argv)
 {
@@ -31,18 +32,20 @@ int main(int argc, char** argv)
 
     curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(*curveEditorContext, splineViewFactory));
 
-    auto controller = ICurveEditorController::Create(splineControllerFactory);
-
     const auto tool = ICurveEditorComponentToolSharedPtr(ICurveEditorComponentTool::Create());
     tool->AddComponent(std::make_unique<CCurveEditorScrollTool>(ECurveEditorMouseButton::Right));
     tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
     tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorModifier::Control));
     tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>());
 
+    auto controller = ICurveEditorController::Create(splineControllerFactory);
     controller->SetActiveTool(tool);
 
+    auto dataModel = ICurveEditorDataModel::Create();
+    dataModel->SetSelectionDataModel(ICurveEditorSelectionDataModel::Create());
+
     curveEditorContext->SetController(std::move(controller));
-    curveEditorContext->SetDataModel(ICurveEditorDataModel::Create());
+    curveEditorContext->SetDataModel(std::move(dataModel));
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);
     CMainWindow mainWindow(*curveEditorWidgetFactory);

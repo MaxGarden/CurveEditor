@@ -3,6 +3,8 @@
 
 #include "CurveEditorView.h"
 
+using CurveEditorViewSelection = const std::set<const ICurveEditorSplineComponentView*>;
+
 class ICurveEditorSelectionViewComponent : public ICurveEditorViewComponent
 {
 public:
@@ -10,11 +12,8 @@ public:
 
     virtual void ClearSelection() = 0;
 
-    virtual bool AddToSelection(const ICurveEditorSplineComponentView& splineComponent) = 0;
-    virtual bool AddToSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents) = 0;
-
-    virtual bool RemoveFromSelection(const ICurveEditorSplineComponentView& splineComponent) = 0;
-    virtual bool RemoveFromSelection(const std::set<const ICurveEditorSplineComponentView*>& splineComponents) = 0;
+    virtual bool AddToSelection(const CurveEditorViewSelection& splineComponents) = 0;
+    virtual bool RemoveFromSelection(const CurveEditorViewSelection& splineComponents) = 0;
 
     virtual bool CheckIfSelected(const ICurveEditorSplineComponentView& splineComponent) const noexcept = 0;
 

@@ -16,17 +16,17 @@ void CCurveEditorDataModelListenerBase::OnSplineDestroyed(const ICurveEditorSpli
     //to override
 }
 
+void CCurveEditorDataModelListenerBase::OnSelectionDataModelChanged(const ICurveEditorSelectionDataModelSharedPtr&)
+{
+    //to override
+}
+
 void CCurveEditorControllerListenerBase::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr&)
 {
     //to override
 }
 
 void CCurveEditorControllerListenerBase::OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr&)
-{
-    //to override
-}
-
-void CCurveEditorControllerListenerBase::OnSelectionChanged()
 {
     //to override
 }

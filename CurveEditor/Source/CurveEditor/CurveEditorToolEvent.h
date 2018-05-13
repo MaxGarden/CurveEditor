@@ -27,7 +27,7 @@ enum class ECurveEditorModifier
 class CCurveEditorToolEvent
 {
 public:
-    CCurveEditorToolEvent(ICurveEditorView& editorView);
+    CCurveEditorToolEvent(ICurveEditorView& editorViewz);
     virtual ~CCurveEditorToolEvent() = default;
 
     ICurveEditorView& GetEditorView() const noexcept;

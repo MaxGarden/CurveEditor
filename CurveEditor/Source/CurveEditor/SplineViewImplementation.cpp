@@ -12,6 +12,9 @@ public:
     virtual ~CCurveEditorSplineView() override final = default;
 
     virtual void OnFrame() override final;
+
+    virtual ICurveEditorSplineComponentViewSharedPtr GetSplineComponent(const ICurveEditorSplineComponentController& splineComponentController) const noexcept override final;
+
     virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse = false) const noexcept override final;
 
     bool CreateKnotView(const ICurveEditorKnotControllerSharedPtr& knotController);
@@ -118,6 +121,36 @@ void CCurveEditorSplineView::OnFrame()
     VisitCurvesViews(onFrameVisitor);
     VisitTangentsViews(onFrameVisitor);
     VisitKnotsViews(onFrameVisitor);
+}
+
+template<typename ContainerType>
+static auto FindSplineComponent(const ContainerType& container, const ICurveEditorSplineComponentController& splineComponentController) noexcept -> ICurveEditorSplineComponentViewSharedPtr
+{
+    const auto iterator = std::find_if(container.cbegin(), container.cend(), [splineComponentController = &splineComponentController](const auto& pair)
+    {
+        return pair.first.get() == splineComponentController;
+    });
+
+    if (iterator == container.cend())
+        return nullptr;
+
+    return iterator->second;
+}
+
+ICurveEditorSplineComponentViewSharedPtr CCurveEditorSplineView::GetSplineComponent(const ICurveEditorSplineComponentController& splineComponentController) const noexcept
+{
+    switch (splineComponentController.GetType())
+    {
+    case ECurveEditorSplineComponentType::Curve:
+        return FindSplineComponent(m_CurvesViews, splineComponentController);
+    case ECurveEditorSplineComponentType::Knot:
+        return FindSplineComponent(m_KnotsViews, splineComponentController);
+    case ECurveEditorSplineComponentType::Tangent:
+        return FindSplineComponent(m_TangentsViews, splineComponentController);
+    default:
+        EDITOR_ASSERT(false);
+        return nullptr;
+    }
 }
 
 void CCurveEditorSplineView::OnControllerChanged()

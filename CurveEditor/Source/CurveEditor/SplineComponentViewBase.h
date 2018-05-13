@@ -18,6 +18,9 @@ public:
 
     virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
+    virtual const SplineID& GetSplineID() const noexcept override final;
+    virtual std::optional<size_t> GetIndex() const noexcept override final;
+
 protected:
     virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 

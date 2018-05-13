@@ -4,6 +4,11 @@
 #include "SplineDataModel.h"
 #include "SplineController.h"
 #include "CurveEditorListenerBase.h"
+#include "CurveEditorSplineListenerBase.h"
+#include "KnotController.h"
+#include "TangentController.h"
+#include "CurveController.h"
+#include "CurveEditorSelectionController.h"
 
 class CCurveEditorController;
 
@@ -15,6 +20,8 @@ public:
 
     virtual void OnSplineCreated(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
     virtual void OnSplineDestroyed(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
+
+    virtual void OnSelectionDataModelChanged(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel) override final;
 
 private:
     CCurveEditorController& m_Controller;
@@ -29,16 +36,15 @@ public:
     bool CreateSpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
     bool DestroySpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel);
 
+    void SetSelectionDataModel(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel);
+
     virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept override final;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept override final;
 
+    virtual ICurveEditorSelectionControllerSharedPtr GetSelectionController() const noexcept override final;
+
     virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept override final;
     virtual void VisitSplineControllers(const ConstVisitorType<ICurveEditorSplineControllerSharedPtr>& visitor) const noexcept override final;
-
-    virtual bool AddToSelection(const SplineID& id, size_t controlPointIndex) override final;
-    virtual bool RemoveFromSelection(const SplineID& id, size_t controlPointIndex) override final;
-    virtual bool CheckIfSelected(const SplineID& id, size_t controlPointIndex) const noexcept override final;
-    virtual void ClearSelection() override final;
 
     virtual const SCurveEditorStyle& GetEditorStyle() const noexcept override final;
 
@@ -46,13 +52,16 @@ private:
     virtual void OnDataModelChanged() override final;
     virtual IEditorListenerUniquePtr CreateListener() override final;
 
+    void NotifySplineControllerCreated(const ICurveEditorSplineControllerSharedPtr& splineController);
+    void NotifySplineControllerDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController);
+
     void RecreateSplineControllers();
 
 private:
     std::map<ICurveEditorSplineDataModelConstSharedPtr, ICurveEditorSplineControllerSharedPtr> m_SplineControllers;
+    const ICurveEditorSelectionControllerPrivateSharedPtr m_SelectionController;
     ICurveEditorSplineControllerFactory& m_SplineControllerFactory;
     ICurveEditorToolSharedPtr m_ActiveTool;
-    std::map<SplineID, std::set<size_t>> m_SelectedControlPoints;
 };
 
 CCurveEditorDataModelControllerListener::CCurveEditorDataModelControllerListener(CCurveEditorController& controller) :
@@ -72,9 +81,16 @@ void CCurveEditorDataModelControllerListener::OnSplineDestroyed(const ICurveEdit
     EDITOR_ASSERT(result);
 }
 
+void CCurveEditorDataModelControllerListener::OnSelectionDataModelChanged(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel)
+{
+    m_Controller.SetSelectionDataModel(selectionDataModel);
+}
+
 CCurveEditorController::CCurveEditorController(ICurveEditorSplineControllerFactory& splineControllerFactory) :
+    m_SelectionController(ICurveEditorSelectionControllerPrivate::Create()),
     m_SplineControllerFactory(splineControllerFactory)
 {
+    EDITOR_ASSERT(m_SelectionController);
 }
 
 bool CCurveEditorController::CreateSpline(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
@@ -94,7 +110,7 @@ bool CCurveEditorController::CreateSpline(const ICurveEditorSplineDataModelShare
         return false;
 
     m_SplineControllers.emplace(splineDataModel, splineController);
-    NotifyListeners(&ICurveEditorControllerListener::OnSplineCreated, splineController);
+    NotifySplineControllerCreated(splineController);
 
     return true;
 }
@@ -105,10 +121,20 @@ bool CCurveEditorController::DestroySpline(const ICurveEditorSplineDataModelShar
     if (iterator == m_SplineControllers.end())
         return false;
 
-    NotifyListeners(&ICurveEditorControllerListener::OnSplineDestroyed, iterator->second);
+    NotifySplineControllerDestroyed(iterator->second);
     m_SplineControllers.erase(iterator);
 
     return true;
+}
+
+void CCurveEditorController::SetSelectionDataModel(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel)
+{
+    EDITOR_ASSERT(m_SelectionController);
+    if (!m_SelectionController)
+        return;
+
+    const auto result = m_SelectionController->SetDataModel(selectionDataModel);
+    EDITOR_ASSERT(result);
 }
 
 const SCurveEditorStyle& CCurveEditorController::GetEditorStyle() const noexcept
@@ -144,56 +170,6 @@ void CCurveEditorController::VisitSplineControllers(const ConstVisitorType<ICurv
     VisitObjectsMap(m_SplineControllers, visitor);
 }
 
-bool CCurveEditorController::AddToSelection(const SplineID& id, size_t controlPointIndex)
-{
-    const auto result = m_SelectedControlPoints[id].emplace(controlPointIndex);
-    if (!result.second)
-        return false;
-
-    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
-    return true;
-}
-
-bool CCurveEditorController::RemoveFromSelection(const SplineID& id, size_t controlPointIndex)
-{
-    const auto iterator = m_SelectedControlPoints.find(id);
-    if (iterator == m_SelectedControlPoints.cend())
-        return false;
-
-    auto& controlPointsSet = iterator->second;
-    EDITOR_ASSERT(!controlPointsSet.empty());
-
-    const auto removedCount = controlPointsSet.erase(controlPointIndex);
-    EDITOR_ASSERT(removedCount <= 1);
-    if (removedCount == 0)
-        return false;
-
-    if (controlPointsSet.empty())
-        m_SelectedControlPoints.erase(iterator);
-
-    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
-    return true;
-}
-
-bool CCurveEditorController::CheckIfSelected(const SplineID& id, size_t controlPointIndex) const noexcept
-{
-    const auto iterator = m_SelectedControlPoints.find(id);
-    if (iterator == m_SelectedControlPoints.cend())
-        return false;
-
-    const auto& controlPointsSet = iterator->second;
-    return controlPointsSet.find(controlPointIndex) == controlPointsSet.cend();
-}
-
-void CCurveEditorController::ClearSelection()
-{
-    if (m_SelectedControlPoints.empty())
-        return;
-
-    m_SelectedControlPoints.clear();
-    NotifyListeners(&ICurveEditorControllerListener::OnSelectionChanged);
-}
-
 void CCurveEditorController::OnDataModelChanged()
 {
     RecreateSplineControllers();
@@ -201,14 +177,19 @@ void CCurveEditorController::OnDataModelChanged()
 
 void CCurveEditorController::RecreateSplineControllers()
 {
-    for (const auto& splinesPair : m_SplineControllers)
-        NotifyListeners(&ICurveEditorControllerListener::OnSplineDestroyed, splinesPair.second);
+    VisitObjectsMap(m_SplineControllers, [this](const auto& splineController)
+    {
+        NotifySplineControllerDestroyed(splineController);
+    });
 
     m_SplineControllers.clear();
 
     const auto& dataModel = GetDataModel();
     if (!dataModel)
         return;
+
+    if (m_SelectionController)
+        m_SelectionController->SetDataModel(dataModel->GetSelectionDataModel());
 
     dataModel->VisitSplineDataModels([this](const auto& splineDataModel)
     {
@@ -227,9 +208,44 @@ const ICurveEditorToolSharedPtr& CCurveEditorController::GetActiveTool() const n
     return m_ActiveTool;
 }
 
+ICurveEditorSelectionControllerSharedPtr CCurveEditorController::GetSelectionController() const noexcept
+{
+    return m_SelectionController;
+}
+
 IEditorListenerUniquePtr CCurveEditorController::CreateListener()
 {
     return std::make_unique<CCurveEditorDataModelControllerListener>(*this);
+}
+
+void CCurveEditorController::NotifySplineControllerCreated(const ICurveEditorSplineControllerSharedPtr& splineController)
+{
+    EDITOR_ASSERT(splineController);
+    if (!splineController)
+        return;
+
+    if (m_SelectionController)
+    {
+        const auto result = m_SelectionController->RegisterSpline(splineController);
+        EDITOR_ASSERT(result);
+    }
+
+    NotifyListeners(&ICurveEditorControllerListener::OnSplineCreated, splineController);
+}
+
+void CCurveEditorController::NotifySplineControllerDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController)
+{
+    EDITOR_ASSERT(splineController);
+    if (!splineController)
+        return;
+
+    if (m_SelectionController)
+    {
+        const auto result = m_SelectionController->UnregisterSpline(splineController);
+        EDITOR_ASSERT(result);
+    }
+
+    NotifyListeners(&ICurveEditorControllerListener::OnSplineDestroyed, splineController);
 }
 
 ICurveEditorControllerUniquePtr ICurveEditorController::Create(ICurveEditorSplineControllerFactory& splineControllerFactory)
