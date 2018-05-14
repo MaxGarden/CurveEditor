@@ -335,6 +335,14 @@ void ImGuiRenderer::beginFrame()
     io.MouseWheel = g_MouseWheel;
     g_MouseWheel = 0.0f;
 
+    const auto& keyboardModifiers = QGuiApplication::keyboardModifiers();
+
+    io.KeyCtrl = keyboardModifiers & Qt::ControlModifier;
+    io.KeyShift = keyboardModifiers & Qt::ShiftModifier;
+    io.KeyAlt = keyboardModifiers & Qt::AltModifier;
+    io.KeySuper = keyboardModifiers & Qt::MetaModifier;
+
+
     // Hide OS mouse cursor if ImGui is drawing it
     // glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 
