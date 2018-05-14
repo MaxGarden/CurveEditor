@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     const auto tool = ICurveEditorComponentToolSharedPtr(ICurveEditorComponentTool::Create());
     tool->AddComponent(std::make_unique<CCurveEditorScrollTool>(ECurveEditorMouseButton::Right));
     tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
-    tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorModifier::Control));
+    tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorSplineComponentType::Knot, ECurveEditorModifier::Control, std::map<ECurveEditorModifier, ECurveEditorSplineComponentType>{ { ECurveEditorModifier::Alt, ECurveEditorSplineComponentType::Tangent }, { ECurveEditorModifier::Shift, ECurveEditorSplineComponentType::Curve } }));
     tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>());
 
     auto controller = ICurveEditorController::Create(splineControllerFactory);

@@ -2,6 +2,7 @@
 #if !defined(__CURVE_EDITOR_SELECTION_COMPONENT_H__)
 
 #include "CurveEditorView.h"
+#include "SplineController.h"
 
 using CurveEditorViewSelection = const std::set<const ICurveEditorSplineComponentView*>;
 
@@ -11,6 +12,9 @@ public:
     virtual ~ICurveEditorSelectionViewComponent() override = default;
 
     virtual void ClearSelection() = 0;
+
+    virtual bool SetSelectionMode(ECurveEditorSplineComponentType selectionMode) noexcept = 0;
+    virtual std::optional<ECurveEditorSplineComponentType> GetSelectionMode() const noexcept = 0;
 
     virtual bool AddToSelection(const CurveEditorViewSelection& splineComponents) = 0;
     virtual bool RemoveFromSelection(const CurveEditorViewSelection& splineComponents) = 0;

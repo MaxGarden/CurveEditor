@@ -17,6 +17,9 @@ public:
 
     virtual void ClearSelection() override final;
 
+    virtual bool SetSelectionMode(ECurveEditorSplineComponentType selectionMode) noexcept override final;
+    virtual std::optional<ECurveEditorSplineComponentType> GetSelectionMode() const noexcept override final;
+
     virtual bool AddToSelection(const CurveEditorViewSelection& selection) override final;
     virtual bool RemoveFromSelection(const CurveEditorViewSelection& selection) override final;
 
@@ -72,6 +75,26 @@ void CCurveEditorSelectionViewComponent::OnFrame()
     EDITOR_ASSERT(m_SelectionView);
     if (m_SelectionView)
         m_SelectionView->OnFrame();
+}
+
+bool CCurveEditorSelectionViewComponent::SetSelectionMode(ECurveEditorSplineComponentType selectionMode) noexcept
+{
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return false;
+
+    return selectionController->SetSelectionMode(selectionMode);
+}
+
+std::optional<ECurveEditorSplineComponentType> CCurveEditorSelectionViewComponent::GetSelectionMode() const noexcept
+{
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return std::nullopt;
+
+    return selectionController->GetSelectionMode();
 }
 
 void CCurveEditorSelectionViewComponent::ClearSelection()

@@ -7,7 +7,7 @@
 class CCurveEditorSelectionTool final : public CCurveEditorSelectionToolBase
 {
 public:
-    CCurveEditorSelectionTool(ECurveEditorMouseButton activationMouseButton, ECurveEditorModifier togglingModifier);
+    CCurveEditorSelectionTool(ECurveEditorMouseButton activationMouseButton, ECurveEditorSplineComponentType defaultSelectionMode, std::optional<ECurveEditorModifier> togglingModifier, std::map<ECurveEditorModifier, ECurveEditorSplineComponentType> selectionModesMap);
     virtual ~CCurveEditorSelectionTool() override final = default;
 
     virtual void OnAcquired(const CCurveEditorToolEvent& event) override final;
@@ -26,13 +26,18 @@ protected:
     virtual void OnSelectionEnd(ICurveEditorView& editorView) override final;
 
 private:
-    const ECurveEditorModifier m_TogglingModifier;
+    void UpdateSelectionMode(ICurveEditorSelectionViewComponent& selectionViewComponent);
+
+private:
+    const std::optional<ECurveEditorModifier> m_TogglingModifier;
+    const std::map<ECurveEditorModifier, ECurveEditorSplineComponentType> m_SelectionModesMap;
 
     bool m_TogglingMode = false;
 
     bool m_TogglingSelection = false;
 
-    ECurveEditorSplineComponentType m_SelectionType = ECurveEditorSplineComponentType::Knot;
+    ECurveEditorSplineComponentType m_DefaultSelectionMode;
+    ECurveEditorSplineComponentType m_CurrentSelectionMode;
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
     ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewComponent;
     std::set<const ICurveEditorSplineComponentView*> m_LastSelectedSplineComponents;

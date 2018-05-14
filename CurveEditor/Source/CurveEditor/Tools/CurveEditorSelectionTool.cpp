@@ -3,9 +3,12 @@
 #include "Components/SplinesComponent.h"
 #include "Components/SelectionComponent.h"
 
-CCurveEditorSelectionTool::CCurveEditorSelectionTool(ECurveEditorMouseButton activationMouseButton, ECurveEditorModifier togglingModifier) :
+CCurveEditorSelectionTool::CCurveEditorSelectionTool(ECurveEditorMouseButton activationMouseButton, ECurveEditorSplineComponentType defaultSelectionMode, std::optional<ECurveEditorModifier> togglingModifier, std::map<ECurveEditorModifier, ECurveEditorSplineComponentType> selectionModesMap) :
     CCurveEditorSelectionToolBase(activationMouseButton),
-    m_TogglingModifier(togglingModifier)
+    m_TogglingModifier(togglingModifier),
+    m_SelectionModesMap(std::move(selectionModesMap)),
+    m_DefaultSelectionMode(defaultSelectionMode),
+    m_CurrentSelectionMode(m_DefaultSelectionMode)
 {
 }
 
@@ -36,12 +39,14 @@ void CCurveEditorSelectionTool::OnClickUp(const CCurveEditorToolMouseButtonEvent
     if (!splineViewComponent)
         return;
 
-    const auto clickedSplineComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition(), m_SelectionType);
+    const auto clickedSplineComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition(), m_CurrentSelectionMode);
 
     const auto selectionViewComponent = m_SelectionViewComponent.lock();
     EDITOR_ASSERT(selectionViewComponent);
     if (!selectionViewComponent)
         return;
+
+    UpdateSelectionMode(*selectionViewComponent);
 
     if (!m_TogglingMode)
     {
@@ -69,14 +74,31 @@ void CCurveEditorSelectionTool::OnClickUp(const CCurveEditorToolMouseButtonEvent
 
 void CCurveEditorSelectionTool::OnModifierActivated(const CCurveEditorToolModifierEvent& event)
 {
-    if (event.GetModifier() == m_TogglingModifier)
+    const auto& modifier = event.GetModifier();
+
+    if (m_TogglingModifier && modifier == *m_TogglingModifier)
         m_TogglingMode = true;
+
+    const auto iterator = m_SelectionModesMap.find(modifier);
+    if (iterator == m_SelectionModesMap.cend())
+        return;
+
+    m_CurrentSelectionMode = iterator->second;
 }
 
 void CCurveEditorSelectionTool::OnModifierDeactivated(const CCurveEditorToolModifierEvent& event)
 {
-    if (event.GetModifier() == m_TogglingModifier)
+    const auto& modifier = event.GetModifier();
+
+    if (m_TogglingModifier && modifier == *m_TogglingModifier)
         m_TogglingMode = false;
+
+    const auto iterator = m_SelectionModesMap.find(modifier);
+    if (iterator == m_SelectionModesMap.cend())
+        return;
+
+    if (m_CurrentSelectionMode == iterator->second)
+        m_CurrentSelectionMode = m_DefaultSelectionMode;
 }
 
 bool CCurveEditorSelectionTool::AcceptSelection(const CCurveEditorToolMouseButtonEvent& event)
@@ -128,10 +150,12 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
         componentsInRect.emplace(&splineComponent);
     };
 
-    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_SelectionType, editorStyle.SelectionViaIntersection);
+    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_CurrentSelectionMode, editorStyle.SelectionViaIntersection);
 
     if (m_LastSelectedSplineComponents == componentsInRect)
         return;
+
+    UpdateSelectionMode(*selectionViewComponent);
 
     decltype(componentsInRect) componentsToDeselect;
     std::set_difference(m_LastSelectedSplineComponents.begin(), m_LastSelectedSplineComponents.end(), componentsInRect.begin(), componentsInRect.end(), std::inserter(componentsToDeselect, componentsToDeselect.end()));
@@ -157,4 +181,13 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
 void CCurveEditorSelectionTool::OnSelectionEnd(ICurveEditorView&)
 {
     m_LastSelectedSplineComponents.clear();
+}
+
+void CCurveEditorSelectionTool::UpdateSelectionMode(ICurveEditorSelectionViewComponent& selectionViewComponent)
+{
+    const auto selectionMode = selectionViewComponent.GetSelectionMode();
+    EDITOR_ASSERT(selectionMode);
+
+    if (selectionMode && *selectionMode != m_CurrentSelectionMode)
+        selectionViewComponent.SetSelectionMode(m_CurrentSelectionMode);
 }
