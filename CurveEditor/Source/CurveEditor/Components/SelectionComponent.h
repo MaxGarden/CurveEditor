@@ -21,6 +21,8 @@ public:
 
     virtual bool CheckIfSelected(const ICurveEditorSplineComponentView& splineComponent) const noexcept = 0;
 
+    virtual void VisitSelection(const VisitorType<ICurveEditorSplineComponentView>& visitor) const = 0;
+
     static ICurveEditorSelectionViewComponentUniquePtr Create(ICurveEditorView& editorView);
 };
 

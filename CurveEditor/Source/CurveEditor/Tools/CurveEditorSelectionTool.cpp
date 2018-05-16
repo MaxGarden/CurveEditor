@@ -51,6 +51,7 @@ void CCurveEditorSelectionTool::OnClickUp(const CCurveEditorToolMouseButtonEvent
     if (!m_TogglingMode)
     {
         selectionViewComponent->ClearSelection();
+        m_LastSelectedSplineComponents.clear();
         if (clickedSplineComponent)
         {
             const auto result = selectionViewComponent->AddToSelection({ clickedSplineComponent });
@@ -83,7 +84,12 @@ void CCurveEditorSelectionTool::OnModifierActivated(const CCurveEditorToolModifi
     if (iterator == m_SelectionModesMap.cend())
         return;
 
+    if (m_CurrentSelectionMode != m_DefaultSelectionMode)
+        m_BufferedSelectionModes.emplace_back(m_CurrentSelectionMode);
+
     m_CurrentSelectionMode = iterator->second;
+
+    OnModifiersChanged();
 }
 
 void CCurveEditorSelectionTool::OnModifierDeactivated(const CCurveEditorToolModifierEvent& event)
@@ -98,7 +104,19 @@ void CCurveEditorSelectionTool::OnModifierDeactivated(const CCurveEditorToolModi
         return;
 
     if (m_CurrentSelectionMode == iterator->second)
-        m_CurrentSelectionMode = m_DefaultSelectionMode;
+    {
+        if (m_BufferedSelectionModes.empty())
+            m_CurrentSelectionMode = m_DefaultSelectionMode;
+        else
+        {
+            m_CurrentSelectionMode = m_BufferedSelectionModes.back();
+            m_BufferedSelectionModes.pop_back();
+        }
+    }
+    else
+        RemoveFromContainer(m_BufferedSelectionModes, iterator->second);
+
+    OnModifiersChanged();
 }
 
 bool CCurveEditorSelectionTool::AcceptSelection(const CCurveEditorToolMouseButtonEvent& event)
@@ -111,11 +129,14 @@ bool CCurveEditorSelectionTool::AcceptSelection(const CCurveEditorToolMouseButto
     return splineViewComponent->GetSplineComponentAt(event.GetMousePosition()) == nullptr;
 }
 
-void CCurveEditorSelectionTool::OnSelectionBegin(ICurveEditorView&)
+void CCurveEditorSelectionTool::OnSelectionBegin(ICurveEditorView& editorView)
 {
     m_TogglingSelection = m_TogglingMode;
     if (m_TogglingSelection)
         return;
+
+    const auto& editorStyle = editorView.GetEditorStyle();
+    m_SelectionViaIntersection = editorStyle.SelectionViaIntersection;
 
     const auto selectionViewComponent = m_SelectionViewComponent.lock();
     EDITOR_ASSERT(selectionViewComponent);
@@ -123,7 +144,35 @@ void CCurveEditorSelectionTool::OnSelectionBegin(ICurveEditorView&)
         selectionViewComponent->ClearSelection();
 }
 
-void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, const ax::rectf& selectionRect)
+void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView&, const ax::rectf& selectionRect)
+{
+    UpdateSelection(selectionRect);
+}
+
+void CCurveEditorSelectionTool::OnSelectionEnd(ICurveEditorView&)
+{
+    m_LastSelectedSplineComponents.clear();
+}
+
+void CCurveEditorSelectionTool::OnModifiersChanged()
+{
+    if (const auto selectionRect = GetSelectionRect())
+        UpdateSelection(*selectionRect);
+}
+
+void CCurveEditorSelectionTool::UpdateSelectionMode(ICurveEditorSelectionViewComponent& selectionViewComponent)
+{
+    const auto selectionMode = selectionViewComponent.GetSelectionMode();
+    EDITOR_ASSERT(selectionMode);
+
+    if (selectionMode && *selectionMode != m_CurrentSelectionMode)
+    {
+        selectionViewComponent.SetSelectionMode(m_CurrentSelectionMode);
+        m_LastSelectedSplineComponents.clear();
+    }
+}
+
+void CCurveEditorSelectionTool::UpdateSelection(const ax::rectf& selectionRect)
 {
     const auto splineViewComponent = m_SplinesViewComponent.lock();
     EDITOR_ASSERT(splineViewComponent);
@@ -134,8 +183,6 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
     EDITOR_ASSERT(selectionViewComponent);
     if (!selectionViewComponent)
         return;
-
-    const auto& editorStyle = editorView.GetEditorStyle();
 
     decltype(m_LastSelectedSplineComponents) componentsInRect;
     const auto visitor = [this, &componentsInRect, &selectionViewComponent](auto& splineComponent)
@@ -150,7 +197,7 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
         componentsInRect.emplace(&splineComponent);
     };
 
-    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_CurrentSelectionMode, editorStyle.SelectionViaIntersection);
+    splineViewComponent->VisitSplineComponentsInRect(visitor, selectionRect, m_CurrentSelectionMode, m_SelectionViaIntersection);
 
     if (m_LastSelectedSplineComponents == componentsInRect)
         return;
@@ -176,18 +223,4 @@ void CCurveEditorSelectionTool::OnSelectionUpdate(ICurveEditorView& editorView, 
     }
 
     m_LastSelectedSplineComponents = std::move(componentsInRect);
-}
-
-void CCurveEditorSelectionTool::OnSelectionEnd(ICurveEditorView&)
-{
-    m_LastSelectedSplineComponents.clear();
-}
-
-void CCurveEditorSelectionTool::UpdateSelectionMode(ICurveEditorSelectionViewComponent& selectionViewComponent)
-{
-    const auto selectionMode = selectionViewComponent.GetSelectionMode();
-    EDITOR_ASSERT(selectionMode);
-
-    if (selectionMode && *selectionMode != m_CurrentSelectionMode)
-        selectionViewComponent.SetSelectionMode(m_CurrentSelectionMode);
 }

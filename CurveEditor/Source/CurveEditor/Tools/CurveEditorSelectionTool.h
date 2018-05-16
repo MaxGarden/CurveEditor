@@ -26,7 +26,10 @@ protected:
     virtual void OnSelectionEnd(ICurveEditorView& editorView) override final;
 
 private:
+    void OnModifiersChanged();
     void UpdateSelectionMode(ICurveEditorSelectionViewComponent& selectionViewComponent);
+
+    void UpdateSelection(const ax::rectf& selectionRect);
 
 private:
     const std::optional<ECurveEditorModifier> m_TogglingModifier;
@@ -35,9 +38,11 @@ private:
     bool m_TogglingMode = false;
 
     bool m_TogglingSelection = false;
+    bool m_SelectionViaIntersection = false;
 
-    ECurveEditorSplineComponentType m_DefaultSelectionMode;
+    const ECurveEditorSplineComponentType m_DefaultSelectionMode;
     ECurveEditorSplineComponentType m_CurrentSelectionMode;
+    std::list<ECurveEditorSplineComponentType> m_BufferedSelectionModes;
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
     ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewComponent;
     std::set<const ICurveEditorSplineComponentView*> m_LastSelectedSplineComponents;
