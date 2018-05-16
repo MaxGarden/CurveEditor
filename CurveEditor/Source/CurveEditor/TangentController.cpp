@@ -8,7 +8,9 @@ public:
     CCurveEditorTangentControllerPrivate() = default;
     virtual ~CCurveEditorTangentControllerPrivate() override final = default;
 
+    virtual bool SetPosition(const ax::pointf& position) override final;
     virtual std::optional<ax::pointf> GetPosition() const noexcept override final;
+
     virtual std::optional<ax::pointf> GetAnchorPosition() const noexcept override final;
 
     virtual bool SetTangentIndex(size_t tangentIndex) noexcept override final;
@@ -19,6 +21,15 @@ private:
     std::optional<size_t> m_TangentControlPointIndex;
     std::optional<size_t> m_AnchorControlPointIndex;
 };
+
+bool CCurveEditorTangentControllerPrivate::SetPosition(const ax::pointf& position)
+{
+    EDITOR_ASSERT(m_TangentControlPointIndex);
+    if (!m_TangentControlPointIndex)
+        return false;
+
+    return SetControlPointPosition(*m_TangentControlPointIndex, position);
+}
 
 std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetPosition() const noexcept
 {

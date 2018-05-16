@@ -21,6 +21,9 @@ public:
     virtual const SplineID& GetSplineID() const noexcept = 0;
     virtual ECurveEditorSplineComponentType GetType() const noexcept = 0;
     virtual std::optional<size_t> GetIndex() const noexcept = 0;
+
+    virtual bool SetPosition(const ax::pointf& position) = 0;
+    virtual std::optional<ax::pointf> GetPosition() const noexcept = 0;
 };
 
 class ICurveEditorSplineListener : public IEditorListener

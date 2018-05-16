@@ -9,7 +9,6 @@ class ICurveEditorTangentController : public ICurveEditorSplineComponentControll
 public:
     virtual ~ICurveEditorTangentController() override = default;
 
-    virtual std::optional<ax::pointf> GetPosition() const noexcept = 0;
     virtual std::optional<ax::pointf> GetAnchorPosition() const noexcept = 0;
 };
 

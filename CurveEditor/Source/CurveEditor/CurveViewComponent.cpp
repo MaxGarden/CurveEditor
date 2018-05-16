@@ -177,7 +177,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetControlPointsPositio
 
     std::array<ax::pointf, 4> controlPoints;
 
-    const auto visitationResult = controller->VisitCurvePoints([iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
+    const auto visitationResult = controller->VisitCurveControlPoints([iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
     {
         EDITOR_ASSERT(iterator != endIterator);
         if (iterator != endIterator)

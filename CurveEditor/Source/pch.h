@@ -10,6 +10,7 @@
 #include <array>
 #include <stack>
 #include <set>
+#include <list>
 
 #include "Utilities.h"
 

@@ -64,6 +64,7 @@ private:
     bool m_WasDragging = false;
     bool m_MouseClickDown = false;
     ECurveEditorMouseButton m_Button;
+    ax::pointf m_MouseDownPosition;
     ImVec2 m_ClickPositionBuffer;
     ax::pointf m_DragDelta;
     ax::pointf m_LastDragDelta;
@@ -346,9 +347,9 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     const auto imGuiButtonIndex = static_cast<int>(m_Button);
     const auto mousePosition = to_pointf(ImGui::GetMousePos());
 
-    const auto notifyToolButtonEvent = [this, &activeTool, &mousePosition](const auto& method)
+    const auto notifyToolButtonEvent = [this, &activeTool, &mousePosition](const auto& method, const std::optional<ax::pointf>& mousePositionOverride = std::nullopt)
     {
-        (activeTool.*method)(CCurveEditorToolMouseButtonEvent{ m_EditorView, mousePosition, m_Button });
+        (activeTool.*method)(CCurveEditorToolMouseButtonEvent{ m_EditorView, mousePositionOverride.value_or(mousePosition), m_Button });
     };
 
     const auto notifyToolDragEvent = [this, &activeTool, &mousePosition](const auto& method, const auto& currentDragDelta)
@@ -360,7 +361,7 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     {
         if (m_IsDragging)
         {
-            notifyToolButtonEvent(&ICurveEditorTool::OnDragBegin);
+            notifyToolButtonEvent(&ICurveEditorTool::OnDragBegin, m_MouseDownPosition);
             m_MouseClickDown = false;
         }
         else
@@ -385,6 +386,7 @@ void CMouseButtonHandler::Update(ICurveEditorTool& activeTool)
     {
         notifyToolButtonEvent(&ICurveEditorTool::OnClickDown);
         m_MouseClickDown = true;
+        m_MouseDownPosition = mousePosition;
     }
     if (m_MouseClickDown && ImGui::IsMouseReleased(imGuiButtonIndex))
     {

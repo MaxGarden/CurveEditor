@@ -11,6 +11,7 @@
 #include "Tools/CurveEditorZoomTool.h"
 #include "Tools/CurveEditorSelectionTool.h"
 #include "Tools/CurveEditorHoveringTool.h"
+#include "Tools/CurveEditorMovingTool.h"
 #include "EditorContext.h"
 #include "CurveEditorSelectionDataModel.h"
 
@@ -37,6 +38,7 @@ int main(int argc, char** argv)
     tool->AddComponent(std::make_unique<CCurveEditorZoomTool>());
     tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorSplineComponentType::Knot, ECurveEditorModifier::Control, std::map<ECurveEditorModifier, ECurveEditorSplineComponentType>{ { ECurveEditorModifier::Alt, ECurveEditorSplineComponentType::Tangent }, { ECurveEditorModifier::Shift, ECurveEditorSplineComponentType::Curve } }));
     tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>());
+    tool->AddComponent(std::make_unique<CCurveEditorMovingTool>());
 
     auto controller = ICurveEditorController::Create(splineControllerFactory);
     controller->SetActiveTool(tool);

@@ -9,7 +9,7 @@ class ICurveEditorCurveController : public ICurveEditorSplineComponentController
 public:
     virtual ~ICurveEditorCurveController() override = default;
 
-    virtual bool VisitCurvePoints(const ConstVisitorType<ax::pointf>& visitor) const noexcept = 0;
+    virtual bool VisitCurveControlPoints(const ConstVisitorType<ax::pointf>& visitor) const = 0;
     virtual const SplineColor& GetColor() const noexcept = 0;
 };
 

@@ -66,6 +66,7 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorVisibleToolBase.cpp     \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.cpp   \
     Source/CurveEditor/Tools/CurveEditorSelectionTool.cpp       \
+    Source/CurveEditor/Tools/CurveEditorMovingTool.cpp          \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
 HEADERS += \
@@ -134,6 +135,7 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorVisibleToolBase.h       \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.h     \
     Source/CurveEditor/Tools/CurveEditorSelectionTool.h         \
+    Source/CurveEditor/Tools/CurveEditorMovingTool.h            \
     Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \

@@ -37,7 +37,6 @@ protected:
 private:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
-    std::optional<ax::pointf> GetPosition() const noexcept;
     std::optional<ax::pointf> GetEditorPosition(bool screenTranslation) const noexcept;
 
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
@@ -101,14 +100,6 @@ bool CCurveEditorKnotView::IsColliding(const ax::rectf& rect, bool allowIntersec
 IEditorRenderableUniquePtr CCurveEditorKnotView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const
 {
     return std::make_unique<CCurveEditorKnotBorderRenderable>(weak_from_this(), borderStyleColor, thicknessStyle);
-}
-
-std::optional<ax::pointf> CCurveEditorKnotView::CCurveEditorKnotView::GetPosition() const noexcept
-{
-    if (const auto& controller = GetController())
-        return controller->GetPosition();
-
-    return std::nullopt;
 }
 
 std::optional<ax::pointf> CCurveEditorKnotView::GetEditorPosition(bool screenTranslation) const noexcept

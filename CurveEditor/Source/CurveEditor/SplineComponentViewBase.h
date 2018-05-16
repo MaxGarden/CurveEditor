@@ -21,6 +21,9 @@ public:
     virtual const SplineID& GetSplineID() const noexcept override final;
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
+    virtual bool SetPosition(const ax::pointf& position) override final;
+    virtual std::optional<ax::pointf> GetPosition() const noexcept override final;
+
 protected:
     virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 

@@ -27,7 +27,7 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
 
     result->AddViewComponent(ICurveEditorSelectionViewComponent::Create(*result), EComponentOrder::Selection);
 
-    result->AddViewComponent(ICurveEditorToolHandlerComponent::Create(*result), EComponentOrder::Foreground);
+    result->AddViewComponent(ICurveEditorToolHandlerComponent::Create(*result), EComponentOrder::ToolHandler);
 
     if (!result->Initialize())
         return nullptr;

@@ -15,7 +15,11 @@ public:
     virtual ECurveEditorSplineComponentType GetType() const noexcept override final;
 
 protected:
+    bool SetControlPointPosition(size_t controlPointIndex, const ax::pointf& position);
     std::optional<ax::pointf> GetControlPointPosition(size_t controlPointIndex) const noexcept;
+
+    bool MoveControlPointPosition(size_t controlPointIndex, const ax::pointf& delta);
+
     const std::vector<ax::pointf>& GetControlPoints() const noexcept;
 
     using Super = CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>;

@@ -9,6 +9,7 @@ using EditorViewComponentHandle = size_t;
 
 enum class EComponentOrder
 {
+    ToolHandler,
     Background,
     Splines,
     Foreground,

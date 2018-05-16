@@ -44,6 +44,25 @@ std::optional<size_t> CCurveEditorSplineComponentViewBase<SuperClass, Controller
     return std::nullopt;
 }
 
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+bool CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::SetPosition(const ax::pointf& position)
+{
+    if (const auto& controller = GetController())
+        return controller->SetPosition(position);
+
+    EDITOR_ASSERT(false);
+    return false;
+}
+
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+std::optional<ax::pointf> CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::GetPosition() const noexcept
+{
+    if (const auto& controller = GetController())
+        return controller->GetPosition();
+
+    EDITOR_ASSERT(false);
+    return std::nullopt;
+}
 
 template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
 void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::OnFrame(ImDrawList&, ControllerType&)

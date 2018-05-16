@@ -192,7 +192,7 @@ ICurveEditorSplineComponentView* CCurveEditorSplinesViewComponent::GetSplineComp
         VisitSplineViews([&](const auto& splineView)
         {
             splineView.VisitSplineComponents(*componentType, componentVisitor, true);
-            return result != nullptr;
+            return result == nullptr;
         }, true);
     }
     else
@@ -209,7 +209,7 @@ ICurveEditorSplineComponentView* CCurveEditorSplinesViewComponent::GetSplineComp
             visitComponentType(splineView, ECurveEditorSplineComponentType::Knot);
             visitComponentType(splineView, ECurveEditorSplineComponentType::Curve);
 
-            return result != nullptr;
+            return result == nullptr;
         }, true);
     }
 

@@ -4,6 +4,7 @@
 #include "CurveEditorViewVisibleComponentBase.h"
 #include "CurveEditorSelectionView.h"
 #include "CurveEditorSelectionController.h"
+#include "SplineView.h"
 
 class CCurveEditorSelectionViewComponent final : public CCurveEditorViewVisibleComponentBase<ICurveEditorSelectionViewComponent>
 {
@@ -24,6 +25,8 @@ public:
     virtual bool RemoveFromSelection(const CurveEditorViewSelection& selection) override final;
 
     virtual bool CheckIfSelected(const ICurveEditorSplineComponentView& splineComponent) const noexcept override final;
+
+    virtual void VisitSelection(const VisitorType<ICurveEditorSplineComponentView>& visitor) const override final;
 
 protected:
     virtual void OnControllerChanged() override final;
@@ -142,6 +145,41 @@ bool CCurveEditorSelectionViewComponent::CheckIfSelected(const ICurveEditorSplin
         return false;
 
     return selectionController->CheckIfSelected(TransformSingleSelection(splineComponent));
+}
+
+void CCurveEditorSelectionViewComponent::VisitSelection(const VisitorType<ICurveEditorSplineComponentView>& visitor) const
+{
+    if (!visitor)
+        return;
+
+    const auto selectionController = GetSelectionController();
+    EDITOR_ASSERT(selectionController);
+    if (!selectionController)
+        return;
+
+    const auto splinesViewComponent = m_SplinesViewComponent.lock();
+    EDITOR_ASSERT(splinesViewComponent);
+    if (!splinesViewComponent)
+        return;
+
+    selectionController->VisitSelection([&](const auto& splineComponentController)
+    {
+        EDITOR_ASSERT(splineComponentController);
+        if (!splineComponentController)
+            return;
+
+        const auto splineView = splinesViewComponent->GetSplineView(splineComponentController->GetSplineID());
+        EDITOR_ASSERT(splineView);
+        if (!splineView)
+            return;
+
+        const auto splineComponentView = splineView->GetSplineComponent(*splineComponentController);
+        EDITOR_ASSERT(splineComponentView);
+        if (!splineComponentView)
+            return;
+
+        visitor(*splineComponentView);
+    });
 }
 
 void CCurveEditorSelectionViewComponent::OnControllerChanged()

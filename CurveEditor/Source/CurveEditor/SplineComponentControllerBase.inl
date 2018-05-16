@@ -16,6 +16,22 @@ ECurveEditorSplineComponentType CCurveEditorSplineComponentControllerBase<SuperC
 }
 
 template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
+bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::SetControlPointPosition(size_t controlPointIndex, const ax::pointf& position)
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    auto& controlPoints = dataModel->GetControlPoints();
+    if (controlPointIndex >= controlPoints.size())
+        return false;
+
+    controlPoints[controlPointIndex] = position;
+    return true;
+}
+
+template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
 std::optional<ax::pointf> CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::GetControlPointPosition(size_t controlPointIndex) const noexcept
 {
     const auto& controlPoints = GetControlPoints();
@@ -24,6 +40,22 @@ std::optional<ax::pointf> CCurveEditorSplineComponentControllerBase<SuperClass, 
         return std::nullopt;
 
     return controlPoints[controlPointIndex];
+}
+
+template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
+bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::MoveControlPointPosition(size_t controlPointIndex, const ax::pointf& delta)
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    auto& controlPoints = dataModel->GetControlPoints();
+    if (controlPointIndex >= controlPoints.size())
+        return false;
+
+    controlPoints[controlPointIndex] += delta;
+    return true;
 }
 
 static const std::vector<ax::pointf> null;
