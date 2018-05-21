@@ -16,13 +16,13 @@ template<typename Type>
 using ConstInterruptibleVisitorType = std::function<bool(const Type&)>;
 
 template<typename ContainerType, typename InterruptibleVisitorType>
-inline void VisitPointersContainerInterruptible(const ContainerType& container, const InterruptibleVisitorType& visitor, bool reverse = false) noexcept
+inline void VisitPointersContainerInterruptible(ContainerType& container, InterruptibleVisitorType& visitor, bool reverse = false) noexcept
 {
     if (reverse)
     {
-        for (auto iterator = container.crbegin(); iterator != container.crend(); ++iterator)
+        for (auto iterator = container.rbegin(); iterator != container.rend(); ++iterator)
         {
-            if (const auto& element = *iterator)
+            if (auto& element = *iterator)
             {
                 if (!visitor(*element))
                     return;
@@ -43,7 +43,7 @@ inline void VisitPointersContainerInterruptible(const ContainerType& container, 
 }
 
 template<typename ContainerType, typename VisitorType>
-inline void VisitPointersContainer(const ContainerType& container, const VisitorType& visitor, bool reverse = false) noexcept
+inline void VisitPointersContainer(ContainerType& container, VisitorType& visitor, bool reverse = false) noexcept
 {
     const auto proxyVisitor = [&visitor](auto& element)
     {
@@ -55,11 +55,11 @@ inline void VisitPointersContainer(const ContainerType& container, const Visitor
 }
 
 template<typename ContainerType, typename InterruptibleVisitorType>
-inline void VisitObjectsContainerInterruptible(const ContainerType& container, const InterruptibleVisitorType& visitor, bool reverse = false) noexcept
+inline void VisitObjectsContainerInterruptible(ContainerType& container, InterruptibleVisitorType& visitor, bool reverse = false) noexcept
 {
     if (reverse)
     {
-        for (auto iterator = container.crbegin(); iterator != container.crend(); ++iterator)
+        for (auto iterator = container.rbegin(); iterator != container.rend(); ++iterator)
         {
             if (!visitor(*iterator))
                 return;
@@ -76,7 +76,7 @@ inline void VisitObjectsContainerInterruptible(const ContainerType& container, c
 }
 
 template<typename ContainerType, typename VisitorType>
-inline void VisitObjectsContainer(const ContainerType& container, const VisitorType& visitor, bool reverse = false) noexcept
+inline void VisitObjectsContainer(ContainerType& container, VisitorType& visitor, bool reverse = false) noexcept
 {
     const auto proxyVisitor = [&visitor](auto& element)
     {
@@ -88,11 +88,11 @@ inline void VisitObjectsContainer(const ContainerType& container, const VisitorT
 }
 
 template<typename ContainerType, typename InterruptibleVisitorType>
-inline void VisitPointersMapInterruptible(const ContainerType& container, const InterruptibleVisitorType& visitor, bool reverse = false) noexcept
+inline void VisitPointersMapInterruptible(ContainerType& container, InterruptibleVisitorType& visitor, bool reverse = false) noexcept
 {
     if (reverse)
     {
-        for (auto iterator = container.crbegin(); iterator != container.crend(); ++iterator)
+        for (auto iterator = container.rbegin(); iterator != container.rend(); ++iterator)
         {
             if (const auto& value = iterator->second)
             {
@@ -103,16 +103,16 @@ inline void VisitPointersMapInterruptible(const ContainerType& container, const 
     }
     else
     {
-        for (const auto& pair : container)
+        for (auto& pair : container)
         {
-            if (const auto& value = pair.second)
+            if (auto& value = pair.second)
                 visitor(*value);
         }
     }
 }
 
 template<typename ContainerType, typename VisitorType>
-inline void VisitPointersMap(const ContainerType& container, const VisitorType& visitor, bool reverse = false) noexcept
+inline void VisitPointersMap(ContainerType& container, VisitorType& visitor, bool reverse = false) noexcept
 {
     const auto proxyVisitor = [&visitor](auto& element)
     {
@@ -124,11 +124,11 @@ inline void VisitPointersMap(const ContainerType& container, const VisitorType& 
 }
 
 template<typename ContainerType, typename InterruptibleVisitorType>
-inline void VisitObjectsMapInterruptible(const ContainerType& container, const InterruptibleVisitorType& visitor, bool reverse = false) noexcept
+inline void VisitObjectsMapInterruptible(ContainerType& container, InterruptibleVisitorType& visitor, bool reverse = false) noexcept
 {
     if (reverse)
     {
-        for (auto iterator = container.crbegin(); iterator != container.crend(); ++iterator)
+        for (auto iterator = container.rbegin(); iterator != container.rend(); ++iterator)
         {
             if (!visitor(iterator->second))
                 return;
@@ -136,13 +136,13 @@ inline void VisitObjectsMapInterruptible(const ContainerType& container, const I
     }
     else
     {
-        for (const auto& pair : container)
+        for (auto& pair : container)
             visitor(pair.second);
     }
 }
 
 template<typename ContainerType, typename VisitorType>
-inline void VisitObjectsMap(const ContainerType& container, const VisitorType& visitor, bool reverse = false) noexcept
+inline void VisitObjectsMap(ContainerType& container, VisitorType& visitor, bool reverse = false) noexcept
 {
     const auto proxyVisitor = [&visitor](auto& element)
     {
@@ -189,5 +189,21 @@ inline const auto GetViewComponent(EditorViewType& editorView)
 
     return result;
 }
+
+class CScopedGuard
+{
+public:
+    CScopedGuard(std::function<void()>&& callback) noexcept :
+        m_Callback(std::move(callback)){}
+
+    ~CScopedGuard()
+    {
+        if (m_Callback)
+            m_Callback();
+    }
+
+private:
+    const std::function<void()> m_Callback;
+};
 
 #endif //__UTILITES_H__
