@@ -13,6 +13,19 @@ enum class ECurveType
 using SplineID = size_t;
 using SplineColor = unsigned int;
 
+struct SSplineControlPointSinglePosition
+{
+    SSplineControlPointSinglePosition() = default;
+    SSplineControlPointSinglePosition(size_t controlPointIndex, ax::pointf position);
+
+    size_t ControlPointIndex;
+    mutable ax::pointf Position;
+
+    bool operator<(const SSplineControlPointSinglePosition& rhs) const noexcept;
+};
+
+using SplineControlPointsPositions = std::set<SSplineControlPointSinglePosition>;
+
 class ICurveEditorSplineDataModelListener : public IEditorListener
 {
 public:
@@ -20,6 +33,8 @@ public:
 
     virtual void OnKnotInserted(size_t controlPointIndex) = 0;
     virtual void OnKnotRemoved(size_t controlPointIndex) = 0;
+
+    virtual void OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions) = 0;
 };
 
 class ICurveEditorSplineDataModel : public IEditorDataModel
@@ -27,8 +42,9 @@ class ICurveEditorSplineDataModel : public IEditorDataModel
 public:
     virtual ~ICurveEditorSplineDataModel() override = default;
 
-    virtual std::vector<ax::pointf>& GetControlPoints() noexcept = 0;
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
+    virtual bool SetControlPoints(const SplineControlPointsPositions& positions) = 0;
+
     virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept = 0;
 
     virtual const SplineID& GetID() const noexcept = 0;

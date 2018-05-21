@@ -34,15 +34,19 @@ bool CCurveEditorKnotControllerPrivate::SetPosition(const ax::pointf& position)
 
     const auto delta = position - *knotControlPointPosition;
 
-    const auto moveTangent = [this, &delta](const auto tangentControlPointIndex)
-    {
-        MoveControlPointPosition(tangentControlPointIndex, delta);
-    };
+    SplineControlPointsPositions controlPointsDeltaPositions;
 
-    moveTangent(knotControlPointIndex - 1);
-    moveTangent(knotControlPointIndex + 1);
+    const auto& controlPoints = GetControlPoints();
 
-    return SetControlPointPosition(knotControlPointIndex, position);
+    controlPointsDeltaPositions.emplace(knotControlPointIndex, delta);
+
+    if (const auto controlPointIndex = knotControlPointIndex - 1; controlPointIndex < controlPoints.size())
+        controlPointsDeltaPositions.emplace(controlPointIndex, delta);
+
+    if (const auto controlPointIndex = knotControlPointIndex + 1; controlPointIndex < controlPoints.size())
+        controlPointsDeltaPositions.emplace(controlPointIndex, delta);
+
+    return MoveControlPoints(controlPointsDeltaPositions);
 }
 
 std::optional<ax::pointf> CCurveEditorKnotControllerPrivate::GetPosition() const noexcept
@@ -51,7 +55,7 @@ std::optional<ax::pointf> CCurveEditorKnotControllerPrivate::GetPosition() const
     if (!m_ControlPointIndex)
         return std::nullopt;
 
-    return GetControlPointPosition(*m_ControlPointIndex);
+    return GetControlPoint(*m_ControlPointIndex);
 }
 
 bool CCurveEditorKnotControllerPrivate::SetKnotIndex(size_t knotIndex) noexcept

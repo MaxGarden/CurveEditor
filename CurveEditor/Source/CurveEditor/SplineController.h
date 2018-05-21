@@ -26,10 +26,10 @@ public:
     virtual std::optional<ax::pointf> GetPosition() const noexcept = 0;
 };
 
-class ICurveEditorSplineListener : public IEditorListener
+class ICurveEditorSplineControllerListener : public IEditorListener
 {
 public:
-    virtual ~ICurveEditorSplineListener() override = default;
+    virtual ~ICurveEditorSplineControllerListener() override = default;
 
     virtual void OnKnotCreated(const ICurveEditorKnotControllerSharedPtr& knotController) = 0;
     virtual void OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController) = 0;

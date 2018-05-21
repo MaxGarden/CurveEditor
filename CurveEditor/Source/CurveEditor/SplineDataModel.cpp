@@ -3,14 +3,15 @@
 #include "EditorListenableBase.h"
 #include <random>
 
-class CCurveEditorSplineDataModel final : public CEditorListenableBase<ICurveEditorSplineDataModel, IEditorListener>
+class CCurveEditorSplineDataModel final : public CEditorListenableBase<ICurveEditorSplineDataModel, ICurveEditorSplineDataModelListener>
 {
 public:
     CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color);
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
-    virtual std::vector<ax::pointf>& GetControlPoints() noexcept override final;
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
+    virtual bool SetControlPoints(const SplineControlPointsPositions& positions) override final;
+
     virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept override final;
 
     virtual const SplineID& GetID() const noexcept override final;
@@ -33,14 +34,29 @@ CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(SplineID&& id, SplineCo
                         { 5.0f, -3.0f }, { 5.01f, -2.0f }, { 6.0f, -1.0f } };
 }
 
-std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() noexcept
+const std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() const noexcept
 {
     return m_ControlPoints;
 }
 
-const std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() const noexcept
+bool CCurveEditorSplineDataModel::SetControlPoints(const SplineControlPointsPositions& positions)
 {
-    return m_ControlPoints;
+    if (positions.empty())
+        return false;
+
+    const auto lastControlPointIndex = positions.rbegin()->ControlPointIndex;
+
+    EDITOR_ASSERT(lastControlPointIndex < m_ControlPoints.size());
+    if (lastControlPointIndex >= m_ControlPoints.size())
+        return false;
+
+    VisitObjectsContainer(positions, [this](const auto& singlePosition)
+    {
+        m_ControlPoints[singlePosition.ControlPointIndex] = singlePosition.Position;
+    });
+
+    NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsPositionsChanged, positions);
+    return true;
 }
 
 const std::vector<ECurveType>& CCurveEditorSplineDataModel::GetCurvesTypes() const noexcept
@@ -73,4 +89,15 @@ const SplineID& ICurveEditorSplineDataModel::InvalidSplineID() noexcept
 {
     static SplineID invalidID = 0;
     return invalidID;
+}
+
+SSplineControlPointSinglePosition::SSplineControlPointSinglePosition(size_t controlPointIndex, ax::pointf position) :
+    ControlPointIndex(controlPointIndex),
+    Position(position)
+{
+}
+
+bool SSplineControlPointSinglePosition::operator<(const SSplineControlPointSinglePosition& rhs) const noexcept
+{
+    return ControlPointIndex < rhs.ControlPointIndex;
 }

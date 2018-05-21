@@ -35,23 +35,27 @@ bool CCurveEditorCurveControllerPrivate::SetPosition(const ax::pointf& position)
     const auto delta = position - *currentPosition;
     EDITOR_ASSERT(m_ControlPointsRange);
 
-    auto result = true;
-
     std::pair<size_t, size_t> controlPointIndexesRange = { UINT_MAX, 0 };
 
-    VisitCurveControlPointIndexes([this, &delta, &result, &controlPointIndexesRange](const auto& controlPointIndex)
+    SplineControlPointsPositions controlPointsDeltaPositions;
+
+    VisitCurveControlPointIndexes([&delta, &controlPointIndexesRange, &controlPointsDeltaPositions](const auto& controlPointIndex)
     {
         controlPointIndexesRange.first = std::min(controlPointIndexesRange.first, controlPointIndex);
         controlPointIndexesRange.second = std::max(controlPointIndexesRange.second, controlPointIndex);
 
-        result &= MoveControlPointPosition(controlPointIndex, delta);
-        EDITOR_ASSERT(result);
+        controlPointsDeltaPositions.emplace(controlPointIndex, delta);
     });
 
-    MoveControlPointPosition(controlPointIndexesRange.first - 1, delta);
-    MoveControlPointPosition(controlPointIndexesRange.second + 1, delta);
+    const auto& controlPoints = GetControlPoints();
 
-    return result;
+    if (const auto controlPointIndex = controlPointIndexesRange.first - 1; controlPointIndex < controlPoints.size())
+        controlPointsDeltaPositions.emplace(controlPointIndex, delta);
+
+    if (const auto controlPointIndex = controlPointIndexesRange.second + 1; controlPointIndex < controlPoints.size())
+        controlPointsDeltaPositions.emplace(controlPointIndex, delta);
+
+    return MoveControlPoints(controlPointsDeltaPositions);
 }
 
 std::optional<ax::pointf> CCurveEditorCurveControllerPrivate::GetPosition() const noexcept

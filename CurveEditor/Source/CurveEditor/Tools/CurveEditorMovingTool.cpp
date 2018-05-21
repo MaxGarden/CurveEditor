@@ -61,10 +61,7 @@ void CCurveEditorMovingTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&
     if (selectionViewComponent->GetSelectionMode() != draggingSplineComponentView->GetType())
         return;
 
-    selectionViewComponent->VisitSelection([&addSplineCompnentViewToDrag](auto& splineComponentView)
-    {
-        addSplineCompnentViewToDrag(splineComponentView);
-    });
+    selectionViewComponent->VisitSelection(addSplineCompnentViewToDrag);
 }
 
 void CCurveEditorMovingTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)

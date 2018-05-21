@@ -16,23 +16,18 @@ ECurveEditorSplineComponentType CCurveEditorSplineComponentControllerBase<SuperC
 }
 
 template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
-bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::SetControlPointPosition(size_t controlPointIndex, const ax::pointf& position)
+bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::SetControlPoints(const SplineControlPointsPositions& positions)
 {
     const auto& dataModel = GetDataModel();
     EDITOR_ASSERT(dataModel);
     if (!dataModel)
         return false;
 
-    auto& controlPoints = dataModel->GetControlPoints();
-    if (controlPointIndex >= controlPoints.size())
-        return false;
-
-    controlPoints[controlPointIndex] = position;
-    return true;
+    return dataModel->SetControlPoints(positions);
 }
 
 template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
-std::optional<ax::pointf> CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::GetControlPointPosition(size_t controlPointIndex) const noexcept
+std::optional<ax::pointf> CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::GetControlPoint(size_t controlPointIndex) const noexcept
 {
     const auto& controlPoints = GetControlPoints();
     EDITOR_ASSERT(controlPointIndex < controlPoints.size());
@@ -43,19 +38,27 @@ std::optional<ax::pointf> CCurveEditorSplineComponentControllerBase<SuperClass, 
 }
 
 template<typename SuperClass, ECurveEditorSplineComponentType ComponentType>
-bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::MoveControlPointPosition(size_t controlPointIndex, const ax::pointf& delta)
+bool CCurveEditorSplineComponentControllerBase<SuperClass, ComponentType>::MoveControlPoints(SplineControlPointsPositions deltaPositions)
 {
     const auto& dataModel = GetDataModel();
     EDITOR_ASSERT(dataModel);
     if (!dataModel)
         return false;
 
-    auto& controlPoints = dataModel->GetControlPoints();
-    if (controlPointIndex >= controlPoints.size())
+    const auto& controlPoints = dataModel->GetControlPoints();
+    const auto lastControlPointIndex = deltaPositions.rbegin()->ControlPointIndex;
+
+    EDITOR_ASSERT(lastControlPointIndex < controlPoints.size());
+    if (lastControlPointIndex >= controlPoints.size())
         return false;
 
-    controlPoints[controlPointIndex] += delta;
-    return true;
+    VisitObjectsContainerInterruptible(deltaPositions, [&controlPoints](auto& singlePosition)
+    {
+        singlePosition.Position += controlPoints[singlePosition.ControlPointIndex];
+        return true;
+    });
+
+    return dataModel->SetControlPoints(deltaPositions);
 }
 
 static const std::vector<ax::pointf> null;

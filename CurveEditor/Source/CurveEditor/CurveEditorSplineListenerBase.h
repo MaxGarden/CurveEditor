@@ -11,9 +11,11 @@ public:
 
     virtual void OnKnotInserted(size_t controlPointIndex) override;
     virtual void OnKnotRemoved(size_t controlPointIndex) override;
+
+    virtual void OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions) override;
 };
 
-class CCurveEditorSplineControllerListenerBase : public ICurveEditorSplineListener
+class CCurveEditorSplineControllerListenerBase : public ICurveEditorSplineControllerListener
 {
 public:
     CCurveEditorSplineControllerListenerBase() = default;

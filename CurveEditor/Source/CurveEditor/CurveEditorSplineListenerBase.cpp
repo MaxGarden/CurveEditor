@@ -11,6 +11,11 @@ void CCurveEditorSplineDataModelListenerBase::OnKnotRemoved(size_t)
     //to override
 }
 
+void CCurveEditorSplineDataModelListenerBase::OnControlPointsPositionsChanged(const SplineControlPointsPositions&)
+{
+    //to override
+}
+
 void CCurveEditorSplineControllerListenerBase::OnKnotCreated(const ICurveEditorKnotControllerSharedPtr&)
 {
     //to override

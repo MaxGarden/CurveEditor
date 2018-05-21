@@ -28,7 +28,7 @@ bool CCurveEditorTangentControllerPrivate::SetPosition(const ax::pointf& positio
     if (!m_TangentControlPointIndex)
         return false;
 
-    return SetControlPointPosition(*m_TangentControlPointIndex, position);
+    return SetControlPoints({ { *m_TangentControlPointIndex, position } });
 }
 
 std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetPosition() const noexcept
@@ -37,7 +37,7 @@ std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetPosition() co
     if (!m_TangentControlPointIndex)
         return std::nullopt;
 
-    return GetControlPointPosition(*m_TangentControlPointIndex);
+    return GetControlPoint(*m_TangentControlPointIndex);
 }
 
 std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetAnchorPosition() const noexcept
@@ -46,7 +46,7 @@ std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetAnchorPositio
     if (!m_AnchorControlPointIndex)
         return std::nullopt;
 
-    return GetControlPointPosition(*m_AnchorControlPointIndex);
+    return GetControlPoint(*m_AnchorControlPointIndex);
 }
 
 bool CCurveEditorTangentControllerPrivate::SetTangentIndex(size_t tangentIndex) noexcept
