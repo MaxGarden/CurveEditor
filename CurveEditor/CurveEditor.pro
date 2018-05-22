@@ -59,6 +59,7 @@ SOURCES += \
     Source/CurveEditor/Components/ToolHandlerComponent.cpp      \
     Source/CurveEditor/Components/SplinesComponent.cpp          \
     Source/CurveEditor/Components/SelectionComponent.cpp        \
+    Source/CurveEditor/Components/NavigationComponent.cpp       \
     Source/CurveEditor/Tools/CurveEditorToolBase.cpp            \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.cpp        \
     Source/CurveEditor/Tools/CurveEditorScrollTool.cpp          \
@@ -128,6 +129,7 @@ HEADERS += \
     Source/CurveEditor/Components/ToolHandlerComponent.h        \
     Source/CurveEditor/Components/SplinesComponent.h            \
     Source/CurveEditor/Components/SelectionComponent.h          \
+    Source/CurveEditor/Components/NavigationComponent.h         \
     Source/CurveEditor/Tools/CurveEditorToolBase.h              \
     Source/CurveEditor/Tools/CurveEditorHoveringTool.h          \
     Source/CurveEditor/Tools/CurveEditorScrollTool.h            \

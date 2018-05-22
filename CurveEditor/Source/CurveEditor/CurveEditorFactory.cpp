@@ -7,6 +7,8 @@
 #include "Components/ToolHandlerComponent.h"
 #include "Components/SplinesComponent.h"
 #include "Components/SelectionComponent.h"
+#include "Components/NavigationComponent.h"
+
 
 CCurveEditorViewFactory::CCurveEditorViewFactory(IEditorContext& editorContext, ICurveEditorSplineViewFactory& splineViewFactory) :
     m_EditorContext(editorContext),
@@ -28,6 +30,7 @@ IEditorViewUniquePtr CCurveEditorViewFactory::Create()
     result->AddViewComponent(ICurveEditorSelectionViewComponent::Create(*result), EComponentOrder::Selection);
 
     result->AddViewComponent(ICurveEditorToolHandlerComponent::Create(*result), EComponentOrder::ToolHandler);
+    result->AddViewComponent(ICurveEditorNavigationComponent::Create(*result), EComponentOrder::Background);
 
     if (!result->Initialize())
         return nullptr;
