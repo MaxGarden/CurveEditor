@@ -14,7 +14,7 @@ public:
     virtual ~CCurveEditorBackgroundViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
+    virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
 CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(ICurveEditorView& editorView) :
@@ -22,10 +22,10 @@ CCurveEditorBackgroundViewComponent::CCurveEditorBackgroundViewComponent(ICurveE
 {
 }
 
-void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList, ICurveEditorController& editorController)
+void CCurveEditorBackgroundViewComponent::OnFrame(ImDrawList& drawList)
 {
     const auto& editorView = GetEditorView();
-    const auto& style = editorController.GetEditorStyle();
+    const auto& style = editorView.GetEditorStyle();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
 

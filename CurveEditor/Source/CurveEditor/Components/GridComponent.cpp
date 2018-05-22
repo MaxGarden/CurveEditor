@@ -14,7 +14,7 @@ public:
     virtual ~CCurveEditorGridViewComponent() override final = default;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
+    virtual void OnFrame(ImDrawList& drawList) override final;
 };
 
 CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(ICurveEditorView& editorView) :
@@ -22,12 +22,12 @@ CCurveEditorGridViewComponent::CCurveEditorGridViewComponent(ICurveEditorView& e
 {
 }
 
-void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList, ICurveEditorController& editorController)
+void CCurveEditorGridViewComponent::OnFrame(ImDrawList& drawList)
 {
     static const auto graduation = ImVec2{ 10, 10 };
 
     const auto& editorView = GetEditorView();
-    const auto& style = editorController.GetEditorStyle();
+    const auto& style = editorView.GetEditorStyle();
     const auto& editorCanvas = editorView.GetCanvas();
     const auto& windowCanvas = editorCanvas.GetWindowCanvas();
 

@@ -25,6 +25,7 @@ public:
     virtual std::optional<ax::pointf> GetPosition() const noexcept override final;
 
 protected:
+    virtual void OnFrame(ImDrawList& drawList);
     virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 
     ICurveEditorView& GetEditorView() const noexcept;

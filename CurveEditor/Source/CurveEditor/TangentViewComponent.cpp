@@ -34,7 +34,7 @@ public:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorTangentController& controller) override final;
+    virtual void OnFrame(ImDrawList& drawList) override final;
 
 private:
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
@@ -144,7 +144,7 @@ IEditorRenderableUniquePtr CCurveEditorTangentView::CreateBorderRenderable(ECurv
     return std::make_unique<CCurveEditorTangentBorderRenderable>(weak_from_this(), borderStyleColor, thicknessStyle);
 }
 
-void CCurveEditorTangentView::OnFrame(ImDrawList& drawList, ICurveEditorTangentController&)
+void CCurveEditorTangentView::OnFrame(ImDrawList& drawList)
 {
     const auto& style = GetEditorView().GetEditorStyle();
 

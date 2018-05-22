@@ -12,12 +12,7 @@ void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineCompo
     if (!drawList)
         return;
 
-    const auto& controller = GetController();
-    EDITOR_ASSERT(controller);
-    if (!controller)
-        return;
-
-    OnFrame(*drawList, *controller);
+    OnFrame(*drawList);
 }
 
 template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
@@ -62,6 +57,17 @@ std::optional<ax::pointf> CCurveEditorSplineComponentViewBase<SuperClass, Contro
 
     EDITOR_ASSERT(false);
     return std::nullopt;
+}
+
+template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>
+void CCurveEditorSplineComponentViewBase<SuperClass, ControllerType, SplineComponentType>::OnFrame(ImDrawList& drawList)
+{
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return;
+
+    OnFrame(drawList, *controller);
 }
 
 template<typename SuperClass, typename ControllerType, ECurveEditorSplineComponentType SplineComponentType>

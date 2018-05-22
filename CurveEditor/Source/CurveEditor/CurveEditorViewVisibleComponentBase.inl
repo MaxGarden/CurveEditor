@@ -1,10 +1,21 @@
-template<typename SuperClass, typename ControllerType>
+template<typename SuperClass /*= ICurveEditorViewComponent*/, typename ControllerType /*= ICurveEditorController*/>
 CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::CCurveEditorViewVisibleComponentBase(ICurveEditorView& editorView) :
     CCurveEditorViewComponentBase(editorView)
 {
 }
 
-template<typename SuperClass, typename ControllerType>
+template<typename SuperClass /*= ICurveEditorViewComponent*/, typename ControllerType /*= ICurveEditorController*/>
+void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame(ImDrawList& drawList)
+{
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return;
+
+    OnFrame(drawList, *controller);
+}
+
+template<typename SuperClass /*= ICurveEditorViewComponent*/, typename ControllerType /*= ICurveEditorController*/>
 void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame()
 {
     EDITOR_ASSERT(ImGui::GetCurrentContext());
@@ -12,15 +23,10 @@ void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame()
     if (!drawList)
         return;
 
-    const auto& controller = GetController();
-    EDITOR_ASSERT(controller);
-    if (!controller)
-        return;
-
-    OnFrame(*drawList, *controller);
+    OnFrame(*drawList);
 }
 
-template<typename SuperClass, typename ControllerType>
+template<typename SuperClass /*= ICurveEditorViewComponent*/, typename ControllerType /*= ICurveEditorController*/>
 void CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>::OnFrame(ImDrawList&, ControllerType&)
 {
     //to override

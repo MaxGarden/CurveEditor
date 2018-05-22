@@ -32,7 +32,7 @@ public:
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
 protected:
-    virtual void OnFrame(ImDrawList& drawList, ICurveEditorKnotController& controller) override final;
+    virtual void OnFrame(ImDrawList& drawList) override final;
 
 private:
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
@@ -131,7 +131,7 @@ std::optional<ax::rectf> CCurveEditorKnotView::CalculateBounds(bool screenTransl
     return ax::rectf{ *editorPosition - halfKnotSize, *editorPosition + halfKnotSize };
 }
 
-void CCurveEditorKnotView::OnFrame(ImDrawList& drawList, ICurveEditorKnotController&)
+void CCurveEditorKnotView::OnFrame(ImDrawList& drawList)
 {
     const auto bounds = CalculateBounds(true);
     EDITOR_ASSERT(bounds);

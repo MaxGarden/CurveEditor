@@ -13,6 +13,7 @@ public:
     virtual void OnFrame() override;
 
 protected:
+    virtual void OnFrame(ImDrawList& drawList);
     virtual void OnFrame(ImDrawList& drawList, ControllerType& controller);
 
     using Super = CCurveEditorViewVisibleComponentBase<SuperClass, ControllerType>;
