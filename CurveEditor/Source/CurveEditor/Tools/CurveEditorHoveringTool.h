@@ -6,7 +6,7 @@
 class CCurveEditorHoveringTool final : public CCurveEditorVisibleToolBase
 {
 public:
-    CCurveEditorHoveringTool() = default;
+    CCurveEditorHoveringTool(bool curveAsSpline);
     virtual ~CCurveEditorHoveringTool() override final = default;
 
     virtual void OnAcquired(const CCurveEditorToolEvent& event) override final;
@@ -19,8 +19,11 @@ public:
 
 private:
     void UpdateHoveringView(ICurveEditorSplineComponentView* splineViewComponent, ICurveEditorView& editorView);
+    std::vector<IEditorRenderableUniquePtr> CreateBorderRenderables(ICurveEditorSplineComponentView& splineComponentView) const;
 
 private:
+    const bool m_CurveAsSpline;
+
     bool m_IsEnabled = true;
     ax::pointf m_DragBeginPosition;
     std::optional<ToolViewHandle> m_HoveringViewHandle;
