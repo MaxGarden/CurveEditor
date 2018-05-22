@@ -15,6 +15,11 @@ SCurveEditorStyle::SCurveEditorStyle()
     DEFINE_COLOR(CurveEditorStyleColor_SelectionBorder      , 255, 176, 050, 255);
     DEFINE_COLOR(CurveEditorStyleColor_SelectionRect        , 050, 020, 255, 128);
     DEFINE_COLOR(CurveEditorStyleColor_SelectionRectBorder  , 050, 020, 255, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerText            , 127, 127, 127, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBorder          , 127, 127, 127, 000);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBackground      , 127, 127, 127, 005);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBigGraduation   , 000, 000, 000, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerSmallGraduation , 200, 200, 200, 255);
 
     KnotSize = { 10.0f, 10.0f };
     SplineThickness = 3.0f;
@@ -32,6 +37,8 @@ SCurveEditorStyle::SCurveEditorStyle()
     SelectionBorderThickness = 5.0f;
 
     SelectionViaIntersection = true;
+
+    RulerSizeFactor = 2.0f;
 }
 
 std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFloat styleFloat) const noexcept
@@ -56,6 +63,8 @@ std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFlo
         return HoveringBorderThickness;
     case CurveEditorStyleFloat_SelectionBorderThickness:
         return SelectionBorderThickness;
+    case CurveEditorStyleFloat_RulerSizeFactor:
+        return RulerSizeFactor;
     default:
         EDITOR_ASSERT(false);
         return std::nullopt;

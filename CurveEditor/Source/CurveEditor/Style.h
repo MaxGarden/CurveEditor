@@ -15,6 +15,12 @@ enum ECurveEditorStyleColor
     CurveEditorStyleColor_SelectionBorder,
     CurveEditorStyleColor_SelectionRect,
     CurveEditorStyleColor_SelectionRectBorder,
+    CurveEditorStyleColor_RulerText,
+    CurveEditorStyleColor_RulerBorder,
+    CurveEditorStyleColor_RulerBackground,
+    CurveEditorStyleColor_RulerBigGraduation,
+    CurveEditorStyleColor_RulerSmallGraduation,
+
     CurveEditorStyleColor_Count
 };
 
@@ -31,7 +37,9 @@ enum ECurveEditorStyleFloat
 
     CurveEditorStyleFloat_HoveringBorderThickness,
 
-    CurveEditorStyleFloat_SelectionBorderThickness
+    CurveEditorStyleFloat_SelectionBorderThickness,
+
+    CurveEditorStyleFloat_RulerSizeFactor
 };
 
 enum ECurveEditorStyleVec2
@@ -65,6 +73,8 @@ struct SCurveEditorStyle
     float SelectionBorderThickness;
 
     bool SelectionViaIntersection;
+
+    float RulerSizeFactor;
 
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;
