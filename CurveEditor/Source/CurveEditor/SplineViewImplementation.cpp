@@ -13,6 +13,10 @@ public:
 
     virtual void OnFrame() override final;
 
+    virtual bool SaveState() override final;
+    virtual bool RestoreState() override final;
+    virtual bool ResetSavedState() noexcept override final;
+
     virtual ICurveEditorSplineComponentViewSharedPtr GetSplineComponent(const ICurveEditorSplineComponentController& splineComponentController) const noexcept override final;
 
     virtual void VisitSplineComponents(ECurveEditorSplineComponentType componentType, const InterruptibleVisitorType<ICurveEditorSplineComponentView>& visitor, bool reverse = false) const noexcept override final;
@@ -121,6 +125,35 @@ void CCurveEditorSplineView::OnFrame()
     VisitCurvesViews(onFrameVisitor);
     VisitTangentsViews(onFrameVisitor);
     VisitKnotsViews(onFrameVisitor);
+}
+
+bool CCurveEditorSplineView::SaveState()
+{
+    if (const auto& controller = GetController())
+        return controller->SaveState();
+
+    EDITOR_ASSERT(false);
+    return false;
+}
+
+bool CCurveEditorSplineView::RestoreState()
+{
+    if (const auto& controller = GetController())
+        return controller->RestoreState();
+
+    EDITOR_ASSERT(false);
+    return false;
+}
+
+bool CCurveEditorSplineView::ResetSavedState() noexcept
+{
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return false;
+
+    controller->ResetSavedState();
+    return true;
 }
 
 template<typename ContainerType>

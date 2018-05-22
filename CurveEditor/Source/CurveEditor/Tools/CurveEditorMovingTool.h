@@ -17,12 +17,17 @@ public:
     virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override final;
 
 private:
+    bool AddSplineComponentViewToDrag(ICurveEditorSplineComponentView& splineComponentView, ICurveEditorSplinesViewComponent& splinesViewComponent);
+    void ResetDraggedSplineComponentsViews();
+
+private:
     const ECurveEditorMouseButton m_ActivationMouseButton;
 
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
     ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewComponent;
 
-    std::map<ICurveEditorSplineComponentView*, const ax::pointf> m_DraggingSplineComponentsViews;
+    std::set<ICurveEditorSplineView*> m_DraggingSplines;
+    std::map<ICurveEditorSplineComponentView*, ax::pointf> m_DraggingSplineComponentsViews;
 };
 
 #endif //__CURVE_EDITOR_MOVING_TOOL_H__

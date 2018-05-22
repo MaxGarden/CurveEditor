@@ -12,6 +12,10 @@ public:
     CCurveEditorFunctionSplineController() = default;
     virtual ~CCurveEditorFunctionSplineController() override final = default;
 
+    virtual bool SaveState() override final;
+    virtual bool RestoreState() override final;
+    virtual void ResetSavedState() noexcept override final;
+
     virtual const SplineID& GetID() const noexcept override final;
     virtual const SplineColor& GetColor() const noexcept override final;
 
@@ -58,11 +62,19 @@ private:
     ICurveEditorCurveControllerPrivateSharedPtr AddCurveController(size_t curveIndex);
 
 private:
-    std::vector<ICurveEditorKnotControllerPrivateSharedPtr> m_KnotsControllers;
-    std::vector<ICurveEditorTangentControllerPrivateSharedPtr> m_TangentsControllers;
-    std::vector<ICurveEditorCurveControllerPrivateSharedPtr> m_CurvesControllers;
+    using KnotsControllers = std::vector<ICurveEditorKnotControllerPrivateSharedPtr>;
+    using TangentsControllers = std::vector<ICurveEditorTangentControllerPrivateSharedPtr>;
+    using CurvesControllers = std::vector<ICurveEditorCurveControllerPrivateSharedPtr>;
+
+    KnotsControllers m_KnotsControllers;
+    TangentsControllers m_TangentsControllers;
+    CurvesControllers m_CurvesControllers;
 
     bool m_BlockControlPointsPoisitonChangedEvent = false;
+
+    SplineControlPointsPositions m_SavedControlPointsPositions;
+    KnotsControllers m_SavedKnotsControllers;
+    TangentsControllers m_SavedTangentsControllers;
 };
 
 class CCurveEditorFunctionSplineControllerListener final : public CCurveEditorSplineDataModelListenerBase
@@ -98,6 +110,62 @@ void CCurveEditorFunctionSplineControllerListener::OnKnotRemoved(size_t controlP
 void CCurveEditorFunctionSplineControllerListener::OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions)
 {
     m_FunctionSplineController.OnControlPointsPositionsChanged(positions);
+}
+
+bool CCurveEditorFunctionSplineController::SaveState()
+{
+    if (!(m_SavedControlPointsPositions.empty() && m_SavedKnotsControllers.empty() && m_SavedTangentsControllers.empty()))
+        return false;
+
+    const auto& controlPoints = GetControlPoints();
+
+    for (auto i = 0u; i < controlPoints.size(); ++i)
+        m_SavedControlPointsPositions.emplace(i, controlPoints[i]);
+
+    m_SavedKnotsControllers = m_KnotsControllers;
+    m_SavedTangentsControllers = m_TangentsControllers;
+
+    return true;
+}
+
+bool CCurveEditorFunctionSplineController::RestoreState()
+{
+    if (m_SavedControlPointsPositions.empty() || m_SavedKnotsControllers.empty() || m_SavedTangentsControllers.empty())
+        return false;
+
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    m_TangentsControllers = m_SavedTangentsControllers;
+    m_KnotsControllers = m_SavedKnotsControllers;
+
+    const auto restoreIndexes = [](const auto& container, const auto setIndexMethod)
+    {
+        auto index = 0u;
+        VisitPointersContainer(container, [&index, &setIndexMethod](auto& controller)
+        {
+            (controller.*setIndexMethod)(index++);
+        });
+
+        EDITOR_ASSERT(index == container.size());
+    };
+
+    restoreIndexes(m_KnotsControllers, &ICurveEditorKnotControllerPrivate::SetKnotIndex);
+    restoreIndexes(m_TangentsControllers, &ICurveEditorTangentControllerPrivate::SetTangentIndex);
+
+    const auto result = dataModel->SetControlPoints(m_SavedControlPointsPositions);
+    EDITOR_ASSERT(result);
+
+    return result;
+}
+
+void CCurveEditorFunctionSplineController::ResetSavedState() noexcept
+{
+    m_SavedControlPointsPositions.clear();
+    m_SavedKnotsControllers.clear();
+    m_SavedTangentsControllers.clear();
 }
 
 const SplineID& CCurveEditorFunctionSplineController::GetID() const noexcept
@@ -182,10 +250,10 @@ void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged(const
         return;
     m_BlockControlPointsPoisitonChangedEvent = true;
 
-    CScopedGuard guard([this]()
+    CScopedGuard guard{ [this]()
     {
         m_BlockControlPointsPoisitonChangedEvent = false;
-    });
+    } };
 
     ComponentsReplacement();
     TangentsConstraint();
@@ -364,7 +432,6 @@ void CCurveEditorFunctionSplineController::KnotsReplacement()
 
 void CCurveEditorFunctionSplineController::TangentsConstraint()
 {
-    return;
     ICurveEditorTangentController* previousTangentController = nullptr;
 
     VisitTangentsControllers([&](const auto& tangentController)

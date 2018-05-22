@@ -49,6 +49,10 @@ public:
 public:
     virtual ~ICurveEditorSplineController() override = default;
 
+    virtual bool SaveState() = 0;
+    virtual bool RestoreState() = 0;
+    virtual void ResetSavedState() noexcept = 0;
+
     virtual const SplineID& GetID() const noexcept = 0;
     virtual const SplineColor& GetColor() const noexcept = 0;
 
