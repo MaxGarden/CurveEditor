@@ -10,6 +10,8 @@ QMAKE_CXXFLAGS += /std:c++latest
 
 PRECOMPILED_HEADER = Source/pch.h
 
+RESOURCES += Source/MainWindow/Resources/MainWindow.qrc
+
 include(Thirdparty/qtimgui/qtimgui.pri)
 
 INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/CurveEditor $$PWD/Source
