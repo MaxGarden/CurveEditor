@@ -17,6 +17,7 @@ public:
     virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override final;
 
 private:
+    void TryAddSelectionToDrag(ICurveEditorSplinesViewComponent& splinesViewComponent, ECurveEditorSplineComponentType demandType);
     bool AddSplineComponentViewToDrag(ICurveEditorSplineComponentView& splineComponentView, ICurveEditorSplinesViewComponent& splinesViewComponent);
     void ResetDraggedSplineComponentsViews();
 

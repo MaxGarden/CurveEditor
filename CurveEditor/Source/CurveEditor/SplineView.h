@@ -9,6 +9,9 @@ class ICurveEditorSplineView : public IEditorView
 public:
     virtual ~ICurveEditorSplineView() override = default;
 
+    virtual bool BeginEditing() = 0;
+    virtual bool EndEditing() = 0;
+
     virtual bool SaveState() = 0;
     virtual bool RestoreState() = 0;
     virtual bool ResetSavedState() noexcept = 0;

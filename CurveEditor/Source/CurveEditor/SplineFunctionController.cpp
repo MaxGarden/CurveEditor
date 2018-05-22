@@ -12,6 +12,9 @@ public:
     CCurveEditorFunctionSplineController() = default;
     virtual ~CCurveEditorFunctionSplineController() override final = default;
 
+    virtual bool BeginEditing() override final;
+    virtual bool EndEditing() override final;
+
     virtual bool SaveState() override final;
     virtual bool RestoreState() override final;
     virtual void ResetSavedState() noexcept override final;
@@ -28,7 +31,7 @@ public:
     void OnKnotInserted(size_t controlPointIndex);
     void OnKnotRemoved(size_t controlPointIndex);
 
-    void OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions);
+    void OnControlPointsPositionsChanged();
 
 protected:
     virtual void OnDataModelChanged() override final;
@@ -75,6 +78,9 @@ private:
     SplineControlPointsPositions m_SavedControlPointsPositions;
     KnotsControllers m_SavedKnotsControllers;
     TangentsControllers m_SavedTangentsControllers;
+
+    bool m_QueuedControlPointsChange = false;
+    bool m_EdititngMode = false;
 };
 
 class CCurveEditorFunctionSplineControllerListener final : public CCurveEditorSplineDataModelListenerBase
@@ -107,9 +113,31 @@ void CCurveEditorFunctionSplineControllerListener::OnKnotRemoved(size_t controlP
     m_FunctionSplineController.OnKnotRemoved(controlPointIndex);
 }
 
-void CCurveEditorFunctionSplineControllerListener::OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions)
+void CCurveEditorFunctionSplineControllerListener::OnControlPointsPositionsChanged(const SplineControlPointsPositions&)
 {
-    m_FunctionSplineController.OnControlPointsPositionsChanged(positions);
+    m_FunctionSplineController.OnControlPointsPositionsChanged();
+}
+
+bool CCurveEditorFunctionSplineController::BeginEditing()
+{
+    if (m_EdititngMode)
+        return false;
+
+    m_EdititngMode = true;
+    return true;
+}
+
+bool CCurveEditorFunctionSplineController::EndEditing()
+{
+    if (!m_EdititngMode)
+        return false;
+
+    m_EdititngMode = false;
+
+    if (m_QueuedControlPointsChange)
+        OnControlPointsPositionsChanged();
+
+    return true;
 }
 
 bool CCurveEditorFunctionSplineController::SaveState()
@@ -243,11 +271,18 @@ void CCurveEditorFunctionSplineController::OnKnotRemoved(size_t)
     //TODO
     EDITOR_ASSERT(false);
 }
-#include <mutex>
-void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged(const SplineControlPointsPositions&)
+
+void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged()
 {
+    if (m_EdititngMode)
+    {
+        m_QueuedControlPointsChange = true;
+        return;
+    }
+
     if (m_BlockControlPointsPoisitonChangedEvent)
         return;
+
     m_BlockControlPointsPoisitonChangedEvent = true;
 
     CScopedGuard guard{ [this]()
@@ -257,6 +292,8 @@ void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged(const
 
     ComponentsReplacement();
     TangentsConstraint();
+
+    m_QueuedControlPointsChange = false;
 }
 
 void CCurveEditorFunctionSplineController::OnDataModelChanged()
@@ -329,7 +366,6 @@ void CCurveEditorFunctionSplineController::UpdateComponents(Container& container
     }
 }
 
-
 void CCurveEditorFunctionSplineController::ComponentsReplacement()
 {
     TangentsReplacement();
@@ -359,8 +395,12 @@ void CCurveEditorFunctionSplineController::TangentsReplacement()
             return;
 
         const auto newTangentIndex = tangentIndex++;
-        if (const auto currentTangentIndex = tangentController.GetIndex(); currentTangentIndex && *currentTangentIndex == newTangentIndex)
+        const auto previousTangentIndex = tangentController.GetIndex();
+
+        if (previousTangentIndex && *previousTangentIndex == newTangentIndex)
             return;
+
+        EDITOR_ASSERT(newTangentIndex % 2 == *previousTangentIndex % 2);
 
         const auto result = tangentController.SetTangentIndex(newTangentIndex);
         EDITOR_ASSERT(result);
@@ -383,21 +423,33 @@ void CCurveEditorFunctionSplineController::TangentExtremeCase()
     if (m_TangentsControllers.size() <= 3)
         return;
 
-    const auto firstTangentIndex = m_TangentsControllers[0]->GetIndex();
-    const auto secondTangentIndex = m_TangentsControllers[1]->GetIndex();
-    EDITOR_ASSERT(firstTangentIndex && secondTangentIndex);
+    auto firstIndex = 0u;
+    for (; firstIndex < m_TangentsControllers.size(); firstIndex += 2)
+    {
+        const auto iterator = m_TangentsControllers.begin() + firstIndex;
+        const auto currentTangentIndex = (*iterator)->GetIndex();
+        EDITOR_ASSERT(currentTangentIndex);
 
-    if (firstTangentIndex && secondTangentIndex && *firstTangentIndex == 1 && *secondTangentIndex == 2)
-        std::iter_swap(m_TangentsControllers.begin(), m_TangentsControllers.begin() + 1);
+        if (currentTangentIndex && *currentTangentIndex == 0)
+            break;
 
-    const auto lastTangentIndex = (*m_TangentsControllers.rbegin())->GetIndex();
-    const auto secondLastTangentIndex = (*(m_TangentsControllers.rbegin() + 1))->GetIndex();
-    EDITOR_ASSERT(lastTangentIndex && secondLastTangentIndex);
+        std::iter_swap(iterator, iterator + 1);
+    }
 
-    const auto tangentsControllersCount = m_TangentsControllers.size();
+    const auto lastTangentIndex = m_TangentsControllers.size() - 1;
+    const auto tangentControllerToCheckCount = m_TangentsControllers.size() - firstIndex;
 
-    if (lastTangentIndex && secondLastTangentIndex && *lastTangentIndex == tangentsControllersCount - 2 && *secondLastTangentIndex == tangentsControllersCount - 3)
-        std::iter_swap(m_TangentsControllers.rbegin(), m_TangentsControllers.rbegin() + 1);
+    for (auto secondIndex = 0u; secondIndex < tangentControllerToCheckCount; secondIndex += 2)
+    {
+        const auto iterator = m_TangentsControllers.rbegin() + secondIndex;
+        const auto currentTangentIndex = (*iterator)->GetIndex();
+        EDITOR_ASSERT(currentTangentIndex);
+
+        if (currentTangentIndex && (*currentTangentIndex == lastTangentIndex))
+            break;
+
+        std::iter_swap(iterator, iterator + 1);
+    }
 }
 
 void CCurveEditorFunctionSplineController::KnotsReplacement()

@@ -13,6 +13,9 @@ public:
 
     virtual void OnFrame() override final;
 
+    virtual bool BeginEditing() override final;
+    virtual bool EndEditing() override final;
+
     virtual bool SaveState() override final;
     virtual bool RestoreState() override final;
     virtual bool ResetSavedState() noexcept override final;
@@ -125,6 +128,24 @@ void CCurveEditorSplineView::OnFrame()
     VisitCurvesViews(onFrameVisitor);
     VisitTangentsViews(onFrameVisitor);
     VisitKnotsViews(onFrameVisitor);
+}
+
+bool CCurveEditorSplineView::BeginEditing()
+{
+    if (const auto& controller = GetController())
+        return controller->BeginEditing();
+
+    EDITOR_ASSERT(false);
+    return false;
+}
+
+bool CCurveEditorSplineView::EndEditing()
+{
+    if (const auto& controller = GetController())
+        return controller->EndEditing();
+
+    EDITOR_ASSERT(false);
+    return false;
 }
 
 bool CCurveEditorSplineView::SaveState()

@@ -38,31 +38,36 @@ void CCurveEditorMovingTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&
     if (!draggingSplineComponentView)
         return;
 
-    const auto result = AddSplineComponentViewToDrag(*draggingSplineComponentView, *splinesViewComponent);
-    EDITOR_ASSERT(result);
-    if (!result)
-        return;
-
-    CScopedGuard saveStateGuard{ [this]()
+    if (draggingSplineComponentView->GetType() == ECurveEditorSplineComponentType::Curve)
     {
-        VisitPointersContainer(m_DraggingSplines, [](auto& splineView)
+        const auto splineView = splinesViewComponent->GetSplineView(draggingSplineComponentView->GetSplineID());
+        EDITOR_ASSERT(splineView);
+        if (!splineView)
+            return;
+
+        auto result = true;
+        splineView->VisitSplineComponents(ECurveEditorSplineComponentType::Knot, [this, &result, &splinesViewComponent](auto& splineComponentView)
         {
-            splineView.SaveState();
+            result &= AddSplineComponentViewToDrag(splineComponentView, *splinesViewComponent);
+            EDITOR_ASSERT(result);
+            return result;
         });
-    } };
 
-    const auto selectionViewComponent = m_SelectionViewComponent.lock();
-    EDITOR_ASSERT(selectionViewComponent);
-    if (!selectionViewComponent)
-        return;
-
-    if (selectionViewComponent->GetSelectionMode() != draggingSplineComponentView->GetType())
-        return;
-
-    selectionViewComponent->VisitSelection([this, &splinesViewComponent](auto& splineComponentView)
+        if (!result)
+            return;
+    }
+    else
     {
-        const auto result = AddSplineComponentViewToDrag(splineComponentView, *splinesViewComponent);
+        const auto result = AddSplineComponentViewToDrag(*draggingSplineComponentView, *splinesViewComponent);
         EDITOR_ASSERT(result);
+        if (!result)
+            return;
+    }
+
+    TryAddSelectionToDrag(*splinesViewComponent, draggingSplineComponentView->GetType());
+    VisitPointersContainer(m_DraggingSplines, [](auto& splineView)
+    {
+        splineView.SaveState();
     });
 }
 
@@ -72,12 +77,16 @@ void CCurveEditorMovingTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& 
         return;
 
     const auto& editorCanvas = event.GetEditorView().GetCanvas();
-
     const auto& dragDelta = editorCanvas.FromEditor(event.GetDragDelta(), false);
 
     VisitPointersContainer(m_DraggingSplines, [](auto& splineView)
     {
-        splineView.RestoreState();
+        auto result = true;
+
+        result &= splineView.RestoreState();
+        result &= splineView.BeginEditing();
+
+        EDITOR_ASSERT(result);
     });
 
     VisitObjectsContainer(m_DraggingSplineComponentsViews, [&dragDelta](const auto& pair)
@@ -88,6 +97,12 @@ void CCurveEditorMovingTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& 
             return;
 
         const auto result = splineComponentView->SetPosition(pair.second + dragDelta);
+        EDITOR_ASSERT(result);
+    });
+
+    VisitPointersContainer(m_DraggingSplines, [](auto& splineView)
+    {
+        const auto result = splineView.EndEditing();
         EDITOR_ASSERT(result);
     });
 }
@@ -103,6 +118,23 @@ void CCurveEditorMovingTool::OnDragEnd(const CCurveEditorToolMouseButtonEvent& e
     });
 
     ResetDraggedSplineComponentsViews();
+}
+
+void CCurveEditorMovingTool::TryAddSelectionToDrag(ICurveEditorSplinesViewComponent& splinesViewComponent, ECurveEditorSplineComponentType demandType)
+{
+    const auto selectionViewComponent = m_SelectionViewComponent.lock();
+    EDITOR_ASSERT(selectionViewComponent);
+    if (!selectionViewComponent)
+        return;
+
+    if (selectionViewComponent->GetSelectionMode() != demandType)
+        return;
+
+    selectionViewComponent->VisitSelection([this, &splinesViewComponent](auto& splineComponentView)
+    {
+        const auto result = AddSplineComponentViewToDrag(splineComponentView, splinesViewComponent);
+        EDITOR_ASSERT(result);
+    });
 }
 
 bool CCurveEditorMovingTool::AddSplineComponentViewToDrag(ICurveEditorSplineComponentView& splineComponentView, ICurveEditorSplinesViewComponent& splinesViewComponent)

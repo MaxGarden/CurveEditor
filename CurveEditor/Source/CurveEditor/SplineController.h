@@ -49,6 +49,9 @@ public:
 public:
     virtual ~ICurveEditorSplineController() override = default;
 
+    virtual bool BeginEditing() = 0;
+    virtual bool EndEditing() = 0;
+
     virtual bool SaveState() = 0;
     virtual bool RestoreState() = 0;
     virtual void ResetSavedState() noexcept = 0;
