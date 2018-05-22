@@ -24,6 +24,8 @@ private:
 private:
     const ECurveEditorMouseButton m_ActivationMouseButton;
 
+    ax::pointf m_DragStartPosition;
+
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;
     ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewComponent;
 

@@ -69,6 +69,8 @@ void CCurveEditorMovingTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&
     {
         splineView.SaveState();
     });
+
+    m_DragStartPosition = event.GetMousePosition();
 }
 
 void CCurveEditorMovingTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& event)
@@ -77,7 +79,7 @@ void CCurveEditorMovingTool::OnDragUpdate(const CCurveEditorToolMouseDragEvent& 
         return;
 
     const auto& editorCanvas = event.GetEditorView().GetCanvas();
-    const auto& dragDelta = editorCanvas.FromEditor(event.GetDragDelta(), false);
+    const auto& dragDelta = editorCanvas.FromEditor(event.GetMousePosition() - m_DragStartPosition, false);
 
     VisitPointersContainer(m_DraggingSplines, [](auto& splineView)
     {
@@ -118,6 +120,8 @@ void CCurveEditorMovingTool::OnDragEnd(const CCurveEditorToolMouseButtonEvent& e
     });
 
     ResetDraggedSplineComponentsViews();
+
+    m_DragStartPosition = {};
 }
 
 void CCurveEditorMovingTool::TryAddSelectionToDrag(ICurveEditorSplinesViewComponent& splinesViewComponent, ECurveEditorSplineComponentType demandType)
