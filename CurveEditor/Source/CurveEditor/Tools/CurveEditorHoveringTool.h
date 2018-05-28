@@ -12,9 +12,6 @@ public:
     virtual void OnAcquired(const CCurveEditorToolEvent& event) override final;
     virtual void OnReleased(const CCurveEditorToolEvent& event) override final;
 
-    virtual void OnDragBegin(const CCurveEditorToolMouseButtonEvent& event) override final;
-    virtual void OnDragEnd(const CCurveEditorToolMouseButtonEvent& event) override final;
-
     virtual void OnMouseMove(const CCurveEditorToolMouseEvent& event) override final;
 
 private:
@@ -24,7 +21,6 @@ private:
 private:
     const bool m_CurveAsSpline;
 
-    bool m_IsEnabled = true;
     ax::pointf m_DragBeginPosition;
     std::optional<ToolViewHandle> m_HoveringViewHandle;
     ICurveEditorSplinesViewComponentWeakPtr m_SplinesViewComponent;

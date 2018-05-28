@@ -54,21 +54,8 @@ void CCurveEditorHoveringTool::OnReleased(const CCurveEditorToolEvent& event)
     UpdateHoveringView(nullptr, event.GetEditorView());
 }
 
-void CCurveEditorHoveringTool::OnDragBegin(const CCurveEditorToolMouseButtonEvent&)
-{
-    m_IsEnabled = false;
-}
-
-void CCurveEditorHoveringTool::OnDragEnd(const CCurveEditorToolMouseButtonEvent&)
-{
-    m_IsEnabled = true;
-}
-
 void CCurveEditorHoveringTool::OnMouseMove(const CCurveEditorToolMouseEvent& event)
 {
-    if (!m_IsEnabled)
-        return;
-
     const auto splineViewComponent = m_SplinesViewComponent.lock();
     EDITOR_ASSERT(splineViewComponent);
     if (!splineViewComponent)

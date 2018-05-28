@@ -97,6 +97,8 @@ private:
     void DeactivateModifiersAndMouseButtons(ICurveEditorTool* activeTool);
     void ResetActivity(ICurveEditorController* controller);
 
+    bool IsAnyButtonHandlerWoring() const noexcept;
+
 private:
     ImVec2 m_LastMousePosition;
     ImVec2 m_MousePositionBuffer;
@@ -217,11 +219,8 @@ bool CCurveEditorToolHandlerComponent::TryReleaseActivity()
     if (s_ActivityOwner != this)
         return false;
 
-    for (const auto& buttonHandler : m_ButtonHandlers)
-    {
-        if (buttonHandler.IsWorking())
-            return false;
-    }
+    if (IsAnyButtonHandlerWoring())
+        return false;
 
     s_ActivityOwner = nullptr;
     m_IsActive = false;
@@ -280,7 +279,7 @@ void CCurveEditorToolHandlerComponent::UpdateMouseMoveState(ICurveEditorTool& ac
 {
     const auto mousePosition = ImGui::GetMousePos();
 
-    if (mousePosition != m_LastMousePosition)
+    if (mousePosition != m_LastMousePosition && !IsAnyButtonHandlerWoring())
         activeTool.OnMouseMove(CCurveEditorToolMouseEvent{ GetEditorView(), to_pointf(mousePosition) });
 
     m_LastMousePosition = mousePosition;
@@ -319,6 +318,17 @@ void CCurveEditorToolHandlerComponent::ResetActivity(ICurveEditorController* con
 
         EDITOR_ASSERT(!m_IsActive);
     }
+}
+
+bool CCurveEditorToolHandlerComponent::IsAnyButtonHandlerWoring() const noexcept
+{
+    for (const auto& buttonHandler : m_ButtonHandlers)
+    {
+        if (buttonHandler.IsWorking())
+            return true;
+    }
+
+    return false;
 }
 
 CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
