@@ -513,7 +513,8 @@ void CCurveEditorFunctionSplineController::TangentsConstraint()
         {
             if (tangentPosition->x > anchorPosition->x)
                 tangentController->SetPosition({ anchorPosition->x, tangentPosition->y });
-            else if (EDITOR_ASSERT(previousTangentController);  previousTangentController)
+
+            if (EDITOR_ASSERT(previousTangentController);  previousTangentController)
             {
                 const auto previousTangentAnchorPosition = previousTangentController->GetAnchorPosition();
                 EDITOR_ASSERT(previousTangentAnchorPosition);
