@@ -3,5 +3,5 @@
 
 size_t ICurveEditorSplineController::ControlPointsPerCurve() noexcept
 {
-    return 4;
+    return ICurveEditorSplineDataModel::ControlPointsPerCurve();
 }

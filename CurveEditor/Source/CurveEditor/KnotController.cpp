@@ -16,6 +16,7 @@ public:
 
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
+    virtual bool CanBeRemoved() const noexcept override final;
     virtual bool Remove() override final;
 
 private:
@@ -87,6 +88,18 @@ std::optional<size_t> CCurveEditorKnotControllerPrivate::GetControlPointIndex() 
 std::optional<size_t> CCurveEditorKnotControllerPrivate::GetIndex() const noexcept
 {
     return m_KnotIndex;
+}
+
+bool CCurveEditorKnotControllerPrivate::CanBeRemoved() const noexcept
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    const auto controlPointsCount = dataModel->GetControlPoints().size();
+
+    return controlPointsCount - 2 > ICurveEditorSplineDataModel::ControlPointsPerCurve();
 }
 
 bool CCurveEditorKnotControllerPrivate::Remove()

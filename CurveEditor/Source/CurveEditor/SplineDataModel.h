@@ -50,6 +50,8 @@ public:
 
     static SplineID GenerateSplineID() noexcept;
     static const SplineID& InvalidSplineID() noexcept;
+
+    static size_t ControlPointsPerCurve() noexcept;
 };
 
 #endif //__CURVE_EDITOR_SPLINE_DATA_MODEL_H__

@@ -87,6 +87,12 @@ bool CCurveEditorSplineDataModel::RemoveControlPoints(const SplineControlPointsI
     if (!areIndexesValid)
         return false;
 
+    if (m_ControlPoints.size() - indexes.size() < ControlPointsPerCurve())
+    {
+        EDITOR_ASSERT(false);
+        return false;
+    }
+
     VisitObjectsContainer(indexes, [this](const auto& index)
     {
         m_ControlPoints.erase(m_ControlPoints.cbegin() + index);
@@ -111,6 +117,11 @@ const SplineID& ICurveEditorSplineDataModel::InvalidSplineID() noexcept
 {
     static SplineID invalidID = 0;
     return invalidID;
+}
+
+size_t ICurveEditorSplineDataModel::ControlPointsPerCurve() noexcept
+{
+    return 4;
 }
 
 SSplineControlPointSinglePosition::SSplineControlPointSinglePosition(size_t controlPointIndex, ax::pointf position) :

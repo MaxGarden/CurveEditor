@@ -34,7 +34,7 @@ void CCurveEditorKnotRemoverTool::OnClickUp(const CCurveEditorToolMouseButtonEve
         return;
 
     const auto knotView = GetKnotViewAtPosition(event.GetMousePosition());
-    if (!knotView)
+    if (!knotView || !knotView->CanBeRemoved())
         return;
 
     const auto result = knotView->Remove();

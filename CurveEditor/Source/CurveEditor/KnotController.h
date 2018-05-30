@@ -9,6 +9,7 @@ class ICurveEditorKnotController : public ICurveEditorSplineComponentController
 public:
     virtual ~ICurveEditorKnotController() override = default;
 
+    virtual bool CanBeRemoved() const noexcept = 0;
     virtual bool Remove() = 0;
 };
 
