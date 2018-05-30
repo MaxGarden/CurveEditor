@@ -10,6 +10,7 @@ public:
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
     virtual bool AddControlPoints(const SplineControlPointsPositions& positions) override final;
+    virtual bool RemoveControlPoints(const SplineControlPointsIndexes& indexes) override final;
 
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
     virtual bool SetControlPoints(const SplineControlPointsPositions& positions) override final;
@@ -27,12 +28,6 @@ CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(SplineID&& id, SplineCo
     m_ID(std::move(id)),
     m_Color(std::move(color))
 {
-    //for tests
-    m_ControlPoints = { { 1.0f, -1.0f }, { 1.01f, -2.0f }, { 1.0f, -5.0f }, { 3.0f, -3.0f },
-                        { 3.0f, -4.0f }, { 3.01f, -2.0f }, { 4.0f, -1.0f },
-                        { 5.0f, -3.0f }, { 5.01f, -2.0f }, { 6.0f, -1.0f },
-                        { 7.0f, -3.0f }, { 7.01f, -2.0f }, { 8.0f, -1.0f },
-                        { 9.0f, -3.0f }, { 9.01f, -2.0f }, { 10.0f, -1.0f }, };
 }
 
 const std::vector<ax::pointf>& CCurveEditorSplineDataModel::GetControlPoints() const noexcept
@@ -72,11 +67,9 @@ const SplineColor& CCurveEditorSplineDataModel::GetColor() const noexcept
 
 bool CCurveEditorSplineDataModel::AddControlPoints(const SplineControlPointsPositions& positions)
 {
-    if (positions.empty() || positions.rbegin()->ControlPointIndex > m_ControlPoints.size())
-    {
-        EDITOR_ASSERT(false);
+    EDITOR_ASSERT(!positions.empty());
+    if (positions.empty())
         return false;
-    }
 
     VisitObjectsContainer(positions, [this](const auto& singlePosition)
     {
@@ -84,6 +77,22 @@ bool CCurveEditorSplineDataModel::AddControlPoints(const SplineControlPointsPosi
     });
 
     NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsAdded, positions);
+    return true;
+}
+
+bool CCurveEditorSplineDataModel::RemoveControlPoints(const SplineControlPointsIndexes& indexes)
+{
+    const auto areIndexesValid = !indexes.empty() && *indexes.rbegin() < m_ControlPoints.size();
+    EDITOR_ASSERT(areIndexesValid);
+    if (!areIndexesValid)
+        return false;
+
+    VisitObjectsContainer(indexes, [this](const auto& index)
+    {
+        m_ControlPoints.erase(m_ControlPoints.cbegin() + index);
+    }, true);
+
+    NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsRemoved, indexes);
     return true;
 }
 

@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "CurveEditorSplineListenerBase.h"
 
-void CCurveEditorSplineDataModelListenerBase::OnKnotRemoved(size_t)
+void CCurveEditorSplineDataModelListenerBase::OnControlPointsAdded(const SplineControlPointsPositions&)
 {
     //to override
 }
 
-void CCurveEditorSplineDataModelListenerBase::OnControlPointsAdded(const SplineControlPointsPositions&)
+void CCurveEditorSplineDataModelListenerBase::OnControlPointsRemoved(const SplineControlPointsIndexes&)
 {
     //to override
 }

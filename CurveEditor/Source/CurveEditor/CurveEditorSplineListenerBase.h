@@ -9,9 +9,9 @@ public:
     CCurveEditorSplineDataModelListenerBase() = default;
     virtual ~CCurveEditorSplineDataModelListenerBase() override = default;
 
-    virtual void OnKnotRemoved(size_t controlPointIndex) override;
-
     virtual void OnControlPointsAdded(const SplineControlPointsPositions& positions) override;
+    virtual void OnControlPointsRemoved(const SplineControlPointsIndexes& indexes) override;
+
     virtual void OnControlPointsModified(const SplineControlPointsPositions& positions) override;
 };
 

@@ -18,6 +18,7 @@ struct SSplineControlPointSinglePosition
     bool operator<(const SSplineControlPointSinglePosition& rhs) const noexcept;
 };
 
+using SplineControlPointsIndexes = std::set<size_t>;
 using SplineControlPointsPositions = std::set<SSplineControlPointSinglePosition>;
 
 class ICurveEditorSplineDataModelListener : public IEditorListener
@@ -25,9 +26,9 @@ class ICurveEditorSplineDataModelListener : public IEditorListener
 public:
     virtual ~ICurveEditorSplineDataModelListener() override = default;
 
-    virtual void OnKnotRemoved(size_t controlPointIndex) = 0;
-
     virtual void OnControlPointsAdded(const SplineControlPointsPositions& positions) = 0;
+    virtual void OnControlPointsRemoved(const SplineControlPointsIndexes& indexes) = 0;
+
     virtual void OnControlPointsModified(const SplineControlPointsPositions& positions) = 0;
 };
 
@@ -37,6 +38,7 @@ public:
     virtual ~ICurveEditorSplineDataModel() override = default;
 
     virtual bool AddControlPoints(const SplineControlPointsPositions& positions) = 0;
+    virtual bool RemoveControlPoints(const SplineControlPointsIndexes& indexes) = 0;
 
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
     virtual bool SetControlPoints(const SplineControlPointsPositions& positions) = 0;

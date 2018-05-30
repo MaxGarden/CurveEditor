@@ -28,9 +28,9 @@ public:
 
     virtual ICurveEditorSplineComponentControllerSharedPtr GetSplineComponentController(ECurveEditorSplineComponentType type, size_t index) const noexcept override final;
 
-    void OnKnotRemoved(size_t controlPointIndex);
-
     void OnControlPointsAdded(const SplineControlPointsPositions& positions);
+    void OnControlPointsRemoved(const SplineControlPointsIndexes& indexes);
+
     void OnControlPointsPositionsChanged();
 
 protected:
@@ -61,8 +61,13 @@ private:
     void DestroyControllers();
 
     ICurveEditorKnotControllerPrivateSharedPtr AddKnotController(size_t knotIndex);
+    bool RemoveKnotController(const ICurveEditorKnotControllerPrivateSharedPtr& knotController);
+
     ICurveEditorTangentControllerPrivateSharedPtr AddTangentController(size_t tangentIndex);
+    bool RemoveTangentController(const ICurveEditorTangentControllerPrivateSharedPtr& tangentController);
+
     ICurveEditorCurveControllerPrivateSharedPtr AddCurveController(size_t curveIndex);
+    bool RemoveCurveController(const ICurveEditorCurveControllerPrivateSharedPtr& curveController);
 
 private:
     using KnotsControllers = std::vector<ICurveEditorKnotControllerPrivateSharedPtr>;
@@ -89,9 +94,9 @@ public:
     CCurveEditorFunctionSplineControllerListener(CCurveEditorFunctionSplineController& functionSplineController);
     virtual ~CCurveEditorFunctionSplineControllerListener() override final = default;
 
-    virtual void OnKnotRemoved(size_t controlPointIndex) override final;
-
     virtual void OnControlPointsAdded(const SplineControlPointsPositions& positions) override final;
+    virtual void OnControlPointsRemoved(const SplineControlPointsIndexes& indexes) override final;
+
     virtual void OnControlPointsModified(const SplineControlPointsPositions& positions) override final;
 
 private:
@@ -103,14 +108,14 @@ CCurveEditorFunctionSplineControllerListener::CCurveEditorFunctionSplineControll
 {
 }
 
-void CCurveEditorFunctionSplineControllerListener::OnKnotRemoved(size_t controlPointIndex)
-{
-    m_FunctionSplineController.OnKnotRemoved(controlPointIndex);
-}
-
 void CCurveEditorFunctionSplineControllerListener::OnControlPointsAdded(const SplineControlPointsPositions& positions)
 {
     m_FunctionSplineController.OnControlPointsAdded(positions);
+}
+
+void CCurveEditorFunctionSplineControllerListener::OnControlPointsRemoved(const SplineControlPointsIndexes& indexes)
+{
+    m_FunctionSplineController.OnControlPointsRemoved(indexes);
 }
 
 void CCurveEditorFunctionSplineControllerListener::OnControlPointsModified(const SplineControlPointsPositions&)
@@ -260,15 +265,9 @@ ICurveEditorSplineComponentControllerSharedPtr CCurveEditorFunctionSplineControl
     }
 }
 
-void CCurveEditorFunctionSplineController::OnKnotRemoved(size_t)
-{
-    //TODO
-    EDITOR_ASSERT(false);
-}
-
 void CCurveEditorFunctionSplineController::OnControlPointsAdded(const SplineControlPointsPositions& positions)
 {
-    const auto addNewControllers = [this, &positions](auto& container, const auto demandedCount, const auto setIndexMethod, const auto addControllerMethod)
+    const auto insertSplineComponentsControllers = [this, &positions](auto& container, const auto demandedSize, const auto setIndexMethod, const auto addControllerMethod)
     {
         std::set<size_t> splineComponentsIndexesToAdd;
 
@@ -315,24 +314,77 @@ void CCurveEditorFunctionSplineController::OnControlPointsAdded(const SplineCont
         });
 
         const auto futureSize = splineComponentsIndexesToAdd.size() + container.size();
-        EDITOR_ASSERT(futureSize <= demandedCount);
-        if (futureSize > demandedCount)
+        EDITOR_ASSERT(futureSize <= demandedSize);
+        if (futureSize > demandedSize)
             return;
 
-        const auto difference = demandedCount - futureSize;
+        const auto difference = demandedSize - futureSize;
         for (auto i = 0u; i < difference; ++i)
             splineComponentsIndexesToAdd.emplace(currentIndex++);
 
-        for (const auto splineComponentIndex : splineComponentsIndexesToAdd)
+        VisitObjectsContainer(splineComponentsIndexesToAdd, [this, &addControllerMethod](const auto splineComponentIndex)
         {
             const auto result = (this->*addControllerMethod)(splineComponentIndex);
             EDITOR_ASSERT(result);
-        }
+        });
     };
 
-    addNewControllers(m_KnotsControllers, GetKnotsCount(), &ICurveEditorKnotControllerPrivate::SetKnotIndex, &CCurveEditorFunctionSplineController::AddKnotController);
-    addNewControllers(m_TangentsControllers, GetTangentsCount(), &ICurveEditorTangentControllerPrivate::SetTangentIndex, &CCurveEditorFunctionSplineController::AddTangentController);
-    addNewControllers(m_CurvesControllers, GetCurvesCount(), &ICurveEditorCurveControllerPrivate::SetCurveIndex, &CCurveEditorFunctionSplineController::AddCurveController);
+    insertSplineComponentsControllers(m_KnotsControllers, GetKnotsCount(), &ICurveEditorKnotControllerPrivate::SetKnotIndex, &CCurveEditorFunctionSplineController::AddKnotController);
+    insertSplineComponentsControllers(m_TangentsControllers, GetTangentsCount(), &ICurveEditorTangentControllerPrivate::SetTangentIndex, &CCurveEditorFunctionSplineController::AddTangentController);
+    insertSplineComponentsControllers(m_CurvesControllers, GetCurvesCount(), &ICurveEditorCurveControllerPrivate::SetCurveIndex, &CCurveEditorFunctionSplineController::AddCurveController);
+}
+
+void CCurveEditorFunctionSplineController::OnControlPointsRemoved(const SplineControlPointsIndexes& indexes)
+{
+    const auto removeSplineComponentsController = [this, &indexes](const auto& container, const auto demandedSize, const auto setIndexMethod, const auto removeMethod)
+    {
+        auto splinesComponentsToRemove = decltype(container){};
+
+        VisitObjectsContainer(container, [&splinesComponentsToRemove, &indexes, &setIndexMethod, currentIndex = 0u](const auto& splineComponentController) mutable
+        {
+            EDITOR_ASSERT(splineComponentController);
+            if (!splineComponentController)
+                return;
+
+            const auto controlPointIndex = splineComponentController->GetControlPointIndex();
+            EDITOR_ASSERT(controlPointIndex);
+            if (!controlPointIndex)
+                return;
+
+            if (indexes.find(*controlPointIndex) == indexes.cend())
+                (splineComponentController.get()->*setIndexMethod)(currentIndex++);
+            else
+                splinesComponentsToRemove.emplace_back(splineComponentController);
+        });
+
+        EDITOR_ASSERT(splinesComponentsToRemove.size() <= container.size());
+        if (splinesComponentsToRemove.size() > container.size())
+            return;
+
+        const auto futureSize = container.size() - splinesComponentsToRemove.size();
+        EDITOR_ASSERT(futureSize >= demandedSize);
+        if (futureSize < demandedSize)
+            return;
+
+        VisitObjectsContainerInterruptible(container, [&splinesComponentsToRemove, difference = futureSize - demandedSize](const auto& splineComponentController) mutable
+        {
+            if (difference == 0)
+                return false;
+
+            splinesComponentsToRemove.emplace_back(splineComponentController);
+            return --difference > 0;
+        }, true);
+
+        VisitObjectsContainer(splinesComponentsToRemove, [this, &removeMethod](const auto& splineComponentController)
+        {
+            const auto result = (this->*removeMethod)(splineComponentController);
+            EDITOR_ASSERT(result);
+        });
+    };
+
+    removeSplineComponentsController(m_KnotsControllers, GetKnotsCount(), &ICurveEditorKnotControllerPrivate::SetKnotIndex, &CCurveEditorFunctionSplineController::RemoveKnotController);
+    removeSplineComponentsController(m_TangentsControllers, GetTangentsCount(), &ICurveEditorTangentControllerPrivate::SetTangentIndex, &CCurveEditorFunctionSplineController::RemoveTangentController);
+    removeSplineComponentsController(m_CurvesControllers, GetCurvesCount(), &ICurveEditorCurveControllerPrivate::SetCurveIndex, &CCurveEditorFunctionSplineController::RemoveCurveController);
 }
 
 void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged()
@@ -462,8 +514,6 @@ void CCurveEditorFunctionSplineController::TangentsReplacement()
 
         if (previousTangentIndex && *previousTangentIndex == newTangentIndex)
             return;
-
-        EDITOR_ASSERT(newTangentIndex % 2 == *previousTangentIndex % 2);
 
         const auto result = tangentController.SetTangentIndex(newTangentIndex);
         EDITOR_ASSERT(result);
@@ -683,6 +733,15 @@ ICurveEditorKnotControllerPrivateSharedPtr CCurveEditorFunctionSplineController:
     return result;
 }
 
+bool CCurveEditorFunctionSplineController::RemoveKnotController(const ICurveEditorKnotControllerPrivateSharedPtr& knotController)
+{
+    const auto result = RemoveFromContainer(m_KnotsControllers, knotController);
+    if(result)
+        NotifyListeners(&ICurveEditorSplineControllerListener::OnKnotDestroyed, knotController);
+
+    return result;
+}
+
 ICurveEditorTangentControllerPrivateSharedPtr CCurveEditorFunctionSplineController::AddTangentController(size_t tangentIndex)
 {
     auto result = CreateSplineControllerComponent<ICurveEditorTangentControllerPrivate>(GetDataModel(), &ICurveEditorTangentControllerPrivate::SetTangentIndex, tangentIndex);
@@ -695,6 +754,15 @@ ICurveEditorTangentControllerPrivateSharedPtr CCurveEditorFunctionSplineControll
     return result;
 }
 
+bool CCurveEditorFunctionSplineController::RemoveTangentController(const ICurveEditorTangentControllerPrivateSharedPtr& tangentController)
+{
+    const auto result = RemoveFromContainer(m_TangentsControllers, tangentController);
+    if (result)
+        NotifyListeners(&ICurveEditorSplineControllerListener::OnTangentDestroyed, tangentController);
+
+    return result;
+}
+
 ICurveEditorCurveControllerPrivateSharedPtr CCurveEditorFunctionSplineController::AddCurveController(size_t curveIndex)
 {
     auto result = CreateSplineControllerComponent<ICurveEditorCurveControllerPrivate>(GetDataModel(), &ICurveEditorCurveControllerPrivate::SetCurveIndex, curveIndex);
@@ -703,6 +771,15 @@ ICurveEditorCurveControllerPrivateSharedPtr CCurveEditorFunctionSplineController
         m_CurvesControllers.emplace_back(result);
         NotifyListeners(&ICurveEditorSplineControllerListener::OnCurveCreated, result);
     }
+
+    return result;
+}
+
+bool CCurveEditorFunctionSplineController::RemoveCurveController(const ICurveEditorCurveControllerPrivateSharedPtr& curveController)
+{
+    const auto result = RemoveFromContainer(m_CurvesControllers, curveController);
+    if (result)
+        NotifyListeners(&ICurveEditorSplineControllerListener::OnCurveDestroyed, curveController);
 
     return result;
 }

@@ -41,7 +41,7 @@ void CCurveEditorKnotInserterToolViewComponent::OnFrame(ImDrawList& drawList)
     const auto helperSize = 0.5f * editorStyle.KnotSize;
     const auto centerPosition = to_imvec(windowCanvas.ToScreen(*candidatePosition));
 
-    drawList.AddRectFilled(centerPosition - helperSize, centerPosition + helperSize, editorStyle.Colors[CurveEditorStyleColor_Helper]);
+    drawList.AddRect(centerPosition - helperSize, centerPosition + helperSize, editorStyle.Colors[CurveEditorStyleColor_Helper], 0.0f, 15, editorStyle.HelperBorderThickness);
 }
 
 CCurveEditorKnotInserterTool::CCurveEditorKnotInserterTool(ECurveEditorMouseButton insertButton /*= ECurveEditorMouseButton::Left*/) :
@@ -99,11 +99,10 @@ ICurveEditorCurveView * CCurveEditorKnotInserterTool::GetCurveViewAtPosition(con
     if (!splinesViewComponent)
         return nullptr;
 
-    const auto splineViewComponent = splinesViewComponent->GetSplineComponentAt(position, ECurveEditorSplineComponentType::Curve);
-    if (!splineViewComponent)
+    const auto splineViewComponent = splinesViewComponent->GetSplineComponentAt(position);
+    if (!splineViewComponent || splineViewComponent->GetType() != ECurveEditorSplineComponentType::Curve)
         return nullptr;
 
-    EDITOR_ASSERT(splineViewComponent->GetType() == ECurveEditorSplineComponentType::Curve);
     const auto result = dynamic_cast<ICurveEditorCurveView*>(splineViewComponent);
     EDITOR_ASSERT(result);
 

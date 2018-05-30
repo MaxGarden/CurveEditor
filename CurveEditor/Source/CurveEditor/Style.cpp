@@ -40,6 +40,8 @@ SCurveEditorStyle::SCurveEditorStyle()
     SelectionViaIntersection = true;
 
     RulerSizeFactor = 2.0f;
+
+    HelperBorderThickness = 4.0f;
 }
 
 std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFloat styleFloat) const noexcept
@@ -66,6 +68,8 @@ std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFlo
         return SelectionBorderThickness;
     case CurveEditorStyleFloat_RulerSizeFactor:
         return RulerSizeFactor;
+    case CurveEditorStyleFloat_HelperBorderThickness:
+        return HelperBorderThickness;
     default:
         EDITOR_ASSERT(false);
         return std::nullopt;

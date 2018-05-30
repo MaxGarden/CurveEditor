@@ -44,6 +44,14 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
             auto splineDataModel = editorDataModel->AddSplineDataModel(static_cast<SplineColor>(m_SplineColor));
             EDITOR_ASSERT(splineDataModel);
             m_CreatedSplinesDataModels.emplace(std::move(splineDataModel));
+
+            const auto result = splineDataModel->AddControlPoints({
+                { 0, { 1.0f, -3.0f } },
+                { 1, { 2.0f, -2.0f } },
+                { 2, { 3.0f, -4.0f } },
+                { 3, { 4.0f, -3.0f } }
+                });
+            EDITOR_ASSERT(result);
         }
     }
 

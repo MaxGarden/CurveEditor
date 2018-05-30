@@ -16,6 +16,8 @@ public:
 
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
+    virtual bool Remove() override final;
+
 private:
     std::optional<size_t> m_KnotIndex;
     std::optional<size_t> m_ControlPointIndex;
@@ -85,6 +87,47 @@ std::optional<size_t> CCurveEditorKnotControllerPrivate::GetControlPointIndex() 
 std::optional<size_t> CCurveEditorKnotControllerPrivate::GetIndex() const noexcept
 {
     return m_KnotIndex;
+}
+
+bool CCurveEditorKnotControllerPrivate::Remove()
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    const auto optionalControlPointIndex = GetControlPointIndex();
+    EDITOR_ASSERT(optionalControlPointIndex);
+    if (!optionalControlPointIndex)
+        return false;
+
+    SplineControlPointsIndexes controlPointsIndexesToRemove = { *optionalControlPointIndex };
+
+    const auto& controlPointsCount = dataModel->GetControlPoints().size();
+    const auto tryRemoveTangentControlPoint = [controlPointsCount, &controlPointsIndexesToRemove](const auto controlPointIndex)
+    {
+        if (controlPointIndex < controlPointsCount)
+        {
+            controlPointsIndexesToRemove.emplace(controlPointIndex);
+            return true;
+        }
+
+        return false;
+    };
+
+    if (!tryRemoveTangentControlPoint(*optionalControlPointIndex - 1))
+    {
+        const auto result = tryRemoveTangentControlPoint(*optionalControlPointIndex + 2);
+        EDITOR_ASSERT(result);
+    }
+
+    if (!tryRemoveTangentControlPoint(*optionalControlPointIndex + 1))
+    {
+        const auto result = tryRemoveTangentControlPoint(*optionalControlPointIndex - 2);
+        EDITOR_ASSERT(result);
+    }
+
+    return dataModel->RemoveControlPoints(controlPointsIndexesToRemove);
 }
 
 ICurveEditorKnotControllerPrivateUniquePtr ICurveEditorKnotControllerPrivate::Create()

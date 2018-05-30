@@ -8,6 +8,8 @@ class ICurveEditorKnotController : public ICurveEditorSplineComponentController
 {
 public:
     virtual ~ICurveEditorKnotController() override = default;
+
+    virtual bool Remove() = 0;
 };
 
 class ICurveEditorKnotControllerPrivate : public ICurveEditorKnotController

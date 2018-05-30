@@ -31,6 +31,8 @@ public:
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
+    virtual bool Remove() override final;
+
 protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 
@@ -96,6 +98,16 @@ bool CCurveEditorKnotView::IsColliding(const ax::rectf& rect, bool allowIntersec
 
     return !bounds->is_empty() && (allowIntersect ? bounds->intersects(rect) : rect.contains(*bounds));
 }
+
+bool CCurveEditorKnotView::Remove()
+{
+    if (const auto& controller = GetController())
+        return controller->Remove();
+
+    EDITOR_ASSERT(false);
+    return false;
+}
+
 
 IEditorRenderableUniquePtr CCurveEditorKnotView::CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const
 {

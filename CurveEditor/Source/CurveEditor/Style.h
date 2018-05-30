@@ -40,7 +40,9 @@ enum ECurveEditorStyleFloat
 
     CurveEditorStyleFloat_SelectionBorderThickness,
 
-    CurveEditorStyleFloat_RulerSizeFactor
+    CurveEditorStyleFloat_RulerSizeFactor,
+
+    CurveEditorStyleFloat_HelperBorderThickness
 };
 
 enum ECurveEditorStyleVec2
@@ -76,6 +78,8 @@ struct SCurveEditorStyle
     bool SelectionViaIntersection;
 
     float RulerSizeFactor;
+
+    float HelperBorderThickness;
 
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;
