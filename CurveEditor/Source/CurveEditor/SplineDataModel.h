@@ -4,12 +4,6 @@
 #include <ax/ax.h>
 #include "EditorDataModel.h"
 
-enum class ECurveType
-{
-    Linear,
-    Constant
-};
-
 using SplineID = size_t;
 using SplineColor = unsigned int;
 
@@ -31,10 +25,10 @@ class ICurveEditorSplineDataModelListener : public IEditorListener
 public:
     virtual ~ICurveEditorSplineDataModelListener() override = default;
 
-    virtual void OnKnotInserted(size_t controlPointIndex) = 0;
     virtual void OnKnotRemoved(size_t controlPointIndex) = 0;
 
-    virtual void OnControlPointsPositionsChanged(const SplineControlPointsPositions& positions) = 0;
+    virtual void OnControlPointsAdded(const SplineControlPointsPositions& positions) = 0;
+    virtual void OnControlPointsModified(const SplineControlPointsPositions& positions) = 0;
 };
 
 class ICurveEditorSplineDataModel : public IEditorDataModel
@@ -42,10 +36,10 @@ class ICurveEditorSplineDataModel : public IEditorDataModel
 public:
     virtual ~ICurveEditorSplineDataModel() override = default;
 
+    virtual bool AddControlPoints(const SplineControlPointsPositions& positions) = 0;
+
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept = 0;
     virtual bool SetControlPoints(const SplineControlPointsPositions& positions) = 0;
-
-    virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept = 0;
 
     virtual const SplineID& GetID() const noexcept = 0;
     virtual const SplineColor& GetColor() const noexcept = 0;

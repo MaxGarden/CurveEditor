@@ -12,6 +12,8 @@ public:
     virtual bool SetPosition(const ax::pointf& position) override final;
 
     virtual bool SetKnotIndex(size_t knotIndex) noexcept override final;
+    virtual std::optional<size_t> GetControlPointIndex() const noexcept override final;
+
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
 private:
@@ -60,6 +62,9 @@ std::optional<ax::pointf> CCurveEditorKnotControllerPrivate::GetPosition() const
 
 bool CCurveEditorKnotControllerPrivate::SetKnotIndex(size_t knotIndex) noexcept
 {
+    if (m_KnotIndex.has_value() && *m_KnotIndex == knotIndex)
+        return true;
+
     const auto controlPointIndex = knotIndex * (ICurveEditorSplineController::ControlPointsPerCurve() - 1);
 
     const auto& controlPoints = GetControlPoints();
@@ -70,6 +75,11 @@ bool CCurveEditorKnotControllerPrivate::SetKnotIndex(size_t knotIndex) noexcept
     m_KnotIndex = knotIndex;
     m_ControlPointIndex = controlPointIndex;
     return true;
+}
+
+std::optional<size_t> CCurveEditorKnotControllerPrivate::GetControlPointIndex() const noexcept
+{
+    return m_ControlPointIndex;
 }
 
 std::optional<size_t> CCurveEditorKnotControllerPrivate::GetIndex() const noexcept

@@ -18,6 +18,7 @@ public:
     virtual ~ICurveEditorTangentControllerPrivate() override = default;
 
     virtual bool SetTangentIndex(size_t tangentIndex) noexcept = 0;
+    virtual std::optional<size_t> GetControlPointIndex() const noexcept = 0;
 
     static ICurveEditorTangentControllerPrivateUniquePtr Create();
 };

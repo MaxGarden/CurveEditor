@@ -35,6 +35,7 @@ public:
 
 protected:
     virtual void OnControllerChanged() override final;
+    virtual IEditorListenerUniquePtr CreateListener() override final;
 
 private:
     void VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse = false) const noexcept;
@@ -220,6 +221,11 @@ void CCurveEditorSplineView::OnControllerChanged()
     CreateTangentViews(*controller);
     CreateKnotViews(*controller);
     CreateCurveViews(*controller);
+}
+
+IEditorListenerUniquePtr CCurveEditorSplineView::CreateListener()
+{
+    return std::make_unique<CCurveEditorSplineViewListener>(*this);
 }
 
 void CCurveEditorSplineView::VisitCurvesViews(const InterruptibleVisitorType<ICurveEditorCurveView>& visitor, bool reverse /*= false*/) const noexcept

@@ -11,10 +11,14 @@ public:
     virtual bool SetPosition(const ax::pointf& position) override final;
     virtual std::optional<ax::pointf> GetPosition() const noexcept override final;
 
+    virtual bool InsertKnot(float tPosition) override final;
+
     virtual bool VisitCurveControlPoints(const ConstVisitorType<ax::pointf>& visitor) const override final;
     virtual const SplineColor& GetColor() const noexcept override final;
 
     virtual bool SetCurveIndex(size_t curveIndex) noexcept override final;
+    virtual std::optional<size_t> GetControlPointIndex() const noexcept override final;
+
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
 private:
@@ -102,7 +106,10 @@ const SplineColor& CCurveEditorCurveControllerPrivate::GetColor() const noexcept
 
 bool CCurveEditorCurveControllerPrivate::SetCurveIndex(size_t curveIndex) noexcept
 {
-   const auto& controlPoints = GetControlPoints();
+    if (m_CurveIndex.has_value() && *m_CurveIndex == curveIndex)
+        return true;
+
+    const auto& controlPoints = GetControlPoints();
 
     const auto controlPointsPerCurve = ICurveEditorSplineController::ControlPointsPerCurve();
     const auto firstControlPointIndex = curveIndex * (controlPointsPerCurve - 1);
@@ -120,6 +127,72 @@ bool CCurveEditorCurveControllerPrivate::SetCurveIndex(size_t curveIndex) noexce
 std::optional<size_t> CCurveEditorCurveControllerPrivate::GetIndex() const noexcept
 {
     return m_CurveIndex;
+}
+
+bool CCurveEditorCurveControllerPrivate::InsertKnot(float tPosition)
+{
+    const auto isTPositionValid = tPosition >= 0.0f && tPosition <= 1.0f;
+    EDITOR_ASSERT(isTPositionValid);
+    if (!isTPositionValid)
+        return false;
+
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    std::array<ax::pointf, 4u> controlPoints;
+
+    VisitCurveControlPoints([iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
+    {
+        EDITOR_ASSERT(iterator != endIterator);
+        if (iterator != endIterator)
+            *(iterator++) = point;
+    });
+
+    const auto previousTangentPosition = (1.0f - tPosition) * controlPoints[0] + tPosition * controlPoints[1];
+    const auto nextTangentPosition = (1.0f - tPosition) * controlPoints[2] + tPosition * controlPoints[3];
+
+    const auto tangentPositionFactor = (1.0f - tPosition) * controlPoints[1] + tPosition * controlPoints[2];
+
+    const auto leftTangentPosition = (1.0f - tPosition) * previousTangentPosition + tPosition * tangentPositionFactor;
+    const auto rightTangentPosition = (1.0f - tPosition) * tangentPositionFactor + tPosition * nextTangentPosition;
+
+    const auto knotPosition = ax::cubic_bezier(controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3], tPosition);
+
+    const auto firstControlPointIndex = GetControlPointIndex();
+    EDITOR_ASSERT(firstControlPointIndex);
+    if (!firstControlPointIndex)
+        return false;
+
+    const auto firstInsertControlPointIndex = *firstControlPointIndex + 2u;
+
+    auto result = true;
+    result &= dataModel->AddControlPoints({
+        { firstInsertControlPointIndex, leftTangentPosition },
+        { firstInsertControlPointIndex + 1, knotPosition },
+        { firstInsertControlPointIndex + 2, rightTangentPosition } });
+
+    EDITOR_ASSERT(result);
+    if (!result)
+        return result;
+
+    const auto previousTangentControlPointIndex = firstInsertControlPointIndex - 1;
+    const auto nextTangentControlPointIndex = firstInsertControlPointIndex + 3;
+
+    const auto controlPointsCount = dataModel->GetControlPoints().size();
+
+    const auto isFirstInsertControlPointIndexValid = previousTangentControlPointIndex < controlPointsCount && nextTangentControlPointIndex < controlPointsCount;
+    EDITOR_ASSERT(isFirstInsertControlPointIndexValid);
+    if (!isFirstInsertControlPointIndexValid)
+        return result;
+
+    result &= dataModel->SetControlPoints({
+        { previousTangentControlPointIndex, previousTangentPosition },
+        { nextTangentControlPointIndex, nextTangentPosition } });
+
+    EDITOR_ASSERT(result);
+    return result;
 }
 
 bool CCurveEditorCurveControllerPrivate::VisitCurveControlPointIndexes(const ConstVisitorType<size_t>& visitor) const
@@ -142,6 +215,14 @@ bool CCurveEditorCurveControllerPrivate::VisitCurveControlPointIndexes(const Con
         visitor(i);
 
     return true;
+}
+
+std::optional<size_t> CCurveEditorCurveControllerPrivate::GetControlPointIndex() const noexcept
+{
+    if (!m_ControlPointsRange)
+        return std::nullopt;
+
+    return m_ControlPointsRange->first;
 }
 
 ICurveEditorCurveControllerPrivateUniquePtr ICurveEditorCurveControllerPrivate::Create()

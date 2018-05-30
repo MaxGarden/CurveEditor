@@ -16,6 +16,7 @@ public:
     virtual ~ICurveEditorKnotControllerPrivate() override = default;
 
     virtual bool SetKnotIndex(size_t knotIndex) noexcept = 0;
+    virtual std::optional<size_t> GetControlPointIndex() const noexcept = 0;
 
     static ICurveEditorKnotControllerPrivateUniquePtr Create();
 };

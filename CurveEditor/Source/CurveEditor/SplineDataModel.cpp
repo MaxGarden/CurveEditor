@@ -9,17 +9,16 @@ public:
     CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color);
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
+    virtual bool AddControlPoints(const SplineControlPointsPositions& positions) override final;
+
     virtual const std::vector<ax::pointf>& GetControlPoints() const noexcept override final;
     virtual bool SetControlPoints(const SplineControlPointsPositions& positions) override final;
-
-    virtual const std::vector<ECurveType>& GetCurvesTypes() const noexcept override final;
 
     virtual const SplineID& GetID() const noexcept override final;
     virtual const SplineColor& GetColor() const noexcept override final;
 
 private:
     std::vector<ax::pointf> m_ControlPoints;
-    std::vector<ECurveType> m_CurvesTypes;
     const SplineID m_ID;
     const unsigned int m_Color = 0;
 };
@@ -57,13 +56,8 @@ bool CCurveEditorSplineDataModel::SetControlPoints(const SplineControlPointsPosi
         m_ControlPoints[singlePosition.ControlPointIndex] = singlePosition.Position;
     });
 
-    NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsPositionsChanged, positions);
+    NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsModified, positions);
     return true;
-}
-
-const std::vector<ECurveType>& CCurveEditorSplineDataModel::GetCurvesTypes() const noexcept
-{
-    return m_CurvesTypes;
 }
 
 const SplineID& CCurveEditorSplineDataModel::GetID() const noexcept
@@ -74,6 +68,23 @@ const SplineID& CCurveEditorSplineDataModel::GetID() const noexcept
 const SplineColor& CCurveEditorSplineDataModel::GetColor() const noexcept
 {
     return m_Color;
+}
+
+bool CCurveEditorSplineDataModel::AddControlPoints(const SplineControlPointsPositions& positions)
+{
+    if (positions.empty() || positions.rbegin()->ControlPointIndex > m_ControlPoints.size())
+    {
+        EDITOR_ASSERT(false);
+        return false;
+    }
+
+    VisitObjectsContainer(positions, [this](const auto& singlePosition)
+    {
+        m_ControlPoints.emplace(m_ControlPoints.begin() + singlePosition.ControlPointIndex, singlePosition.Position);
+    });
+
+    NotifyListeners(&ICurveEditorSplineDataModelListener::OnControlPointsAdded, positions);
+    return true;
 }
 
 ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(SplineID id, SplineColor color)

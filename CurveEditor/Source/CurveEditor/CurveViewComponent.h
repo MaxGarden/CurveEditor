@@ -8,6 +8,9 @@ class ICurveEditorCurveView : public ICurveEditorSplineComponentView
 public:
     virtual ~ICurveEditorCurveView() override = default;
 
+    virtual bool InsertKnot(float position) = 0;
+    virtual std::optional<ax::pointf> GetClosestPosition(const ax::pointf& position) const noexcept = 0;
+
     static ICurveEditorCurveViewSharedPtr Create(ICurveEditorView& editorView);
 };
 

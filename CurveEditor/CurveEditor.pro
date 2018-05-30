@@ -71,6 +71,7 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.cpp   \
     Source/CurveEditor/Tools/CurveEditorSelectionTool.cpp       \
     Source/CurveEditor/Tools/CurveEditorMovingTool.cpp          \
+    Source/CurveEditor/Tools/CurveEditorKnotInserterTool.cpp    \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
 
 HEADERS += \
@@ -142,6 +143,7 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorSelectionToolBase.h     \
     Source/CurveEditor/Tools/CurveEditorSelectionTool.h         \
     Source/CurveEditor/Tools/CurveEditorMovingTool.h            \
+    Source/CurveEditor/Tools/CurveEditorKnotInserterTool.h      \
     Source/EditorWidgets/EditorViewWidget.h
 
 FORMS += \

@@ -30,10 +30,16 @@ public:
     virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
+    virtual bool InsertKnot(float position) override final;
+    virtual std::optional<ax::pointf> GetClosestPosition(const ax::pointf& position) const noexcept override final;
+
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorCurveController& splineController) override final;
+
+private:
+    std::optional<float> EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision = 0.00001f) const noexcept;
 
 private:
     std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
@@ -125,15 +131,15 @@ bool CCurveEditorCurveView::IsColliding(const ax::rectf& rect, bool allowInterse
     const auto bottomRight = rect.bottom_right();
     const auto bottomLeft = rect.bottom_left();
 
-    ax::pointf points[3];
+    std::array<ax::pointf, 3> points;
 
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topLeft, topRight, points) > 0)
+    if (ax::cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topLeft, topRight, points.data()) > 0)
         return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topRight, bottomRight, points) > 0)
+    if (ax::cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, topRight, bottomRight, points.data()) > 0)
         return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomRight, bottomLeft, points) > 0)
+    if (ax::cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomRight, bottomLeft, points.data()) > 0)
         return true;
-    if (cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomLeft, topLeft, points) > 0)
+    if (ax::cubic_bezier_line_intersect(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, bottomLeft, topLeft, points.data()) > 0)
         return true;
 
     return false;
@@ -175,7 +181,7 @@ std::optional<ax::cubic_bezier_t> CCurveEditorCurveView::GetControlPointsPositio
     if (!controller)
         return std::nullopt;
 
-    std::array<ax::pointf, 4> controlPoints;
+    std::array<ax::pointf, 4u> controlPoints;
 
     const auto visitationResult = controller->VisitCurveControlPoints([iterator = controlPoints.begin(), endIterator = controlPoints.end()](const auto& point) mutable
     {
@@ -230,6 +236,68 @@ void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorCurveContr
     };
 
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
+}
+
+bool CCurveEditorCurveView::InsertKnot(float position)
+{
+    const auto controlPoints = GetControlPointsPositions();
+    EDITOR_ASSERT(controlPoints);
+    if (!controlPoints)
+        return false;
+
+    const auto isPositionValid = position > controlPoints->p0.x && position < controlPoints->p3.x;
+    EDITOR_ASSERT(isPositionValid);
+    if (!isPositionValid)
+        return false;
+
+    const auto tPosition = EvaluateClosestT(*controlPoints, position);
+    EDITOR_ASSERT(tPosition);
+    if (!tPosition)
+        return false;
+
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return false;
+
+    return controller->InsertKnot(*tPosition);
+}
+
+std::optional<ax::pointf> CCurveEditorCurveView::GetClosestPosition(const ax::pointf& position) const noexcept
+{
+    auto controlPoints = GetEditorControlPointsPositions(false);
+    EDITOR_ASSERT(controlPoints);
+    if (!controlPoints)
+        return std::nullopt;
+
+    const auto projectionResult = ax::cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3);
+    return ax::cubic_bezier(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, projectionResult.position);
+}
+
+std::optional<float> CCurveEditorCurveView::EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision /*= 0.00001f*/) const noexcept
+{
+    auto step = 0.5f;
+    auto accumulator = 0.0f;
+
+    while (true)
+    {
+        auto point = cubic_bezier(curve.p0, curve.p1, curve.p2, curve.p3, 0.5f - accumulator);
+
+        if (step == 0.0f)
+            break;
+
+        step *= 0.5f;
+
+        if (point.x < x)
+            accumulator -= step;
+        else if (point.x > x)
+            accumulator += step;
+
+        if (abs(point.x - x) < precision)
+            return 0.5f - accumulator;
+    }
+
+    return std::nullopt;
 }
 
 ICurveEditorCurveViewSharedPtr ICurveEditorCurveView::Create(ICurveEditorView& editorView)

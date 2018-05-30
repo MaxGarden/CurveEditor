@@ -5,21 +5,22 @@
 
 SCurveEditorStyle::SCurveEditorStyle()
 {
-    DEFINE_COLOR(CurveEditorStyleColor_Grid                 , 127, 127, 127, 050);
-    DEFINE_COLOR(CurveEditorStyleColor_SmallGrid            , 127, 127, 127, 025);
-    DEFINE_COLOR(CurveEditorStyleColor_Background           , 032, 032, 032, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_Knot                 , 060, 180, 255, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_TangentLine          , 255, 000, 060, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_TangentMarker        , 255, 180, 060, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_HoveringBorder       , 050, 176, 255, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_SelectionBorder      , 255, 176, 050, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_SelectionRect        , 050, 020, 255, 128);
-    DEFINE_COLOR(CurveEditorStyleColor_SelectionRectBorder  , 050, 020, 255, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_Grid                 , 127, 127, 127,  50);
+    DEFINE_COLOR(CurveEditorStyleColor_SmallGrid            , 127, 127, 127,  25);
+    DEFINE_COLOR(CurveEditorStyleColor_Background           ,  32,  32,  32, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_Knot                 ,  60, 180, 255, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_TangentLine          , 255,   0,  60, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_TangentMarker        , 255, 180,  60, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_HoveringBorder       ,  50, 176, 255, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_SelectionBorder      , 255, 176,  50, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_SelectionRect        ,  50,  20, 255, 128);
+    DEFINE_COLOR(CurveEditorStyleColor_SelectionRectBorder  ,  50,  20, 255, 255);
     DEFINE_COLOR(CurveEditorStyleColor_RulerText            , 127, 127, 127, 255);
-    DEFINE_COLOR(CurveEditorStyleColor_RulerBorder          , 127, 127, 127, 000);
-    DEFINE_COLOR(CurveEditorStyleColor_RulerBackground      , 127, 127, 127, 005);
-    DEFINE_COLOR(CurveEditorStyleColor_RulerBigGraduation   , 000, 000, 000, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBorder          , 127, 127, 127,   0);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBackground      , 127, 127, 127,   5);
+    DEFINE_COLOR(CurveEditorStyleColor_RulerBigGraduation   ,   0,   0,   0, 255);
     DEFINE_COLOR(CurveEditorStyleColor_RulerSmallGraduation , 200, 200, 200, 255);
+    DEFINE_COLOR(CurveEditorStyleColor_Helper               ,  80,  21, 238, 200);
 
     KnotSize = { 10.0f, 10.0f };
     SplineThickness = 3.0f;

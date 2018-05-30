@@ -20,6 +20,7 @@ enum ECurveEditorStyleColor
     CurveEditorStyleColor_RulerBackground,
     CurveEditorStyleColor_RulerBigGraduation,
     CurveEditorStyleColor_RulerSmallGraduation,
+    CurveEditorStyleColor_Helper,
 
     CurveEditorStyleColor_Count
 };

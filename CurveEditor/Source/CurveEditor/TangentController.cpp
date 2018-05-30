@@ -14,6 +14,8 @@ public:
     virtual std::optional<ax::pointf> GetAnchorPosition() const noexcept override final;
 
     virtual bool SetTangentIndex(size_t tangentIndex) noexcept override final;
+    virtual std::optional<size_t> GetControlPointIndex() const noexcept override final;
+
     virtual std::optional<size_t> GetIndex() const noexcept override final;
 
 private:
@@ -51,6 +53,9 @@ std::optional<ax::pointf> CCurveEditorTangentControllerPrivate::GetAnchorPositio
 
 bool CCurveEditorTangentControllerPrivate::SetTangentIndex(size_t tangentIndex) noexcept
 {
+    if (m_TangentIndex.has_value() && *m_TangentIndex == tangentIndex)
+        return true;
+
     const auto controlPointsPerCurveMinusOne = (ICurveEditorSplineController::ControlPointsPerCurve() - 1);
     const auto tangentControlPointIndex = 1 + (tangentIndex / 2) * controlPointsPerCurveMinusOne + tangentIndex % 2;
 
@@ -73,6 +78,11 @@ bool CCurveEditorTangentControllerPrivate::SetTangentIndex(size_t tangentIndex) 
 std::optional<size_t> CCurveEditorTangentControllerPrivate::GetIndex() const noexcept
 {
     return m_TangentIndex;
+}
+
+std::optional<size_t> CCurveEditorTangentControllerPrivate::GetControlPointIndex() const noexcept
+{
+    return m_TangentControlPointIndex;
 }
 
 ICurveEditorTangentControllerPrivateUniquePtr ICurveEditorTangentControllerPrivate::Create()

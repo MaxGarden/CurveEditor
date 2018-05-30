@@ -12,6 +12,7 @@
 #include "Tools/CurveEditorSelectionTool.h"
 #include "Tools/CurveEditorHoveringTool.h"
 #include "Tools/CurveEditorMovingTool.h"
+#include "Tools/CurveEditorKnotInserterTool.h"
 #include "EditorContext.h"
 #include "CurveEditorSelectionDataModel.h"
 
@@ -39,6 +40,7 @@ int main(int argc, char** argv)
     tool->AddComponent(std::make_unique<CCurveEditorSelectionTool>(ECurveEditorMouseButton::Left, ECurveEditorSplineComponentType::Knot, ECurveEditorModifier::Control, std::map<ECurveEditorModifier, ECurveEditorSplineComponentType>{ { ECurveEditorModifier::Alt, ECurveEditorSplineComponentType::Tangent }, { ECurveEditorModifier::Shift, ECurveEditorSplineComponentType::Curve } }));
     tool->AddComponent(std::make_unique<CCurveEditorHoveringTool>(true));
     tool->AddComponent(std::make_unique<CCurveEditorMovingTool>(ECurveEditorMouseButton::Left));
+    tool->AddComponent(std::make_unique<CCurveEditorKnotInserterTool>(ECurveEditorMouseButton::Middle));
 
     auto controller = ICurveEditorController::Create(splineControllerFactory);
     controller->SetActiveTool(tool);
