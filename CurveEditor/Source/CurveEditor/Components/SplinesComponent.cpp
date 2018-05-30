@@ -18,13 +18,12 @@ public:
     virtual ICurveEditorSplineComponentView* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
     virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineComponentView>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
 
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) noexcept override;
-
     bool CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController);
     bool DestroySplineView(const ICurveEditorSplineControllerConstSharedPtr& splineController);
 
 protected:
     virtual void OnControllerChanged() override final;
+    virtual IEditorListenerUniquePtr CreateListener();
 
 private:
     void VisitSplineViews(const InterruptibleVisitorType<ICurveEditorSplineView>& visitor, bool reverse = false) const noexcept;
@@ -96,23 +95,6 @@ ICurveEditorSplineView* CCurveEditorSplinesViewComponent::GetSplineView(const Sp
     return iterator->second.get();
 }
 
-bool CCurveEditorSplinesViewComponent::SetController(const IEditorControllerSharedPtr& controller) noexcept
-{
-    const auto previousController = GetController();
-
-    if (!Super::SetController(controller))
-        return false;
-
-    if (previousController)
-        previousController->UnregisterListener(m_ListenerHandle);
-
-    if (const auto& controller = GetController())
-        m_ListenerHandle = controller->RegisterListener(std::make_unique<CCurveEditorViewListener>(*this)).value_or(0);
-
-    RecreateSplineViews();
-    return true;
-}
-
 bool CCurveEditorSplinesViewComponent::CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController)
 {
     if (m_SplineViews.find(splineController) != m_SplineViews.end())
@@ -143,6 +125,11 @@ bool CCurveEditorSplinesViewComponent::DestroySplineView(const ICurveEditorSplin
 void CCurveEditorSplinesViewComponent::OnControllerChanged()
 {
     RecreateSplineViews();
+}
+
+IEditorListenerUniquePtr CCurveEditorSplinesViewComponent::CreateListener()
+{
+    return std::make_unique<CCurveEditorViewListener>(*this);
 }
 
 void CCurveEditorSplinesViewComponent::VisitSplineViews(const InterruptibleVisitorType<ICurveEditorSplineView>& visitor, bool reverse) const noexcept
