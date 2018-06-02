@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__STYLE_H__)
 
 #include <imgui.h>

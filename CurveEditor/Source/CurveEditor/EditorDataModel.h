@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__EDITOR_DATA_MODEL_H__)
 
 #include "EditorListener.h"

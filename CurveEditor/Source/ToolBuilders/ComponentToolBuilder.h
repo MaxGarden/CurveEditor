@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__COMPONENT_TOOL_BUILDER_H__)
 
 #include "CurveEditorTool.h"

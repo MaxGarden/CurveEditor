@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_TANGENT_CONTROLLER__)
 
 #include "ax/ax.h"

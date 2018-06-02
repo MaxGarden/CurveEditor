@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_SPLINE_DATA_MODEL_H__)
 
 #include <ax/ax.h>

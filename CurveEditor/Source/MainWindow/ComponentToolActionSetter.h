@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__COMPONENT_TOOL_ACTION_SETTER_H__)
 
 #include <QObject>

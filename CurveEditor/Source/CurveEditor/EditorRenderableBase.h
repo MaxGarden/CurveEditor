@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__EDITOR_RENDERABLE_BASE_H__)
 
 #include "EditorRenderable.h"

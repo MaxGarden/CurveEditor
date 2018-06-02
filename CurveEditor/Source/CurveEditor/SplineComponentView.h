@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_SPLINE_COMPONENT_VIEW_H__)
 
 #include <ax/ax.h>

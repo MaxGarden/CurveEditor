@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__KNOT_REMOVER_TOOL_BUILDER_H__)
 
 #include "DefaultToolBuilder.h"

@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_SPLINE_CONTROLLER_FACTORY_H__)
 
 #include "SplineController.h"

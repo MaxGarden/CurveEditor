@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_TANGENT_VIEW_COMPONENT_H__)
 
 #include "SplineComponentView.h"

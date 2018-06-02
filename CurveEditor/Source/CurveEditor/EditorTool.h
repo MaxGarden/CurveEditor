@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__EDITOR_TOOL_H__)
 
 class IEditorTool

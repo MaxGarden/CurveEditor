@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_SELECTION_DATA_MODEL_H__)
 
 #include "SplineDataModel.h"

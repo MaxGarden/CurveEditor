@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__EDITOR_LISTENER_H__)
 
 using EditorListenerHandle = size_t;

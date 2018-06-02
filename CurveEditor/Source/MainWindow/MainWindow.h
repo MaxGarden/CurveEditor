@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__MAIN_WINDOW_H__)
 
 #include <QMainWindow>

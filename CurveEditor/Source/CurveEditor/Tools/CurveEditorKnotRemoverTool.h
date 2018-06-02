@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_KNOT_REMOVER_TOOL_H__)
 
 #include "CurveEditorToolBase.h"

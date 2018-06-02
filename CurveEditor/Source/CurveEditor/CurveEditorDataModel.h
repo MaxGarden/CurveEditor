@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_DATA_MODEL_H__)
 
 #include "Style.h"

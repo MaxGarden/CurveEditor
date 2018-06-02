@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CANVAS_H__)
 
 #include <ax/ax.h>

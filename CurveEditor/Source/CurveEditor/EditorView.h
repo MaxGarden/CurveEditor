@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__EDITOR_VIEW_H__)
 
 #include "EditorDataModel.h"

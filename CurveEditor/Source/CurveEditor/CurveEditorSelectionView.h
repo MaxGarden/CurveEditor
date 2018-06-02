@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #if !defined(__CURVE_EDITOR_SELECTION_VIEW_H__)
 
 #include "EditorView.h"
