@@ -1451,6 +1451,22 @@ QDateEdit::down-arrow:focus
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>m_RemoveEditorButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>OnRemoveEditorButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>637</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnAddEditorButtonClicked()</slot>
