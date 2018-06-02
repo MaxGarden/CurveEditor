@@ -23,6 +23,8 @@ public:
     CCurveEditorControllerListenerBase() = default;
     virtual ~CCurveEditorControllerListenerBase() override = default;
 
+    virtual void OnToolChanged(ICurveEditorTool* tool) override;
+
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) override;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) override;
 };

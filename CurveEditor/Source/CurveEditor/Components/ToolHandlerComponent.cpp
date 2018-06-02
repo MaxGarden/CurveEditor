@@ -4,6 +4,7 @@
 #include "CurveEditorViewComponentBase.h"
 #include "CurveEditorController.h"
 #include "CurveEditorTool.h"
+#include "CurveEditorListenerBase.h"
 #include <ImGuiInterop.h>
 #include <mutex>
 
@@ -78,10 +79,14 @@ public:
 
     virtual void OnFrame() override final;
 
+    void OnToolChanged(ICurveEditorTool* tool);
+
     void VisitButtonHandlers(const ConstVisitorType<CMouseButtonHandler>& visitor) const noexcept;
 
 protected:
     virtual void OnControllerChanged() override final;
+    virtual IEditorListenerUniquePtr CreateListener() override final;
+
     void OnFrame(ICurveEditorController& editorController);
 
 private:
@@ -113,6 +118,28 @@ private:
     static std::mutex s_ActivityMutex;
     static CCurveEditorToolHandlerComponent* s_ActivityOwner;
 };
+
+class CCurveEditorToolHandlerComponentListener final : public CCurveEditorControllerListenerBase
+{
+public:
+    CCurveEditorToolHandlerComponentListener(CCurveEditorToolHandlerComponent& toolHandlerComponent);
+    virtual ~CCurveEditorToolHandlerComponentListener() override final = default;
+
+    void OnToolChanged(ICurveEditorTool* tool) override final;
+
+private:
+    CCurveEditorToolHandlerComponent& m_ToolHandlerComponent;
+};
+
+CCurveEditorToolHandlerComponentListener::CCurveEditorToolHandlerComponentListener(CCurveEditorToolHandlerComponent& toolHandlerComponent) :
+    m_ToolHandlerComponent(toolHandlerComponent)
+{
+}
+
+void CCurveEditorToolHandlerComponentListener::OnToolChanged(ICurveEditorTool* tool)
+{
+    m_ToolHandlerComponent.OnToolChanged(tool);
+}
 
 std::mutex CCurveEditorToolHandlerComponent::s_ActivityMutex;
 CCurveEditorToolHandlerComponent* CCurveEditorToolHandlerComponent::s_ActivityOwner = nullptr;
@@ -304,6 +331,11 @@ void CCurveEditorToolHandlerComponent::OnControllerChanged()
     m_LastController = GetController();
 }
 
+IEditorListenerUniquePtr CCurveEditorToolHandlerComponent::CreateListener()
+{
+    return std::make_unique<CCurveEditorToolHandlerComponentListener>(*this);
+}
+
 void CCurveEditorToolHandlerComponent::ResetActivity(ICurveEditorController* controller)
 {
     if (m_IsActive)
@@ -329,6 +361,14 @@ bool CCurveEditorToolHandlerComponent::IsAnyButtonHandlerWoring() const noexcept
     }
 
     return false;
+}
+
+void CCurveEditorToolHandlerComponent::OnToolChanged(ICurveEditorTool* tool)
+{
+    if (!tool || !m_IsActive)
+        return;
+
+    tool->OnAcquired(CCurveEditorToolEvent{ GetEditorView() });
 }
 
 CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :

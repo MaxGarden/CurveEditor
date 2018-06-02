@@ -11,6 +11,7 @@ QMAKE_CXXFLAGS += /std:c++latest
 PRECOMPILED_HEADER = Source/pch.h
 
 RESOURCES += Source/MainWindow/Resources/MainWindow.qrc
+RESOURCES += Source/MainWindow/UI/iconsresource.qrc
 
 include(Thirdparty/qtimgui/qtimgui.pri)
 
@@ -19,6 +20,7 @@ INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/Cur
 SOURCES += \
     Source/main.cpp \
     Source/MainWindow/MainWindow.cpp                            \
+    Source/MainWindow/ComponentToolActionSetter.cpp             \
     Source/CurveEditor/CurveEditorView.cpp                      \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
@@ -74,10 +76,16 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.cpp    \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.cpp     \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
+    Source/ToolBuilders/ComponentToolBuilder.cpp                \
+    Source/ToolBuilders/DefaultToolBuilder.cpp                  \
+    Source/ToolBuilders/MovingToolBuilder.cpp                   \
+    Source/ToolBuilders/KnotInserterToolBuilder.cpp             \
+    Source/ToolBuilders/KnotRemoverToolBuilder.cpp              \
 
 HEADERS += \
     Source/Pointers.h                                           \
     Source/MainWindow/MainWindow.h                              \
+    Source/MainWindow/ComponentToolActionSetter.h               \
     Source/CurveEditor/ImGuiInterop.h                           \
     Source/CurveEditor/CurveEditorView.h                        \
     Source/CurveEditor/CurveEditorDataModel.h                   \
@@ -146,7 +154,13 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorMovingTool.h            \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.h      \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.h       \
-    Source/EditorWidgets/EditorViewWidget.h
+    Source/EditorWidgets/EditorViewWidget.h                     \
+    Source/ToolBuilders/ComponentToolBuilder.h                  \
+    Source/ToolBuilders/DefaultToolBuilder.h                    \
+    Source/ToolBuilders/MovingToolBuilder.h                     \
+    Source/ToolBuilders/KnotInserterToolBuilder.h               \
+    Source/ToolBuilders/KnotRemoverToolBuilder.h                \
+    
 
 FORMS += \
     Source/MainWindow/UI/MainWindow.ui

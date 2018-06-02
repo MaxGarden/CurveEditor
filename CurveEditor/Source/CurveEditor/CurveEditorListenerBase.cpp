@@ -21,6 +21,11 @@ void CCurveEditorDataModelListenerBase::OnSelectionDataModelChanged(const ICurve
     //to override
 }
 
+void CCurveEditorControllerListenerBase::OnToolChanged(ICurveEditorTool*)
+{
+    //to override
+}
+
 void CCurveEditorControllerListenerBase::OnSplineCreated(const ICurveEditorSplineControllerSharedPtr&)
 {
     //to override

@@ -38,7 +38,7 @@ public:
 
     void SetSelectionDataModel(const ICurveEditorSelectionDataModelSharedPtr& selectionDataModel);
 
-    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept override final;
+    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) override final;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept override final;
 
     virtual ICurveEditorSelectionControllerSharedPtr GetSelectionController() const noexcept override final;
@@ -197,9 +197,14 @@ void CCurveEditorController::RecreateSplineControllers()
     });
 }
 
-bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept
+bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool)
 {
+    if (m_ActiveTool == tool)
+        return false;
+
     m_ActiveTool = std::move(tool);
+
+    NotifyListeners(&ICurveEditorControllerListener::OnToolChanged, m_ActiveTool.get());
     return true;
 }
 

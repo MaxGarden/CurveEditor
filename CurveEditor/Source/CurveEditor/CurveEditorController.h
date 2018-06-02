@@ -11,6 +11,8 @@ class ICurveEditorControllerListener : public IEditorListener
 public:
     virtual ~ICurveEditorControllerListener() = default;
 
+    virtual void OnToolChanged(ICurveEditorTool* tool) = 0;
+
     virtual void OnSplineCreated(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
     virtual void OnSplineDestroyed(const ICurveEditorSplineControllerSharedPtr& splineController) = 0;
 };
@@ -20,7 +22,7 @@ class ICurveEditorController : public IEditorController
 public:
     virtual ~ICurveEditorController() override = default;
 
-    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) noexcept = 0;
+    virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) = 0;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept = 0;
 
     virtual ICurveEditorSelectionControllerSharedPtr GetSelectionController() const noexcept = 0;

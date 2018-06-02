@@ -8,13 +8,38 @@ CMainWindow::CMainWindow(IEditorViewWidgetFactory& curveEditorWidgetFactory) :
     AddCurveEditorView();
 }
 
-void CMainWindow::Setup()
+bool CMainWindow::Setup()
 {
-    if (const auto button = m_AddEditorButton)
-        connect(button, SIGNAL(clicked()), SLOT(OnAddEditorButtonClicked()));
+    m_ToolBarActionGroup = new QActionGroup(this);
 
-    if (const auto button = m_RemoveEditorButton)
-        connect(button, SIGNAL(clicked()), SLOT(OnRemoveEditorButtonClicked()));
+    const auto actionsCount = static_cast<size_t>(ESetToolActionType::__Count);
+    for (auto i = 0u; i < actionsCount; ++i)
+        m_ToolBarActionGroup->addAction(GetSetToolAction(static_cast<ESetToolActionType>(i)));
+
+    m_ToolBarActionGroup->setExclusive(true);
+
+    const auto firstAction = GetSetToolAction(static_cast<ESetToolActionType>(0u));
+    EDITOR_ASSERT(firstAction);
+    if (firstAction)
+        firstAction->activate(QAction::Trigger);
+
+    return true;
+}
+
+QAction* CMainWindow::GetSetToolAction(ESetToolActionType actionType) const noexcept
+{
+    switch (actionType)
+    {
+    case ESetToolActionType::MovingTool:
+        return m_MovingToolAction;
+    case ESetToolActionType::KnotInserter:
+        return m_KnotInserterToolAction;
+    case ESetToolActionType::KnotRemover:
+        return m_KnotRemoverToolAction;
+    default:
+        EDITOR_ASSERT(false);
+        return nullptr;
+    };
 }
 
 void CMainWindow::OnAddEditorButtonClicked()

@@ -1,6 +1,7 @@
 #pragma  once
 #if !defined(__CURVE_EDITOR_MOVING_TOOL_H__)
 
+#include "SplineController.h"
 #include "CurveEditorToolBase.h"
 
 class CCurveEditorMovingTool final : public CCurveEditorToolBase
