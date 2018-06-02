@@ -37,9 +37,11 @@ void CCurveEditorHoveringToolViewComponent::OnFrame()
     });
 }
 
-CCurveEditorHoveringTool::CCurveEditorHoveringTool(bool curveAsSpline) :
-    m_CurveAsSpline(curveAsSpline)
+CCurveEditorHoveringTool::CCurveEditorHoveringTool(std::set<ECurveEditorSplineComponentType>&& hoveredSplineComponentsTypes, bool curveAsSpline /*= false*/) :
+    m_CurveAsSpline(curveAsSpline),
+    m_HoveredSplineComponentsTypes(std::move(hoveredSplineComponentsTypes))
 {
+
 }
 
 void CCurveEditorHoveringTool::OnAcquired(const CCurveEditorToolEvent& event)
@@ -61,7 +63,19 @@ void CCurveEditorHoveringTool::OnMouseMove(const CCurveEditorToolMouseEvent& eve
     if (!splineViewComponent)
         return;
 
-    const auto hoveredComponent = splineViewComponent->GetSplineComponentAt(event.GetMousePosition());
+    const auto hoveredComponent = [this, &splineViewComponent, &event]() -> ICurveEditorSplineComponentView*
+    {
+        const auto result = splineViewComponent->GetSplineComponentAt(event.GetMousePosition());
+
+        if (!result)
+            return nullptr;
+
+        if (m_HoveredSplineComponentsTypes.find(result->GetType()) == m_HoveredSplineComponentsTypes.cend())
+            return nullptr;
+
+        return result;
+    }();
+
     UpdateHoveringView(hoveredComponent, event.GetEditorView());
 }
 
