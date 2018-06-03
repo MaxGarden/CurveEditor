@@ -36,6 +36,8 @@ QAction* CMainWindow::GetSetToolAction(ESetToolActionType actionType) const noex
         return m_KnotInserterToolAction;
     case ESetToolActionType::KnotRemover:
         return m_KnotRemoverToolAction;
+    case ESetToolActionType::ZoomTool:
+        return m_ZoomToolAction;
     default:
         EDITOR_ASSERT(false);
         return nullptr;

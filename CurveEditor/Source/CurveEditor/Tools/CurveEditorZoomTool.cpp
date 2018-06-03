@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "CurveEditorZoomTool.h"
-#include "CurveEditorToolEvent.h"
-#include "CurveEditorView.h"
 #include "Components/NavigationComponent.h"
 
 void CCurveEditorZoomTool::OnAcquired(const CCurveEditorToolEvent& event)

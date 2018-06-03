@@ -42,7 +42,11 @@ enum ECurveEditorStyleFloat
 
     CurveEditorStyleFloat_RulerSizeFactor,
 
-    CurveEditorStyleFloat_HelperBorderThickness
+    CurveEditorStyleFloat_HelperBorderThickness,
+
+    CurveEditorStyleFloat_NavigationDurationTime,
+    CurveEditorStyleFloat_NavigationZoomMargin,
+    CurveEditorStyleFloat_ZoomDurationTime
 };
 
 enum ECurveEditorStyleVec2
@@ -80,6 +84,10 @@ struct SCurveEditorStyle
     float RulerSizeFactor;
 
     float HelperBorderThickness;
+
+    float NavigationDurationTime;
+    float NavigationZoomMargin;
+    float ZoomDurationTime;
 
     SCurveEditorStyle();
     ~SCurveEditorStyle() = default;

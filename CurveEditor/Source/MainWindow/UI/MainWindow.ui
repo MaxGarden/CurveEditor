@@ -1366,6 +1366,7 @@ QDateEdit::down-arrow:focus
    <addaction name="m_MovingToolAction"/>
    <addaction name="m_KnotInserterToolAction"/>
    <addaction name="m_KnotRemoverToolAction"/>
+   <addaction name="m_ZoomToolAction"/>
   </widget>
   <action name="m_MovingToolAction">
    <property name="checkable">
@@ -1428,6 +1429,24 @@ QDateEdit::down-arrow:focus
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="m_ZoomToolAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/search-magnifying-glass.png</normaloff>:/icons/icons/search-magnifying-glass.png</iconset>
+   </property>
+   <property name="text">
+    <string>ZoomTool</string>
+   </property>
+   <property name="iconText">
+    <string>ZoomTool</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
    </property>
   </action>
  </widget>

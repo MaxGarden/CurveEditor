@@ -11,6 +11,7 @@ enum class ESetToolActionType
     MovingTool,
     KnotInserter,
     KnotRemover,
+    ZoomTool,
 
     __Count
 };

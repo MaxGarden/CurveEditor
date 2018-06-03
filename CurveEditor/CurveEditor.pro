@@ -75,12 +75,14 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorMovingTool.cpp          \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.cpp    \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.cpp     \
+    Source/CurveEditor/Tools/CurveEditorRectNavigationTool.cpp  \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
     Source/ToolBuilders/ComponentToolBuilder.cpp                \
     Source/ToolBuilders/DefaultToolBuilder.cpp                  \
     Source/ToolBuilders/MovingToolBuilder.cpp                   \
     Source/ToolBuilders/KnotInserterToolBuilder.cpp             \
     Source/ToolBuilders/KnotRemoverToolBuilder.cpp              \
+    Source/ToolBuilders/ZoomToolBuilder.cpp                     \
 
 HEADERS += \
     Source/Pointers.h                                           \
@@ -154,12 +156,14 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorMovingTool.h            \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.h      \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.h       \
+    Source/CurveEditor/Tools/CurveEditorRectNavigationTool.h    \
     Source/EditorWidgets/EditorViewWidget.h                     \
     Source/ToolBuilders/ComponentToolBuilder.h                  \
     Source/ToolBuilders/DefaultToolBuilder.h                    \
     Source/ToolBuilders/MovingToolBuilder.h                     \
     Source/ToolBuilders/KnotInserterToolBuilder.h               \
     Source/ToolBuilders/KnotRemoverToolBuilder.h                \
+    Source/ToolBuilders/ZoomToolBuilder.h                       \
     
 
 FORMS += \

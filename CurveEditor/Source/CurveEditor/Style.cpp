@@ -42,6 +42,10 @@ SCurveEditorStyle::SCurveEditorStyle()
     RulerSizeFactor = 2.0f;
 
     HelperBorderThickness = 4.0f;
+
+    NavigationDurationTime = 0.35f;
+    NavigationZoomMargin = 0.01f;
+    ZoomDurationTime = 0.15f;
 }
 
 std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFloat styleFloat) const noexcept
@@ -70,6 +74,12 @@ std::optional<float> SCurveEditorStyle::GetEditorStyleFloat(ECurveEditorStyleFlo
         return RulerSizeFactor;
     case CurveEditorStyleFloat_HelperBorderThickness:
         return HelperBorderThickness;
+    case CurveEditorStyleFloat_NavigationDurationTime:
+        return NavigationDurationTime;
+    case CurveEditorStyleFloat_NavigationZoomMargin:
+        return NavigationZoomMargin;
+    case CurveEditorStyleFloat_ZoomDurationTime:
+        return ZoomDurationTime;
     default:
         EDITOR_ASSERT(false);
         return std::nullopt;

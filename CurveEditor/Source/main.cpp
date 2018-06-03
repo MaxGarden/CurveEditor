@@ -13,6 +13,7 @@
 #include "ToolBuilders/MovingToolBuilder.h"
 #include "ToolBuilders/KnotInserterToolBuilder.h"
 #include "ToolBuilders/KnotRemoverToolBuilder.h"
+#include "ToolBuilders/ZoomToolBuilder.h"
 
 int main(int argc, char** argv)
 {
@@ -59,6 +60,9 @@ int main(int argc, char** argv)
 
     CKnotRemoverToolBuilder knotRemoverToolBuilder;
     createComponentToolActionSetter(ESetToolActionType::KnotRemover, knotRemoverToolBuilder);
+
+    CZoomToolBuilder zoomToolBuilder;
+    createComponentToolActionSetter(ESetToolActionType::ZoomTool, zoomToolBuilder);
 
     if (!mainWindow.Setup())
         return -2;
