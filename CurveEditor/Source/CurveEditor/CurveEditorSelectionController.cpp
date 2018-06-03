@@ -23,6 +23,7 @@ public:
     virtual bool ClearSelection() override final;
 
     void OnSplineComponentRemoved(const ICurveEditorSplineComponentControllerSharedPtr& splineComponentContoller);
+    void OnSplineRemoved(const ICurveEditorSplineController& splineContoller);
 
     virtual bool CheckIfSelected(const CurveEditorDataModelSingleSelection& singleSelection) const noexcept override final;
 
@@ -45,6 +46,8 @@ private:
 
     ICurveEditorSplineComponentControllerSharedPtr TransformDataModelSingleSelection(const CurveEditorDataModelSingleSelection& singleSelection) const noexcept;
     CurveEditorControllerSelection TransformDataModelSelection(const CurveEditorDataModelSelection& selection) const noexcept;
+
+    bool SetNewSelection(const CurveEditorControllerSelection& newSelection);
 
 private:
     ICurveEditorControllerWeakPtr m_EditorController;
@@ -207,7 +210,25 @@ void CCurveEditorSelectionController::OnSplineComponentRemoved(const ICurveEdito
         return;
 
     m_Selection.erase(iterator);
-    NotifyListeners(&ICurveEditorSelectionControllerListener::OnRemovedFromSelection, CurveEditorControllerSelection{ splineComponentContoller }, false);
+    const auto newSelection = std::move(m_Selection);
+
+    const auto result = SetNewSelection(newSelection);
+    EDITOR_ASSERT(result);
+}
+
+void CCurveEditorSelectionController::OnSplineRemoved(const ICurveEditorSplineController& splineContoller)
+{
+    CurveEditorControllerSelection newSelection;
+    VisitSelection([&newSelection, splineID = splineContoller.GetID()](const auto& splineComponentController)
+    {
+        if (!splineComponentController || splineComponentController->GetSplineID() == splineID)
+            return;
+
+        newSelection.emplace(splineComponentController);
+    });
+
+    const auto result = SetNewSelection(newSelection);
+    EDITOR_ASSERT(result);
 }
 
 bool CCurveEditorSelectionController::CheckIfSelected(const CurveEditorDataModelSingleSelection& singleSelection) const noexcept
@@ -256,6 +277,7 @@ bool CCurveEditorSelectionController::UnregisterSpline(const ICurveEditorSplineC
     const auto result = splineController->UnregisterListener(storage.ListenerHandle);
     EDITOR_ASSERT(result);
 
+    OnSplineRemoved(*splineController);
     m_SplinesControllers.erase(iterator);
     return true;
 }
@@ -390,6 +412,34 @@ CurveEditorControllerSelection CCurveEditorSelectionController::TransformDataMod
         result.emplace(splineComponentController);
     }
 
+    return result;
+}
+
+bool CCurveEditorSelectionController::SetNewSelection(const CurveEditorControllerSelection& newSelection)
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    dataModel->ClearSelection();
+
+    CurveEditorDataModelSelection selection;
+    VisitPointersContainer(newSelection, [&selection](const auto& splineComponentController)
+    {
+        const auto splineComponentIndex = splineComponentController.GetIndex();
+        EDITOR_ASSERT(splineComponentIndex);
+        if (!splineComponentIndex)
+            return;
+
+        selection.emplace(splineComponentController.GetSplineID(), *splineComponentIndex);
+    });
+
+    if (selection.empty())
+        return true;
+
+    const auto result = dataModel->AddToSelection(selection);
+    EDITOR_ASSERT(result);
     return result;
 }
 
