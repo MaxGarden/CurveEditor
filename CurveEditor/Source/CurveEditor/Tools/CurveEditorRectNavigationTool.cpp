@@ -26,8 +26,10 @@ void CCurveEditorRectNavigationTool::OnSelectionEnd(ICurveEditorView&)
         return;
 
     const auto selectionRect = GetSelectionRect();
-    EDITOR_ASSERT(selectionRect);
     if (!selectionRect)
+        return;
+
+    if (selectionRect->w <= 1.0f || selectionRect->h <= 1.0f)
         return;
 
     navigationComponent->NavigateTo(*selectionRect);
