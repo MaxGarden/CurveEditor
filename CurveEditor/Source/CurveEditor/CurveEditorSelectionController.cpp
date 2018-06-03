@@ -2,8 +2,12 @@
 #include "CurveEditorSelectionController.h"
 #include "EditorControllerBase.h"
 #include "CurveEditorSelectionListenerBase.h"
+#include "CurveEditorSplineListenerBase.h"
 #include "CurveEditorController.h"
 #include "SplineController.h"
+#include "KnotController.h"
+#include "TangentController.h"
+#include "CurveController.h"
 
 class CCurveEditorSelectionController final : public CEditorControllerBase<ICurveEditorSelectionControllerPrivate, ICurveEditorSelectionDataModel, ICurveEditorSelectionControllerListener>
 {
@@ -17,6 +21,8 @@ public:
     virtual bool AddToSelection(const CurveEditorDataModelSelection& selection) override final;
     virtual bool RemoveFromSelection(const CurveEditorDataModelSelection& selection) override final;
     virtual bool ClearSelection() override final;
+
+    void OnSplineComponentRemoved(const ICurveEditorSplineComponentControllerSharedPtr& splineComponentContoller);
 
     virtual bool CheckIfSelected(const CurveEditorDataModelSingleSelection& singleSelection) const noexcept override final;
 
@@ -46,7 +52,14 @@ private:
 
     std::optional<ECurveEditorSplineComponentType> m_SelectionMode;
     std::optional<EditorListenerHandle> m_EditorListenerHandle;
-    std::unordered_map<SplineID, ICurveEditorSplineControllerSharedPtr> m_SplinesControllers;
+
+    struct SSplineStorage
+    {
+        ICurveEditorSplineControllerSharedPtr Controller;
+        EditorListenerHandle ListenerHandle;
+    };
+
+    std::unordered_map<SplineID, SSplineStorage> m_SplinesControllers;
 };
 
 class CCurveEditorSelectionControllerListener final : public CCurveEditorSelectionDataModelListenerBase
@@ -63,6 +76,40 @@ public:
 private:
     CCurveEditorSelectionController& m_SelectionController;
 };
+
+class CCurveEditorSplineSelectionControllerLisnener final : public CCurveEditorSplineControllerListenerBase
+{
+public:
+    CCurveEditorSplineSelectionControllerLisnener(CCurveEditorSelectionController& selectionController);
+    virtual ~CCurveEditorSplineSelectionControllerLisnener() override final = default;
+
+    virtual void OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController) override final;
+    virtual void OnTangentDestroyed(const ICurveEditorTangentControllerSharedPtr& tangentController) override final;
+    virtual void OnCurveDestroyed(const ICurveEditorCurveControllerSharedPtr& curveController) override final;
+
+private:
+    CCurveEditorSelectionController& m_SelectionController;
+};
+
+CCurveEditorSplineSelectionControllerLisnener::CCurveEditorSplineSelectionControllerLisnener(CCurveEditorSelectionController& selectionController) :
+    m_SelectionController(selectionController)
+{
+}
+
+void CCurveEditorSplineSelectionControllerLisnener::OnKnotDestroyed(const ICurveEditorKnotControllerSharedPtr& knotController)
+{
+    m_SelectionController.OnSplineComponentRemoved(knotController);
+}
+
+void CCurveEditorSplineSelectionControllerLisnener::OnTangentDestroyed(const ICurveEditorTangentControllerSharedPtr& tangentController)
+{
+    m_SelectionController.OnSplineComponentRemoved(tangentController);
+}
+
+void CCurveEditorSplineSelectionControllerLisnener::OnCurveDestroyed(const ICurveEditorCurveControllerSharedPtr& curveController)
+{
+    m_SelectionController.OnSplineComponentRemoved(curveController);
+}
 
 CCurveEditorSelectionControllerListener::CCurveEditorSelectionControllerListener(CCurveEditorSelectionController& selectionController) :
     m_SelectionController(selectionController)
@@ -150,6 +197,19 @@ bool CCurveEditorSelectionController::ClearSelection()
     return false;
 }
 
+void CCurveEditorSelectionController::OnSplineComponentRemoved(const ICurveEditorSplineComponentControllerSharedPtr& splineComponentContoller)
+{
+    if (!splineComponentContoller || splineComponentContoller->GetType() != m_SelectionMode)
+        return;
+
+    const auto iterator = m_Selection.find(splineComponentContoller);
+    if (iterator == m_Selection.cend())
+        return;
+
+    m_Selection.erase(iterator);
+    NotifyListeners(&ICurveEditorSelectionControllerListener::OnRemovedFromSelection, CurveEditorControllerSelection{ splineComponentContoller }, false);
+}
+
 bool CCurveEditorSelectionController::CheckIfSelected(const CurveEditorDataModelSingleSelection& singleSelection) const noexcept
 {
     const auto splineComponentController = TransformDataModelSingleSelection(singleSelection);
@@ -170,7 +230,12 @@ bool CCurveEditorSelectionController::RegisterSpline(const ICurveEditorSplineCon
     if (!splineController)
         return false;
 
-    const auto result = m_SplinesControllers.try_emplace(splineController->GetID(), splineController).second;
+    const auto listenerHandle = splineController->RegisterListener(std::make_unique<CCurveEditorSplineSelectionControllerLisnener>(*this));
+    EDITOR_ASSERT(listenerHandle);
+    if (!listenerHandle)
+        return false;
+
+    const auto result = m_SplinesControllers.try_emplace(splineController->GetID(), SSplineStorage{ splineController, *listenerHandle }).second;
     EDITOR_ASSERT(result);
 
     return result;
@@ -181,10 +246,18 @@ bool CCurveEditorSelectionController::UnregisterSpline(const ICurveEditorSplineC
     if (!splineController)
         return false;
 
-    const auto erasedCount = m_SplinesControllers.erase(splineController->GetID());
-    EDITOR_ASSERT(erasedCount == 1);
+    const auto iterator = m_SplinesControllers.find(splineController->GetID());
+    EDITOR_ASSERT(iterator != m_SplinesControllers.cend());
+    if (iterator == m_SplinesControllers.cend())
+        return false;
 
-    return erasedCount == 1;
+    const auto& storage = iterator->second;
+
+    const auto result = splineController->UnregisterListener(storage.ListenerHandle);
+    EDITOR_ASSERT(result);
+
+    m_SplinesControllers.erase(iterator);
+    return true;
 }
 
 void CCurveEditorSelectionController::OnSelectionModeChanged(ECurveEditorSplineComponentType selectionMode)
@@ -284,7 +357,7 @@ ICurveEditorSplineComponentControllerSharedPtr CCurveEditorSelectionController::
     if (iterator == m_SplinesControllers.cend())
         return nullptr;
 
-    const auto& splineController = iterator->second;
+    const auto& splineController = iterator->second.Controller;
     EDITOR_ASSERT(splineController);
     if (!splineController)
         return nullptr;
