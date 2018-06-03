@@ -42,7 +42,7 @@ public:
 
     virtual void OnFrame() override final;
 
-    virtual void ApplyZoom(const ax::pointf& focusPoint, int steps, std::optional<float> zoomTimeOverride = std::nullopt) override final;
+    virtual void ApplyZoom(const ax::pointf& focusPoint, int steps, const ax::pointf& axisMultiplier, std::optional<float> zoomTimeOverride) override final;
     virtual void NavigateTo(const ax::rectf& boinds, std::optional<float> navigationTimeOverride = std::nullopt) override final;
 
     void AdjustZoomLevelToZoom(const ax::pointf& zoom);
@@ -140,12 +140,12 @@ void CCurveEditorNavigationComponent::OnFrame()
     m_AnimationController.OnFrame(GetEditorView());
 }
 
-void CCurveEditorNavigationComponent::ApplyZoom(const ax::pointf& focusPoint, int steps, std::optional<float> zoomTimeOverride /* = std::nullopt */)
+void CCurveEditorNavigationComponent::ApplyZoom(const ax::pointf& focusPoint, int steps, const ax::pointf& axisMultiplier, std::optional<float> zoomTimeOverride)
 {
     auto& editorView = GetEditorView();
     const auto& editorStyle = editorView.GetEditorStyle();
 
-    auto applyAxisZoom = [steps, &editorStyle](float& level, float& zoom)
+    auto applyAxisZoom = [&editorStyle](auto steps, auto& level, auto& zoom)
     {
         level += steps;
         level = std::max(editorStyle.MinimumZoomLevel, std::min(level, editorStyle.MaximumZoomLevel));
@@ -162,8 +162,8 @@ void CCurveEditorNavigationComponent::ApplyZoom(const ax::pointf& focusPoint, in
 
     auto targetZoom = windowCanvas.GetZoom();
 
-    applyAxisZoom(m_ZoomLevel.x, targetZoom.x);
-    applyAxisZoom(m_ZoomLevel.y, targetZoom.y);
+    applyAxisZoom(steps * axisMultiplier.x, m_ZoomLevel.x, targetZoom.x);
+    applyAxisZoom(steps * axisMultiplier.y, m_ZoomLevel.y, targetZoom.y);
 
     const auto screenPosition = windowCanvas.ToScreen(focusPoint);
     const auto previousCanvasPosition = windowCanvas.FromScreen(screenPosition);
