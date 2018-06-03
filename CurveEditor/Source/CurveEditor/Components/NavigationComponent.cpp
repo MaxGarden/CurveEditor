@@ -211,7 +211,7 @@ void CCurveEditorNavigationComponent::NavigateTo(const ax::rectf& bounds, std::o
     const auto maximumZoom = pow(editorStyle.ZoomInMultipler, abs(editorStyle.MaximumZoomLevel));
 
     const auto& zoom = windowCanvas.GetZoom();
-    newWindowCanvas.SetZoom(ax::pointf{ std::max(minimumZoom, std::min(zoom.x, maximumZoom)), std::max(minimumZoom, std::min(zoom.y, maximumZoom))}.cwise_product(ratio));
+    newWindowCanvas.SetZoom(ax::pointf{ std::max(minimumZoom, std::min(zoom.x * ratio.x, maximumZoom)), std::max(minimumZoom, std::min(zoom.y * ratio.y, maximumZoom)) });
 
     const auto newVisibleBounds = newWindowCanvas.CalculateVisibleBounds().center();
 
