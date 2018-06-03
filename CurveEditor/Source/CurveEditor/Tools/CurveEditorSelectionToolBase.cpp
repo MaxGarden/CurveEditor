@@ -87,7 +87,7 @@ void CCurveEditorSelectionToolBase::OnDragUpdate(const CCurveEditorToolMouseDrag
     const auto left = std::min(m_DragStartPosition.x, mousePosition.x);
     const auto right = std::max(m_DragStartPosition.x, mousePosition.x);
 
-    m_SelectionRect = ax::rectf{ left, top, std::max(right - left, 1.0f), std::max(bottom - top, 1.0f) };
+    m_SelectionRect = ax::rectf{ left, top, right - left, bottom - top};
 
     OnSelectionUpdate(event.GetEditorView(), *m_SelectionRect);
 }
