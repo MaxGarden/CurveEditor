@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "DebugComponent.h"
 #include "CurveEditorViewVisibleComponentBase.h"
+#include "SelectionComponent.h"
 #include "CurveEditorController.h"
 #include "EditorContext.h"
 
@@ -11,6 +12,7 @@ public:
     virtual ~CCurveEditorDebugComponent() override final = default;
 
 protected:
+    virtual bool Initialize() override final;
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorController& editorController) override final;
 
 private:
@@ -18,12 +20,21 @@ private:
     ImColor m_SplineColor = ImColor(0.0f, 1.0f, 0.0f);
 
     std::stack<ICurveEditorSplineDataModelWeakPtr> m_CreatedSplinesDataModels;
+    ICurveEditorSelectionViewComponentWeakPtr m_SelectionViewConponent;
 };
 
 CCurveEditorDebugComponent::CCurveEditorDebugComponent(ICurveEditorView& editorView, IEditorContext& editorContext) :
     CCurveEditorViewVisibleComponentBase(editorView),
     m_EditorContext(editorContext)
 {
+}
+
+bool CCurveEditorDebugComponent::Initialize()
+{
+    m_SelectionViewConponent = GetViewComponent<ICurveEditorSelectionViewComponent>(GetEditorView());
+    EDITOR_ASSERT(!m_SelectionViewConponent.expired());
+
+    return !m_SelectionViewConponent.expired();
 }
 
 void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
@@ -62,6 +73,17 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
             editorDataModel->RemoveSplineDataModel(m_CreatedSplinesDataModels.top().lock());
             m_CreatedSplinesDataModels.pop();
         }
+    }
+
+    if (const auto selectionViewComponent = m_SelectionViewConponent.lock())
+    {
+        auto selectedComponentsCount = 0u;
+        selectionViewComponent->VisitSelection([&selectedComponentsCount](const auto&)
+        {
+            ++selectedComponentsCount;
+        });
+
+        ImGui::Text("Selected components count: %d", selectedComponentsCount);
     }
 
     ImGui::End();
