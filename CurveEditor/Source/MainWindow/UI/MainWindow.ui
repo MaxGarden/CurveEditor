@@ -1380,7 +1380,7 @@ QDateEdit::down-arrow:focus
     <string>MovingTool</string>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Moving tool.&lt;br/&gt;Includes navigation, moving and selection.&lt;/p&gt;&lt;p&gt;In selection mode:&lt;br/&gt;Ctrl - toggle mode&lt;br/&gt;Alt - tangents selection&lt;br/&gt;Shift - curves selection &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Moving tool.&lt;br/&gt;Includes navigation, moving and selection.&lt;/p&gt;&lt;p&gt;When selecting:&lt;br/&gt;Ctrl - toggle mode&lt;br/&gt;Alt - tangents selection&lt;br/&gt;Shift - curves selection &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
     <string>Q</string>
@@ -1401,7 +1401,7 @@ QDateEdit::down-arrow:focus
     <string>InsertKnot</string>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserts knot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserts knot.&lt;/p&gt;&lt;p&gt;LBM click on curve to insert knot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
     <string>W</string>
@@ -1422,7 +1422,7 @@ QDateEdit::down-arrow:focus
     <string>RemoveKnot</string>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes knot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes knots.&lt;/p&gt;&lt;p&gt;LMB click on knot to remove.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
     <string>E</string>
@@ -1444,6 +1444,9 @@ QDateEdit::down-arrow:focus
    </property>
    <property name="iconText">
     <string>ZoomTool</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ZoomTool&lt;/p&gt;&lt;p&gt;Select area to navigate.&lt;br/&gt;When zooming with wheel:&lt;br/&gt;Ctrl - lock horizontal zoom axis&lt;br/&gt;Shift - lock vertical zoom axis&lt;br/&gt;&lt;br/&gt;Click on spline to navigate to it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
     <string>R</string>

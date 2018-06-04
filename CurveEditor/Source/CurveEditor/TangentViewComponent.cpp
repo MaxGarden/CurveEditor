@@ -31,14 +31,14 @@ public:
     virtual bool IsColliding(const ax::pointf& position, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
+    virtual std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept override final;
+
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
     virtual void OnFrame(ImDrawList& drawList) override final;
 
 private:
-    std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
-
     std::optional<ax::pointf> GetAnchorPointPosition() const noexcept;
     std::optional<ax::pointf> GetEditorAnchorPointPosition(bool screenTranslation) const noexcept;
 
@@ -172,13 +172,6 @@ std::optional<ax::rectf> CCurveEditorTangentView::CalculateBounds(bool screenTra
     const auto tangentRadius = editorView.GetEditorStyle().TangentMarkerRadius;
 
     auto tangentRadiusBounds = ax::pointf{ tangentRadius, tangentRadius };
-
-    if (!screenTranslation)
-    {
-        const auto& windowCanvas = editorView.GetCanvas().GetWindowCanvas();
-        tangentRadiusBounds = tangentRadiusBounds.cwise_product(windowCanvas.GetInvertZoom());
-    }
-
     return ax::rectf{ tangentPosition->x - tangentRadiusBounds.x, tangentPosition->y - tangentRadiusBounds.x, 2 * tangentRadiusBounds.x, 2 * tangentRadiusBounds.y };
 }
 

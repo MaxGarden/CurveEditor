@@ -30,6 +30,8 @@ public:
     virtual bool IsColliding(const ax::pointf& point, float extraThickness = 0.0f) const noexcept override final;
     virtual bool IsColliding(const ax::rectf& rect, bool allowIntersect = true) const noexcept override final;
 
+    virtual std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept override final;
+
     virtual bool InsertKnot(float position) override final;
     virtual std::optional<ax::pointf> GetClosestPosition(const ax::pointf& position) const noexcept override final;
 
@@ -42,8 +44,6 @@ private:
     std::optional<float> EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision = 0.00001f) const noexcept;
 
 private:
-    std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept;
-
     std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
     std::optional<ax::cubic_bezier_t> GetEditorControlPointsPositions(bool screenTranslation) const noexcept;
 };

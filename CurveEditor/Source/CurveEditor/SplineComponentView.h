@@ -25,6 +25,8 @@ public:
     virtual bool SetPosition(const ax::pointf& position) = 0;
     virtual std::optional<ax::pointf> GetPosition() const noexcept = 0;
 
+    virtual std::optional<ax::rectf> CalculateBounds(bool screenTranslations) const noexcept = 0;
+
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const = 0;
 };
 

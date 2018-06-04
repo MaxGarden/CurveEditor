@@ -76,6 +76,7 @@ SOURCES += \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.cpp    \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.cpp     \
     Source/CurveEditor/Tools/CurveEditorRectNavigationTool.cpp  \
+    Source/CurveEditor/Tools/CurveEditorSplineNavgationTool.cpp \
     Source/EditorWidgets/EditorViewWidget.cpp                   \
     Source/ToolBuilders/ComponentToolBuilder.cpp                \
     Source/ToolBuilders/DefaultToolBuilder.cpp                  \
@@ -157,6 +158,7 @@ HEADERS += \
     Source/CurveEditor/Tools/CurveEditorKnotInserterTool.h      \
     Source/CurveEditor/Tools/CurveEditorKnotRemoverTool.h       \
     Source/CurveEditor/Tools/CurveEditorRectNavigationTool.h    \
+    Source/CurveEditor/Tools/CurveEditorSplineNavgationTool.h   \
     Source/EditorWidgets/EditorViewWidget.h                     \
     Source/ToolBuilders/ComponentToolBuilder.h                  \
     Source/ToolBuilders/DefaultToolBuilder.h                    \
