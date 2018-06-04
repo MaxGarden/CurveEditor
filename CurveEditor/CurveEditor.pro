@@ -41,6 +41,7 @@ SOURCES += \
     Source/CurveEditor/SplineController.cpp                     \
     Source/CurveEditor/SplineControllerFactory.cpp              \
     Source/CurveEditor/SplineFunctionController.cpp             \
+    Source/CurveEditor/SplinePathController.cpp                 \
     Source/CurveEditor/SplineView.cpp                           \
     Source/CurveEditor/SplineComponentView.cpp                  \
     Source/CurveEditor/SplineViewImplementation.cpp             \
@@ -112,7 +113,10 @@ HEADERS += \
     Source/CurveEditor/CurveController.h                        \
     Source/CurveEditor/SplineController.h                       \
     Source/CurveEditor/SplineControllerFactory.h                \
+    Source/CurveEditor/SplineControllerBase.h                   \
+    Source/CurveEditor/SplineControllerBase.inl                 \
     Source/CurveEditor/SplineFunctionController.h               \
+    Source/CurveEditor/SplinePathController.h                   \
     Source/CurveEditor/SplineView.h                             \
     Source/CurveEditor/SplineComponentControllerBase.h          \
     Source/CurveEditor/SplineComponentControllerBase.inl        \

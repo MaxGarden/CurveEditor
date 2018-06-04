@@ -37,6 +37,7 @@ DECLARE_POINTERS(ICurveEditorSplineViewFactory)
 DECLARE_POINTERS(ICurveEditorSplineComponentView)
 
 DECLARE_POINTERS(ICurveEditorFunctionSplineController)
+DECLARE_POINTERS(ICurveEditorPathSplineController)
 
 DECLARE_POINTERS(IEditorTool)
 DECLARE_POINTERS(ICurveEditorTool)
