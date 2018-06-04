@@ -15,6 +15,8 @@
 #include "ToolBuilders/KnotRemoverToolBuilder.h"
 #include "ToolBuilders/ZoomToolBuilder.h"
 
+#include "CreateSplineDialog/CreateSplineActionHandler.h"
+
 int main(int argc, char** argv)
 {
     QSurfaceFormat glFormat;
@@ -63,6 +65,8 @@ int main(int argc, char** argv)
 
     CZoomToolBuilder zoomToolBuilder;
     createComponentToolActionSetter(ESetToolActionType::ZoomTool, zoomToolBuilder);
+
+    new CCreateSplineActionHandler(*mainWindow.GetActionToolAction(EActionToolType::CreateSpline), *curveEditorContext);
 
     if (!mainWindow.Setup())
         return -2;

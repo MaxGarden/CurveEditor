@@ -1349,6 +1349,7 @@ QDateEdit::down-arrow:focus
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="m_CreateSplineAction"/>
   </widget>
   <widget class="QToolBar" name="m_ToolBar">
    <property name="windowTitle">
@@ -1450,6 +1451,21 @@ QDateEdit::down-arrow:focus
    </property>
    <property name="shortcut">
     <string>R</string>
+   </property>
+  </action>
+  <action name="m_CreateSplineAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/upload-arrow-and-outbox.png</normaloff>:/icons/icons/upload-arrow-and-outbox.png</iconset>
+   </property>
+   <property name="text">
+    <string>CreateSpline</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new spline.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+N</string>
    </property>
   </action>
  </widget>

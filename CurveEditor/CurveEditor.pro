@@ -19,9 +19,11 @@ INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/Cur
 
 SOURCES += \
     Source/main.cpp                                             \
+    Source/ActionHandlerBase.cpp                                \
     Source/MainWindow/MainWindow.cpp                            \
     Source/MainWindow/ComponentToolActionSetter.cpp             \
     Source/CreateSplineDialog/CreateSplineDialog.cpp            \
+    Source/CreateSplineDialog/CreateSplineActionHandler.cpp     \
     Source/CurveEditor/CurveEditorView.cpp                      \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
@@ -88,9 +90,11 @@ SOURCES += \
 
 HEADERS += \
     Source/Pointers.h                                           \
+    Source/ActionHandlerBase.h                                  \
     Source/MainWindow/MainWindow.h                              \
     Source/MainWindow/ComponentToolActionSetter.h               \
     Source/CreateSplineDialog/CreateSplineDialog.h              \
+    Source/CreateSplineDialog/CreateSplineActionHandler.h       \
     Source/CurveEditor/ImGuiInterop.h                           \
     Source/CurveEditor/CurveEditorView.h                        \
     Source/CurveEditor/CurveEditorDataModel.h                   \

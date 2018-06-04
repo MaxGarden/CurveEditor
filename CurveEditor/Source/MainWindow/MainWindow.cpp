@@ -45,6 +45,18 @@ QAction* CMainWindow::GetSetToolAction(ESetToolActionType actionType) const noex
     };
 }
 
+QAction* CMainWindow::GetActionToolAction(EActionToolType actionType) const noexcept
+{
+    switch (actionType)
+    {
+    case EActionToolType::CreateSpline:
+        return m_CreateSplineAction;
+    default:
+        EDITOR_ASSERT(false);
+        return nullptr;
+    }
+}
+
 void CMainWindow::OnAddEditorButtonClicked()
 {
     AddCurveEditorView();

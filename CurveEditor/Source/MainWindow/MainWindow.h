@@ -16,6 +16,13 @@ enum class ESetToolActionType
     __Count
 };
 
+enum class EActionToolType
+{
+    CreateSpline,
+
+    __Count
+};
+
 class CMainWindow final : public QMainWindow, public Ui::MainWindow
 {
     Q_OBJECT
@@ -27,6 +34,7 @@ public:
     bool Setup();
 
     QAction* GetSetToolAction(ESetToolActionType actionType) const noexcept;
+    QAction* GetActionToolAction(EActionToolType actionType) const noexcept;
 
 private slots:
     void OnAddEditorButtonClicked();

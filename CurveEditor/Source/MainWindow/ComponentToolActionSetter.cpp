@@ -6,15 +6,12 @@
 #include <QMessageBox>
 
 CComponentToolActionSetter::CComponentToolActionSetter(QAction& action, const IEditorContext& editorContext, IComponentToolBuilder& componentToolBuilder) :
-    QObject(action.parent()),
-    m_EditorContext(editorContext),
+    CEditorContextActionHandlerBase(action, editorContext),
     m_ComponentToolBuilder(componentToolBuilder)
 {
-    const auto result = connect(&action, &QAction::triggered, this, &CComponentToolActionSetter::OnTriggered);
-    EDITOR_ASSERT(result);
 }
 
-void CComponentToolActionSetter::OnTriggered()
+void CComponentToolActionSetter::HandleAction()
 {
     auto tool = ICurveEditorComponentToolSharedPtr(ICurveEditorComponentTool::Create());
 
@@ -27,7 +24,7 @@ void CComponentToolActionSetter::OnTriggered()
         return;
     }
 
-    const auto& editorController = m_EditorContext.GetController();
+    const auto& editorController = GetEditorContext().GetController();
     const auto curveEditorController = dynamic_cast<ICurveEditorController*>(editorController.get());
     EDITOR_ASSERT(curveEditorController);
 
