@@ -214,7 +214,10 @@ void CCurveEditorToolHandlerComponent::UpdateActivity(ICurveEditorController& ed
         return;
 
     if (m_IsActive)
+    {
         activeTool->OnAcquired(CCurveEditorToolEvent{ GetEditorView() });
+        m_LastMousePosition = { FLT_MAX, FLT_MAX };
+    }
     else
         activeTool->OnReleased(CCurveEditorToolEvent{ GetEditorView() });
 }
@@ -369,6 +372,7 @@ void CCurveEditorToolHandlerComponent::OnToolChanged(ICurveEditorTool* tool)
         return;
 
     tool->OnAcquired(CCurveEditorToolEvent{ GetEditorView() });
+    m_LastMousePosition = { FLT_MAX, FLT_MAX };
 }
 
 CMouseButtonHandler::CMouseButtonHandler(ICurveEditorView& editorView, const CCurveEditorToolHandlerComponent& toolHandler, ECurveEditorMouseButton button) :
