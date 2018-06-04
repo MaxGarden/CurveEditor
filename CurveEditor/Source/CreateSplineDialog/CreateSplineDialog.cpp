@@ -74,7 +74,7 @@ void CCreateSplineDialog::OnCreateButtonClicked()
 
 void CCreateSplineDialog::OnChangeColorButtonClicked()
 {
-    QColorDialog colorDialog{ this };
+    QColorDialog colorDialog{ m_SplineColor, this };
 
     const auto result = connect(&colorDialog, SIGNAL(colorSelected(const QColor&)), SLOT(OnSelectedSplineColor(const QColor&)));
     EDITOR_ASSERT(result);
