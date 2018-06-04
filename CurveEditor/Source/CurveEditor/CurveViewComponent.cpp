@@ -245,10 +245,13 @@ bool CCurveEditorCurveView::InsertKnot(float position)
     if (!controlPoints)
         return false;
 
-    const auto isPositionValid = position > controlPoints->p0.x && position < controlPoints->p3.x;
-    EDITOR_ASSERT(isPositionValid);
-    if (!isPositionValid)
-        return false;
+    const auto minimumPosition = std::min(controlPoints->p0.x, controlPoints->p3.x);
+    const auto maximumPosition = std::max(controlPoints->p0.x, controlPoints->p3.x);
+
+    const auto isPositionValid = position > minimumPosition && position < maximumPosition;
+     EDITOR_ASSERT(isPositionValid);
+     if (!isPositionValid)
+         return false;
 
     const auto tPosition = EvaluateClosestT(*controlPoints, position);
     EDITOR_ASSERT(tPosition);
@@ -276,7 +279,7 @@ std::optional<ax::pointf> CCurveEditorCurveView::GetClosestPosition(const ax::po
 
 std::optional<float> CCurveEditorCurveView::EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision /*= 0.00001f*/) const noexcept
 {
-    auto step = 0.5f;
+    auto step = (curve.p0.x < curve.p3.x) ? 0.5f : -0.5f;
     auto accumulator = 0.0f;
 
     while (true)
