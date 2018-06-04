@@ -43,7 +43,10 @@ private:
     virtual size_t GetCurvesCount() const noexcept;
 
     template<typename Container, typename GetMethod>
-    auto SortComponents(Container& container, GetMethod getPositionMethod) const;
+    bool SortComponentsByPosition(Container& container, GetMethod getPositionMethod) const;
+
+    template<typename Container>
+    bool SortComponentsByIndex(Container& container) const;
 
     template<typename Container>
     void UpdateComponents(Container& container) const;
@@ -85,7 +88,7 @@ private:
     TangentsControllers m_SavedTangentsControllers;
 
     bool m_QueuedControlPointsChange = false;
-    bool m_EdititngMode = false;
+    bool m_EditingMode = false;
 };
 
 class CCurveEditorFunctionSplineControllerListener final : public CCurveEditorSplineDataModelListenerBase
@@ -125,19 +128,19 @@ void CCurveEditorFunctionSplineControllerListener::OnControlPointsModified(const
 
 bool CCurveEditorFunctionSplineController::BeginEditing()
 {
-    if (m_EdititngMode)
+    if (m_EditingMode)
         return false;
 
-    m_EdititngMode = true;
+    m_EditingMode = true;
     return true;
 }
 
 bool CCurveEditorFunctionSplineController::EndEditing()
 {
-    if (!m_EdititngMode)
+    if (!m_EditingMode)
         return false;
 
-    m_EdititngMode = false;
+    m_EditingMode = false;
 
     if (m_QueuedControlPointsChange)
         OnControlPointsPositionsChanged();
@@ -150,8 +153,16 @@ bool CCurveEditorFunctionSplineController::SaveState()
     if (!(m_SavedControlPointsPositions.empty() && m_SavedKnotsControllers.empty() && m_SavedTangentsControllers.empty()))
         return false;
 
-    const auto& controlPoints = GetControlPoints();
+    auto sortResult = true;
 
+    sortResult &= SortComponentsByIndex(m_KnotsControllers);
+    sortResult &= SortComponentsByIndex(m_TangentsControllers);
+
+    EDITOR_ASSERT(sortResult);
+    if (!sortResult)
+        return false;
+
+    const auto& controlPoints = GetControlPoints();
     for (auto i = 0u; i < controlPoints.size(); ++i)
         m_SavedControlPointsPositions.emplace(i, controlPoints[i]);
 
@@ -271,19 +282,10 @@ void CCurveEditorFunctionSplineController::OnControlPointsAdded(const SplineCont
     {
         std::set<size_t> splineComponentsIndexesToAdd;
 
-        std::stable_sort(container.begin(), container.end(), [](const auto& first, const auto& second)
-        {
-            if (!first || !second)
-                return false;
-
-            const auto firstIndex = first->GetIndex();
-            const auto secondIndex = second->GetIndex();
-            EDITOR_ASSERT(firstIndex && secondIndex);
-            if (!firstIndex || !secondIndex)
-                return false;
-
-            return *firstIndex < *secondIndex;
-        });
+        const auto sortResult = SortComponentsByIndex(container);
+        EDITOR_ASSERT(sortResult);
+        if (!sortResult)
+            return;
 
         auto currentIndex = 0u;
 
@@ -389,7 +391,12 @@ void CCurveEditorFunctionSplineController::OnControlPointsRemoved(const SplineCo
 
 void CCurveEditorFunctionSplineController::OnControlPointsPositionsChanged()
 {
-    if (m_EdititngMode)
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if(dataModel && dataModel->GetType() != ECurveEditorSplineType::Function)
+        return;
+
+    if (m_EditingMode)
     {
         m_QueuedControlPointsChange = true;
         return;
@@ -448,7 +455,7 @@ size_t CCurveEditorFunctionSplineController::GetCurvesCount() const noexcept
 }
 
 template<typename Container, typename GetMethod>
-auto CCurveEditorFunctionSplineController::SortComponents(Container& container, GetMethod getPositionMethod) const
+bool CCurveEditorFunctionSplineController::SortComponentsByPosition(Container& container, GetMethod getPositionMethod) const
 {
     auto result = true;
 
@@ -472,6 +479,29 @@ auto CCurveEditorFunctionSplineController::SortComponents(Container& container, 
 }
 
 template<typename Container>
+bool CCurveEditorFunctionSplineController::SortComponentsByIndex(Container& container) const
+{
+    auto result = true;
+
+    std::stable_sort(container.begin(), container.end(), [&result](const auto& first, const auto& second)
+    {
+        if (!first || !second)
+            return (result = false);
+
+        const auto firstIndex = first->GetIndex();
+        const auto secondIndex = second->GetIndex();
+        EDITOR_ASSERT(firstIndex && secondIndex);
+        if (!firstIndex || !secondIndex)
+            return (result = false);
+
+        return *firstIndex < *secondIndex;
+    });
+
+    return result;
+}
+
+
+template<typename Container>
 void CCurveEditorFunctionSplineController::UpdateComponents(Container& container) const
 {
     for (const auto& componentPair : container)
@@ -489,7 +519,7 @@ void CCurveEditorFunctionSplineController::ComponentsReplacement()
 
 void CCurveEditorFunctionSplineController::TangentsReplacement()
 {
-    if (!SortComponents(m_TangentsControllers, &ICurveEditorTangentController::GetAnchorPosition))
+    if (!SortComponentsByPosition(m_TangentsControllers, &ICurveEditorTangentController::GetAnchorPosition))
         return;
 
     using TangentPair = std::pair<ICurveEditorTangentController*, ax::pointf>;
@@ -567,7 +597,7 @@ void CCurveEditorFunctionSplineController::TangentExtremeCase()
 
 void CCurveEditorFunctionSplineController::KnotsReplacement()
 {
-    if (!SortComponents(m_KnotsControllers, &ICurveEditorKnotController::GetPosition))
+    if (!SortComponentsByPosition(m_KnotsControllers, &ICurveEditorKnotController::GetPosition))
         return;
 
     using KnotPair = std::pair<ICurveEditorKnotController*, ax::pointf>;
