@@ -4,6 +4,10 @@
 #include <QColorDialog>
 #include <QMessageBox>
 
+const std::map<QString, ECurveEditorSplineType> CCreateSplineDialog::s_SplineTypesMaps = {
+    { "Function", ECurveEditorSplineType::Function },
+    { "Path", ECurveEditorSplineType::Path } };
+
 CCreateSplineDialog::CCreateSplineDialog(QWidget* parent, ICurveEditorDataModel& editorDataModel) :
     QDialog(parent),
     m_EditorDataModel(editorDataModel)
@@ -15,18 +19,42 @@ CCreateSplineDialog::CCreateSplineDialog(QWidget* parent, ICurveEditorDataModel&
 void CCreateSplineDialog::Setup()
 {
     if (const auto splineTypeComboBox = m_SplineTypeComboBox)
-        splineTypeComboBox->addItems({ "Function" });
+    {
+        VisitObjectsContainer(s_SplineTypesMaps, [splineTypeComboBox](const auto& pair)
+        {
+            splineTypeComboBox->addItem(pair.first);
+        });
+    }
 
     OnSelectedSplineColor(m_SplineColor);
 }
 
 void CCreateSplineDialog::OnCreateButtonClicked()
 {
-    auto splineColor = m_SplineColor;
-    splineColor.setRed(m_SplineColor.blue());
-    splineColor.setBlue(m_SplineColor.red());
+    const auto splineColor = [this]()
+    {
+        auto result = m_SplineColor;
+        result.setRed(m_SplineColor.blue());
+        result.setBlue(m_SplineColor.red());
 
-    const auto splineDataModel = m_EditorDataModel.AddSplineDataModel(static_cast<SplineColor>(splineColor.rgb()));
+        return result;
+    }();
+
+    const auto splineType = [this]()
+    {
+        const auto splineTypeComboBox = m_SplineTypeComboBox;
+        if (!splineTypeComboBox)
+            return ECurveEditorSplineType::Function;
+
+        const auto iterator = s_SplineTypesMaps.find(splineTypeComboBox->currentText());
+        EDITOR_ASSERT(iterator != s_SplineTypesMaps.cend());
+        if(iterator == s_SplineTypesMaps.cend())
+            return ECurveEditorSplineType::Function;
+
+        return iterator->second;
+    }();
+
+    const auto splineDataModel = m_EditorDataModel.AddSplineDataModel(static_cast<SplineColor>(splineColor.rgb()), splineType);
     EDITOR_ASSERT(splineDataModel);
     if (!splineDataModel)
     {

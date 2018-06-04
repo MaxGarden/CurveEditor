@@ -12,7 +12,7 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) override final;
     virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color) override final;
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type) override final;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
@@ -50,9 +50,9 @@ const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
     return m_EditorStyle;
 }
 
-ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color)
+ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type)
 {
-    auto splineDataModel = ICurveEditorSplineDataModel::Create(GenerateFreeSplineID(), color);
+    auto splineDataModel = ICurveEditorSplineDataModel::Create(GenerateFreeSplineID(), color, type);
     if (!splineDataModel)
         return nullptr;
 

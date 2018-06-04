@@ -7,6 +7,12 @@
 using SplineID = size_t;
 using SplineColor = unsigned int;
 
+enum class ECurveEditorSplineType
+{
+    Function,
+    Path
+};
+
 struct SSplineControlPointSinglePosition
 {
     SSplineControlPointSinglePosition() = default;
@@ -45,8 +51,9 @@ public:
 
     virtual const SplineID& GetID() const noexcept = 0;
     virtual const SplineColor& GetColor() const noexcept = 0;
+    virtual ECurveEditorSplineType GetType() const noexcept = 0;
 
-    static ICurveEditorSplineDataModelUniquePtr Create(SplineID id, SplineColor color);
+    static ICurveEditorSplineDataModelUniquePtr Create(SplineID id, SplineColor color, ECurveEditorSplineType type);
 
     static SplineID GenerateSplineID() noexcept;
     static const SplineID& InvalidSplineID() noexcept;

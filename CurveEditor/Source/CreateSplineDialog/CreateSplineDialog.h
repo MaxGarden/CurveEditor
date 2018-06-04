@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "ui_CreateSplineDialog.h"
+#include "SplineDataModel.h"
 
 class CCreateSplineDialog final : public QDialog, public Ui::CreateSplineDialog
 {
@@ -24,6 +25,8 @@ private slots:
 private:
     ICurveEditorDataModel& m_EditorDataModel;
     QColor m_SplineColor = { 0, 0, 255 };
+
+    static const std::map<QString, ECurveEditorSplineType> s_SplineTypesMaps;
 };
 
 #endif //__CREATE_SPLINE_DIALOG_WINDOW_H__

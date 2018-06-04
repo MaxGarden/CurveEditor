@@ -6,7 +6,7 @@
 class CCurveEditorSplineDataModel final : public CEditorListenableBase<ICurveEditorSplineDataModel, ICurveEditorSplineDataModelListener>
 {
 public:
-    CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color);
+    CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color, ECurveEditorSplineType type);
     virtual ~CCurveEditorSplineDataModel() override final = default;
 
     virtual bool AddControlPoints(const SplineControlPointsPositions& positions) override final;
@@ -17,16 +17,19 @@ public:
 
     virtual const SplineID& GetID() const noexcept override final;
     virtual const SplineColor& GetColor() const noexcept override final;
+    virtual ECurveEditorSplineType GetType() const noexcept override final;
 
 private:
     std::vector<ax::pointf> m_ControlPoints;
     const SplineID m_ID;
     const unsigned int m_Color = 0;
+    const ECurveEditorSplineType m_Type = ECurveEditorSplineType::Function;
 };
 
-CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color) :
+CCurveEditorSplineDataModel::CCurveEditorSplineDataModel(SplineID&& id, SplineColor&& color, ECurveEditorSplineType type):
     m_ID(std::move(id)),
-    m_Color(std::move(color))
+    m_Color(std::move(color)),
+    m_Type(type)
 {
 }
 
@@ -63,6 +66,11 @@ const SplineID& CCurveEditorSplineDataModel::GetID() const noexcept
 const SplineColor& CCurveEditorSplineDataModel::GetColor() const noexcept
 {
     return m_Color;
+}
+
+ECurveEditorSplineType CCurveEditorSplineDataModel::GetType() const noexcept
+{
+    return m_Type;
 }
 
 bool CCurveEditorSplineDataModel::AddControlPoints(const SplineControlPointsPositions& positions)
@@ -102,9 +110,9 @@ bool CCurveEditorSplineDataModel::RemoveControlPoints(const SplineControlPointsI
     return true;
 }
 
-ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(SplineID id, SplineColor color)
+ICurveEditorSplineDataModelUniquePtr ICurveEditorSplineDataModel::Create(SplineID id, SplineColor color, ECurveEditorSplineType type)
 {
-    return std::make_unique<CCurveEditorSplineDataModel>(std::move(id), std::move(color));
+    return std::make_unique<CCurveEditorSplineDataModel>(std::move(id), std::move(color), type);
 }
 
 SplineID ICurveEditorSplineDataModel::GenerateSplineID() noexcept

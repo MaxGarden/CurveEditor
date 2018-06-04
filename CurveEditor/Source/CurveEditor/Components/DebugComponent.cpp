@@ -52,7 +52,7 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
     {
         if (const auto editorDataModel = getEditorDataModel())
         {
-            auto splineDataModel = editorDataModel->AddSplineDataModel(static_cast<SplineColor>(m_SplineColor));
+            auto splineDataModel = editorDataModel->AddSplineDataModel(static_cast<SplineColor>(m_SplineColor), ECurveEditorSplineType::Function);
             EDITOR_ASSERT(splineDataModel);
             m_CreatedSplinesDataModels.emplace(std::move(splineDataModel));
 
