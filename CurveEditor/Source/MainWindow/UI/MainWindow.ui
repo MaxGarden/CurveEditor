@@ -1295,27 +1295,6 @@ QDateEdit::down-arrow:focus
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <item>
-       <widget class="QPushButton" name="m_AddEditorButton">
-        <property name="text">
-         <string>AddEditor</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="m_RemoveEditorButton">
-        <property name="text">
-         <string>RemoveEditor</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <widget class="QGroupBox" name="m_EditorsGroupBox">
       <property name="title">
        <string>Editors</string>
@@ -1349,6 +1328,8 @@ QDateEdit::down-arrow:focus
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="m_AddEditorViewAction"/>
+   <addaction name="m_RemoveEditorView"/>
    <addaction name="m_CreateSplineAction"/>
   </widget>
   <widget class="QToolBar" name="m_ToolBar">
@@ -1468,20 +1449,47 @@ QDateEdit::down-arrow:focus
     <string>Shift+N</string>
    </property>
   </action>
+  <action name="m_AddEditorViewAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/laptop-with-big-screen.png</normaloff>:/icons/icons/laptop-with-big-screen.png</iconset>
+   </property>
+   <property name="text">
+    <string>AddEditorView</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds a new editor view.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+V</string>
+   </property>
+  </action>
+  <action name="m_RemoveEditorView">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/big-garbage-bin.png</normaloff>:/icons/icons/big-garbage-bin.png</iconset>
+   </property>
+   <property name="text">
+    <string>RemoveEditorView</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+R</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="iconsresource.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>m_AddEditorButton</sender>
-   <signal>clicked()</signal>
+   <sender>m_AddEditorViewAction</sender>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>OnAddEditorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>279</x>
-     <y>186</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>419</x>
@@ -1490,14 +1498,14 @@ QDateEdit::down-arrow:focus
    </hints>
   </connection>
   <connection>
-   <sender>m_RemoveEditorButton</sender>
-   <signal>clicked()</signal>
+   <sender>m_RemoveEditorView</sender>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>OnRemoveEditorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>637</x>
-     <y>186</y>
+     <x>419</x>
+     <y>43</y>
     </hint>
     <hint type="destinationlabel">
      <x>419</x>
