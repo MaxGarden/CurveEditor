@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "MainWindow.h"
 
 CMainWindow::CMainWindow(IEditorViewWidgetFactory& curveEditorWidgetFactory) :

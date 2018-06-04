@@ -18,9 +18,10 @@ include(Thirdparty/qtimgui/qtimgui.pri)
 INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/CurveEditor $$PWD/Source
 
 SOURCES += \
-    Source/main.cpp \
+    Source/main.cpp                                             \
     Source/MainWindow/MainWindow.cpp                            \
     Source/MainWindow/ComponentToolActionSetter.cpp             \
+    Source/CreateSplineDialog/CreateSplineDialog.cpp            \
     Source/CurveEditor/CurveEditorView.cpp                      \
     Source/CurveEditor/CurveEditorDataModel.cpp                 \
     Source/CurveEditor/CurveEditorController.cpp                \
@@ -89,6 +90,7 @@ HEADERS += \
     Source/Pointers.h                                           \
     Source/MainWindow/MainWindow.h                              \
     Source/MainWindow/ComponentToolActionSetter.h               \
+    Source/CreateSplineDialog/CreateSplineDialog.h              \
     Source/CurveEditor/ImGuiInterop.h                           \
     Source/CurveEditor/CurveEditorView.h                        \
     Source/CurveEditor/CurveEditorDataModel.h                   \
@@ -169,4 +171,5 @@ HEADERS += \
     
 
 FORMS += \
-    Source/MainWindow/UI/MainWindow.ui
+    Source/MainWindow/UI/MainWindow.ui                          \
+    Source/CreateSplineDialog/UI/CreateSplineDialog.ui          \
