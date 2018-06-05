@@ -1349,6 +1349,7 @@ QDateEdit::down-arrow:focus
    <addaction name="m_KnotInserterToolAction"/>
    <addaction name="m_KnotRemoverToolAction"/>
    <addaction name="m_ZoomToolAction"/>
+   <addaction name="m_RemoveSplineToolAction"/>
   </widget>
   <action name="m_MovingToolAction">
    <property name="checkable">
@@ -1362,7 +1363,7 @@ QDateEdit::down-arrow:focus
     <string>MovingTool</string>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Moving tool.&lt;br/&gt;Includes navigation, moving and selection.&lt;/p&gt;&lt;p&gt;When selecting:&lt;br/&gt;Ctrl - toggle mode&lt;br/&gt;Alt - tangents selection&lt;br/&gt;Shift - curves selection &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Moving tool.&lt;br/&gt;Includes navigation, moving and selection.&lt;/p&gt;&lt;p&gt;When selecting:&lt;br/&gt;Ctrl - toggle mode&lt;br/&gt;Alt - tangents selection&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
     <string>Q</string>
@@ -1467,13 +1468,34 @@ QDateEdit::down-arrow:focus
   <action name="m_RemoveEditorView">
    <property name="icon">
     <iconset resource="iconsresource.qrc">
-     <normaloff>:/icons/icons/big-garbage-bin.png</normaloff>:/icons/icons/big-garbage-bin.png</iconset>
+     <normaloff>:/icons/icons/big-cancel-symbol.png</normaloff>:/icons/icons/big-cancel-symbol.png</iconset>
    </property>
    <property name="text">
     <string>RemoveEditorView</string>
    </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes an editor view.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
    <property name="shortcut">
     <string>Shift+R</string>
+   </property>
+  </action>
+  <action name="m_RemoveSplineToolAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/big-garbage-bin.png</normaloff>:/icons/icons/big-garbage-bin.png</iconset>
+   </property>
+   <property name="text">
+    <string>RemoveSpline</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes a spline.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
    </property>
   </action>
  </widget>

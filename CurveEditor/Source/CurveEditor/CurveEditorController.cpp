@@ -41,6 +41,8 @@ public:
     virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) override final;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept override final;
 
+    virtual bool RemoveSpline(const SplineID& id) override final;
+
     virtual ICurveEditorSelectionControllerSharedPtr GetSelectionController() const noexcept override final;
 
     virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept override final;
@@ -211,6 +213,21 @@ bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool)
 const ICurveEditorToolSharedPtr& CCurveEditorController::GetActiveTool() const noexcept
 {
     return m_ActiveTool;
+}
+
+bool CCurveEditorController::RemoveSpline(const SplineID& id)
+{
+    const auto& dataModel = GetDataModel();
+    EDITOR_ASSERT(dataModel);
+    if (!dataModel)
+        return false;
+
+    const auto splineDataModel = dataModel->GetSplineDataModel(id);
+    EDITOR_ASSERT(splineDataModel);
+    if (!splineDataModel)
+        return false;
+
+    return dataModel->RemoveSplineDataModel(splineDataModel);
 }
 
 ICurveEditorSelectionControllerSharedPtr CCurveEditorController::GetSelectionController() const noexcept

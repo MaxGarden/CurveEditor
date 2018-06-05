@@ -12,6 +12,7 @@ enum class ESetToolActionType
     KnotInserter,
     KnotRemover,
     ZoomTool,
+    SplineRemover,
 
     __Count
 };

@@ -15,6 +15,8 @@ public:
 
     virtual ICurveEditorSplineView* GetSplineView(const SplineID& id) const noexcept override final;
 
+    virtual bool RemoveSpline(const SplineID& id) override final;
+
     virtual ICurveEditorSplineComponentView* GetSplineComponentAt(const ax::pointf& position, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, float extraThickness = 0.0f) const noexcept override final;
     virtual void VisitSplineComponentsInRect(const VisitorType<ICurveEditorSplineComponentView>& visitor, const ax::rectf& rect, std::optional<ECurveEditorSplineComponentType> componentType = std::nullopt, bool allowIntersect = true) const noexcept override final;
 
@@ -23,7 +25,7 @@ public:
 
 protected:
     virtual void OnControllerChanged() override final;
-    virtual IEditorListenerUniquePtr CreateListener();
+    virtual IEditorListenerUniquePtr CreateListener() override final;
 
 private:
     void VisitSplineViews(const InterruptibleVisitorType<ICurveEditorSplineView>& visitor, bool reverse = false) const noexcept;
@@ -93,6 +95,16 @@ ICurveEditorSplineView* CCurveEditorSplinesViewComponent::GetSplineView(const Sp
         return nullptr;
 
     return iterator->second.get();
+}
+
+bool CCurveEditorSplinesViewComponent::RemoveSpline(const SplineID& id)
+{
+    const auto& controller = GetController();
+    EDITOR_ASSERT(controller);
+    if (!controller)
+        return false;
+
+    return controller->RemoveSpline(id);
 }
 
 bool CCurveEditorSplinesViewComponent::CreateSplineView(const ICurveEditorSplineControllerSharedPtr& splineController)

@@ -70,13 +70,14 @@ void CCurveEditorKnotInserterTool::OnClickUp(const CCurveEditorToolMouseButtonEv
     if (!curveView)
         return;
 
-    EDITOR_ASSERT(m_CandidateInsertPosition);
-    if (!m_CandidateInsertPosition)
+    const auto insertPosition = curveView->GetClosestPosition(event.GetMousePosition());
+    EDITOR_ASSERT(insertPosition);
+    if (!insertPosition)
         return;
 
     const auto& editorCanvas = event.GetEditorView().GetCanvas();
 
-    const auto result = curveView->InsertKnot(editorCanvas.FromEditor(*m_CandidateInsertPosition, false));
+    const auto result = curveView->InsertKnot(editorCanvas.FromEditor(*insertPosition, false));
     EDITOR_ASSERT(result);
 }
 

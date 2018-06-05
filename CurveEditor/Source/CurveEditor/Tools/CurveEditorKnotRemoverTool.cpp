@@ -24,15 +24,6 @@ void CCurveEditorKnotRemoverTool::OnClickUp(const CCurveEditorToolMouseButtonEve
     if (event.GetMouseButton() != m_RemoveButton)
         return;
 
-    const auto splinesViewComponent = m_SpinesViewComponent.lock();
-    EDITOR_ASSERT(splinesViewComponent);
-    if (!splinesViewComponent)
-        return;
-
-    const auto splineViewComponent = splinesViewComponent->GetSplineComponentAt(event.GetMousePosition());
-    if (!splineViewComponent)
-        return;
-
     const auto knotView = GetKnotViewAtPosition(event.GetMousePosition());
     if (!knotView || !knotView->CanBeRemoved())
         return;

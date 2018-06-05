@@ -25,6 +25,8 @@ public:
     virtual bool SetActiveTool(ICurveEditorToolSharedPtr&& tool) = 0;
     virtual const ICurveEditorToolSharedPtr& GetActiveTool() const noexcept = 0;
 
+    virtual bool RemoveSpline(const SplineID& id) = 0;
+
     virtual ICurveEditorSelectionControllerSharedPtr GetSelectionController() const noexcept = 0;
 
     virtual const ICurveEditorSplineControllerSharedPtr& GetSplineController(const SplineID& id) const noexcept = 0;

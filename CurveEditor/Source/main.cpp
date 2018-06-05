@@ -14,6 +14,7 @@
 #include "ToolBuilders/KnotInserterToolBuilder.h"
 #include "ToolBuilders/KnotRemoverToolBuilder.h"
 #include "ToolBuilders/ZoomToolBuilder.h"
+#include "ToolBuilders/SplineRemoverToolBuilder.h"
 
 #include "CreateSplineDialog/CreateSplineActionHandler.h"
 
@@ -65,6 +66,9 @@ int main(int argc, char** argv)
 
     CZoomToolBuilder zoomToolBuilder;
     createComponentToolActionSetter(ESetToolActionType::ZoomTool, zoomToolBuilder);
+
+    CSplineRemoverToolBuilder splineRemoverToolBuilder;
+    createComponentToolActionSetter(ESetToolActionType::SplineRemover, splineRemoverToolBuilder);
 
     new CCreateSplineActionHandler(*mainWindow.GetActionToolAction(EActionToolType::CreateSpline), *curveEditorContext);
 
