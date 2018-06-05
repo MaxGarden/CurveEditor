@@ -76,7 +76,7 @@ void CCurveEditorKnotInserterTool::OnClickUp(const CCurveEditorToolMouseButtonEv
 
     const auto& editorCanvas = event.GetEditorView().GetCanvas();
 
-    const auto result = curveView->InsertKnot(editorCanvas.FromEditor(*m_CandidateInsertPosition, false).x);
+    const auto result = curveView->InsertKnot(editorCanvas.FromEditor(*m_CandidateInsertPosition, false));
     EDITOR_ASSERT(result);
 }
 

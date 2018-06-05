@@ -32,16 +32,13 @@ public:
 
     virtual std::optional<ax::rectf> CalculateBounds(bool screenTranslation) const noexcept override final;
 
-    virtual bool InsertKnot(float position) override final;
+    virtual bool InsertKnot(const ax::pointf& position) override final;
     virtual std::optional<ax::pointf> GetClosestPosition(const ax::pointf& position) const noexcept override final;
 
     virtual IEditorRenderableUniquePtr CreateBorderRenderable(ECurveEditorStyleColor borderStyleColor, ECurveEditorStyleFloat thicknessStyle) const override final;
 
 protected:
     virtual void OnFrame(ImDrawList& drawList, ICurveEditorCurveController& splineController) override final;
-
-private:
-    std::optional<float> EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision = 0.00001f) const noexcept;
 
 private:
     std::optional<ax::cubic_bezier_t> GetControlPointsPositions() const noexcept;
@@ -238,24 +235,11 @@ void CCurveEditorCurveView::OnFrame(ImDrawList& drawList, ICurveEditorCurveContr
     drawList.AddBezierCurve(getControlPoint(0), getControlPoint(1), getControlPoint(2), getControlPoint(3), curveColor, splineThickness);
 }
 
-bool CCurveEditorCurveView::InsertKnot(float position)
+bool CCurveEditorCurveView::InsertKnot(const ax::pointf& position)
 {
     const auto controlPoints = GetControlPointsPositions();
     EDITOR_ASSERT(controlPoints);
     if (!controlPoints)
-        return false;
-
-    const auto minimumPosition = std::min(controlPoints->p0.x, controlPoints->p3.x);
-    const auto maximumPosition = std::max(controlPoints->p0.x, controlPoints->p3.x);
-
-    const auto isPositionValid = position > minimumPosition && position < maximumPosition;
-     EDITOR_ASSERT(isPositionValid);
-     if (!isPositionValid)
-         return false;
-
-    const auto tPosition = EvaluateClosestT(*controlPoints, position);
-    EDITOR_ASSERT(tPosition);
-    if (!tPosition)
         return false;
 
     const auto& controller = GetController();
@@ -263,7 +247,8 @@ bool CCurveEditorCurveView::InsertKnot(float position)
     if (!controller)
         return false;
 
-    return controller->InsertKnot(*tPosition);
+    const auto tPosition = cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3).position;
+    return controller->InsertKnot(tPosition);
 }
 
 std::optional<ax::pointf> CCurveEditorCurveView::GetClosestPosition(const ax::pointf& position) const noexcept
@@ -275,32 +260,6 @@ std::optional<ax::pointf> CCurveEditorCurveView::GetClosestPosition(const ax::po
 
     const auto projectionResult = ax::cubic_bezier_project_point(position, controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3);
     return ax::cubic_bezier(controlPoints->p0, controlPoints->p1, controlPoints->p2, controlPoints->p3, projectionResult.position);
-}
-
-std::optional<float> CCurveEditorCurveView::EvaluateClosestT(const ax::cubic_bezier_t& curve, float x, float precision /*= 0.00001f*/) const noexcept
-{
-    auto step = (curve.p0.x < curve.p3.x) ? 0.5f : -0.5f;
-    auto accumulator = 0.0f;
-
-    while (true)
-    {
-        auto point = cubic_bezier(curve.p0, curve.p1, curve.p2, curve.p3, 0.5f - accumulator);
-
-        if (step == 0.0f)
-            break;
-
-        step *= 0.5f;
-
-        if (point.x < x)
-            accumulator -= step;
-        else if (point.x > x)
-            accumulator += step;
-
-        if (abs(point.x - x) < precision)
-            return 0.5f - accumulator;
-    }
-
-    return std::nullopt;
 }
 
 ICurveEditorCurveViewSharedPtr ICurveEditorCurveView::Create(ICurveEditorView& editorView)
