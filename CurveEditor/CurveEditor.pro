@@ -14,6 +14,7 @@ RESOURCES += Source/MainWindow/Resources/MainWindow.qrc
 RESOURCES += Source/MainWindow/UI/iconsresource.qrc
 
 include(Thirdparty/qtimgui/qtimgui.pri)
+include(Thirdparty/tinyxml2/tinyxml2.pri)
 
 INCLUDEPATH += $$PWD/Thirdparty/ $$PWD/Thirdparty/qtimgui/imgui $$PWD/Source/CurveEditor $$PWD/Source
 
@@ -178,8 +179,8 @@ HEADERS += \
     Source/ToolBuilders/MovingToolBuilder.h                     \
     Source/ToolBuilders/KnotInserterToolBuilder.h               \
     Source/ToolBuilders/KnotRemoverToolBuilder.h                \
-    Source/ToolBuilders/ZoomToolBuilder.h                       \
     Source/ToolBuilders/SplineRemoverToolBuilder.h              \
+    Source/ToolBuilders/ZoomToolBuilder.h                       \
     
 
 FORMS += \
