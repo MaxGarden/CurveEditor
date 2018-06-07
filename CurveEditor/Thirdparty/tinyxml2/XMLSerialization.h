@@ -1,13 +1,13 @@
 /**
  * XML Serialization
  * Simple and lightweight xml serialization class
- * 
+ *
  * Original code by Lothar Perr
- * 
+ *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any
  * damages arising from the use of this software.
- * 
+ *
  * Permission is granted to anyone to use this software for any
  * purpose, including commercial applications, and to alter it and
  * redistribute it freely
@@ -48,7 +48,7 @@ namespace xmls
 
 /**
 	serializable string
-*/	
+*/
 	class xString: public MemberBase
 	{
 	private:
@@ -63,7 +63,7 @@ namespace xmls
 
 /**
 	serializable int
-*/	
+*/
 	class xInt: public MemberBase
 	{
 	private:
@@ -77,7 +77,7 @@ namespace xmls
 
 /**
 	serializable bool
-*/	
+*/
 	class xBool: public MemberBase
 	{
 	private:
@@ -91,7 +91,7 @@ namespace xmls
 
 /**
 	serializable time_t
-*/	
+*/
 	class xTime_t: public MemberBase
 	{
 	private:
@@ -105,7 +105,7 @@ namespace xmls
 
 /**
 	Member-Field mapping
-*/	
+*/
 	class FieldMapping;
 	typedef vector<FieldMapping*>::iterator FieldMappingIterator;
 	class FieldMapping
@@ -120,7 +120,7 @@ namespace xmls
 
 /**
 	Member-Class mapping
-*/	
+*/
 	class ClassMapping;
 	typedef vector<ClassMapping*>::iterator ClassMappingIterator;
 	class ClassMapping
@@ -135,7 +135,7 @@ namespace xmls
 
 /**
 	Class-collection base
-*/	
+*/
 	class CollectionBase;
 	typedef vector<CollectionBase*>::iterator CollectionIterator;
 	class CollectionBase
@@ -161,25 +161,25 @@ namespace xmls
 
 /**
 	Class-collection template
-*/	
+*/
 	template <typename T>
 	class Collection: public CollectionBase
 	{
 		friend class Serializable;
 	public:
 		~Collection() {Clear();	};
-		T *newElement(); 
+		T *newElement();
 		void addItem(T *item) { m_vCollection.push_back(item); m_mOwner[item]=false;};
-		T *getItem(int itemID) { return (T*)m_vCollection.at(itemID); }; 
+		T *getItem(int itemID) { return (T*)m_vCollection.at(itemID); };
 	};
 
 /**
 	create new element of type T
 	@return empty object of type T
-*/	
+*/
 	template <typename T>
 	T* Collection<T>::newElement()
-	{ 
+	{
 		T* newItem = new T();
 		m_vCollection.push_back(newItem);
 		m_mOwner[newItem]=true;
@@ -189,14 +189,14 @@ namespace xmls
 /**
 	Serializeable base class
 	derive your serializable class from Serializable
-*/	
+*/
 	typedef vector<Serializable*>::iterator SerializableIterator;
 	class Serializable
 	{
 		friend class CollectionBase;
 	private:
-		Serializable(Serializable const &s) { }
-		Serializable operator=(Serializable const &s) {return *this;};
+		Serializable(Serializable const &) { }
+		Serializable operator=(Serializable const &) {return *this;};
 		static string strReplaceAll(string source, const string from, const string to);
 	protected:
 		string m_sXML;

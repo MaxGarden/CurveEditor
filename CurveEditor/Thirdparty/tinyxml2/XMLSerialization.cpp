@@ -1,13 +1,13 @@
 /**
  * XML Serialization
  * Simple and lightweight xml serialization class
- * 
+ *
  * Original code by Lothar Perr
- * 
+ *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any
  * damages arising from the use of this software.
- * 
+ *
  * Permission is granted to anyone to use this software for any
  * purpose, including commercial applications, and to alter it and
  * redistribute it freely
@@ -83,7 +83,7 @@ namespace xmls
 		if (m_vCollection.size()>0)
 		{
 			for (vector<Serializable*>::iterator it = m_vCollection.begin() ; it != m_vCollection.end(); ++it)
-				if (m_mOwner.find(*it)->second) 
+				if (m_mOwner.find(*it)->second)
 					delete(*it);
 			m_vCollection.clear();
 			m_mOwner.clear();
@@ -120,7 +120,7 @@ namespace xmls
 
 		m_SubclassCollections.clear();
 		m_SubclassMappings.clear();
-		m_FieldMappings.clear();		
+		m_FieldMappings.clear();
 	}
 
 	/**
@@ -170,7 +170,6 @@ namespace xmls
 	{
 		for (FieldMappingIterator it_member = m_FieldMappings.begin() ; it_member != m_FieldMappings.end(); ++it_member)
 		{
-			string *field = (*it_member)->getField();
 			tinyxml2::XMLElement *memberNode = classDoc->NewElement("Member");
 			memberNode->SetAttribute("Name", ((*it_member)->getFieldName()).c_str());
 			tinyxml2::XMLText* memberValue;
@@ -195,9 +194,9 @@ namespace xmls
 			tinyxml2::XMLElement *listNode = classDoc->NewElement("Collection");
 			listNode->SetAttribute("Name", (*it_collection)->getCollectionName().c_str());
 
-			for (size_t c=0;c<(*it_collection)->size();c++)
+			for (size_t c=0u;c<(*it_collection)->size();c++)
 			{
-				Serializable *item = (*it_collection)->getItem(c);
+				Serializable *item = (*it_collection)->getItem(static_cast<int>(c));
 				tinyxml2::XMLElement *elementNode = classDoc->NewElement("Class");
 				elementNode->SetAttribute("Type", item->getClassName().c_str());
 				elementNode->SetAttribute("Version", item->getVersion().c_str());
@@ -355,7 +354,7 @@ namespace xmls
 	bool Serializable::Compare(Serializable *msg)
 	{
 		bool identical=true;
-		if (getClassName()!=msg->getClassName()) 
+		if (getClassName()!=msg->getClassName())
 			identical=false;
 
 		if (identical)
@@ -374,15 +373,15 @@ namespace xmls
 
 		if (identical)
 		{
-			if (m_SubclassCollections.size()!=msg->m_SubclassCollections.size()) 
+			if (m_SubclassCollections.size()!=msg->m_SubclassCollections.size())
 			{identical=false;} else
 			for (CollectionIterator it = m_SubclassCollections.begin() ; it != m_SubclassCollections.end(); ++it)
 				for (CollectionIterator it_c = msg->m_SubclassCollections.begin() ; it_c != msg->m_SubclassCollections.end(); ++it_c)
 					if ((*it)->getCollectionName()==(*it_c)->getCollectionName())
 						if ((*it)->size()!=(*it_c)->size())
 							identical=false; else
-							for (size_t c=0; c<(*it)->size();c++)
-								if (!(*it)->getItem(c)->Compare((*it_c)->getItem(c)))
+							for (size_t c=0u; c<(*it)->size();c++)
+								if (!(*it)->getItem(static_cast<int>(c))->Compare((*it_c)->getItem(static_cast<int>(c))))
 								{ identical=false; break; }
 		}
 		return identical;
@@ -417,10 +416,10 @@ namespace xmls
 		for (CollectionIterator it_source = source->m_SubclassCollections.begin() ; it_source != source->m_SubclassCollections.end(); ++it_source)
 			for (CollectionIterator it_dest = destination->m_SubclassCollections.begin() ; it_dest != destination->m_SubclassCollections.end(); ++it_dest)
 				if ((*it_source)->getCollectionName()==(*it_dest)->getCollectionName())
-					for (size_t c=0; c<(*it_source)->size();c++) 
+					for (size_t c=0; c<(*it_source)->size();c++)
 					{
 						Serializable *newItem = (*it_dest)->newElement();
-						if (!newItem->Copy((*it_source)->getItem(c)))
+						if (!newItem->Copy((*it_source)->getItem(static_cast<int>(c))))
 						{result=false;}
 					}
 					return result;
@@ -450,7 +449,7 @@ namespace xmls
 		size_t start_pos = 0;
 		while((start_pos = source.find(searchFor, start_pos)) != string::npos) {
 			source.replace(start_pos, searchFor.length(), replaceWith);
-			start_pos += replaceWith.length(); 
+			start_pos += replaceWith.length();
 		}
 		return source;
 	}
@@ -464,13 +463,13 @@ namespace xmls
 	void Serializable::Replace(string searchFor, string replaceWith, bool recursive)
 	{
 		for (FieldMappingIterator it = m_FieldMappings.begin() ; it != m_FieldMappings.end(); ++it)
-			*((*it)->getField()) = strReplaceAll((*(*it)->getField()), searchFor, replaceWith); 
+			*((*it)->getField()) = strReplaceAll((*(*it)->getField()), searchFor, replaceWith);
 		if (recursive)
 		{
 			for (ClassMappingIterator it = m_SubclassMappings.begin() ; it != m_SubclassMappings.end(); ++it)
-				(*it)->getSubclass()->Replace(searchFor, replaceWith); 
+				(*it)->getSubclass()->Replace(searchFor, replaceWith);
 			for (CollectionIterator it = m_SubclassCollections.begin() ; it != m_SubclassCollections.end(); ++it)
-				for (size_t c=0; c<(*it)->size();c++) { (*it)->getItem(c)->Replace(searchFor, replaceWith); }
+				for (size_t c=0; c<(*it)->size();c++) { (*it)->getItem(static_cast<int>(c))->Replace(searchFor, replaceWith); }
 		}
 	}
 }
