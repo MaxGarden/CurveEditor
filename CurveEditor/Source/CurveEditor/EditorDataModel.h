@@ -9,6 +9,4 @@ public:
     virtual ~IEditorDataModel() = default;
 };
 
-DECLARE_POINTERS(IEditorDataModel);
-
 #endif //__EDITOR_DATA_MODEL_H__

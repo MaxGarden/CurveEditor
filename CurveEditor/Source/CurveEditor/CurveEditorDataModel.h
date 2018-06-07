@@ -27,7 +27,7 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) = 0;
     virtual const SCurveEditorStyle& GetStyle() const noexcept = 0;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type) = 0;
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type, const std::optional<SplineID>& id = std::nullopt) = 0;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) = 0;
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept = 0;

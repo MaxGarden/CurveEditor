@@ -12,7 +12,7 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) override final;
     virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type) override final;
+    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type, const std::optional<SplineID>& id) override final;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
@@ -50,8 +50,15 @@ const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
     return m_EditorStyle;
 }
 
-ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type)
+ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type, const std::optional<SplineID>& id)
 {
+    const auto splineID = id.value_or(GenerateFreeSplineID());
+
+    const auto collidingSpline = GetSplineDataModel(splineID);
+    EDITOR_ASSERT(!collidingSpline);
+    if (!collidingSpline)
+        return nullptr;
+
     auto splineDataModel = ICurveEditorSplineDataModel::Create(GenerateFreeSplineID(), color, type);
     if (!splineDataModel)
         return nullptr;
