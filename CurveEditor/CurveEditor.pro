@@ -58,6 +58,7 @@ SOURCES += \
     Source/CurveEditor/EditorTool.cpp                           \
     Source/CurveEditor/CurveEditorToolEvent.cpp                 \
     Source/CurveEditor/CurveEditorTool.cpp                      \
+    Source/CurveEditor/EditorSerializer.cpp                     \
     Source/CurveEditor/EditorDataModel.cpp                      \
     Source/CurveEditor/Utilities.cpp                            \
     Source/CurveEditor/Style.cpp                                \
@@ -148,6 +149,7 @@ HEADERS += \
     Source/CurveEditor/EditorTool.h                             \
     Source/CurveEditor/CurveEditorTool.h                        \
     Source/CurveEditor/CurveEditorToolEvent.h                   \
+    Source/CurveEditor/EditorSerializer.h                       \
     Source/CurveEditor/EditorDataModel.h                        \
     Source/CurveEditor/Utilities.h                              \
     Source/CurveEditor/Style.h                                  \
