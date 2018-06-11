@@ -5,7 +5,7 @@
 #include "CurveEditorDataModel.h"
 #include <QMessageBox>
 
-CCreateSplineActionHandler::CCreateSplineActionHandler(QAction& action, const IEditorContext& editorContext) :
+CCreateSplineActionHandler::CCreateSplineActionHandler(QAction& action, IEditorContext& editorContext) :
     CEditorContextActionHandlerBase(action, editorContext)
 {
 }
@@ -15,11 +15,13 @@ void CCreateSplineActionHandler::HandleAction()
     const auto editorDataModel = dynamic_cast<ICurveEditorDataModel*>(GetEditorContext().GetDataModel().get());
     EDITOR_ASSERT(editorDataModel);
 
+    const auto parentWidget = GetAction().parentWidget();
+
     if (!editorDataModel)
     {
-        QMessageBox::critical(GetAction().parentWidget(), "Error", "Cannot get editor data model!");
+        QMessageBox::critical(parentWidget, "Error", "Cannot get editor data model!");
         return;
     }
 
-    CCreateSplineDialog{ GetAction().parentWidget(), *editorDataModel }.exec();
+    CCreateSplineDialog{ parentWidget, *editorDataModel }.exec();
 }

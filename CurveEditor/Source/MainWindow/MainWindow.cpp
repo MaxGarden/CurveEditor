@@ -53,6 +53,12 @@ QAction* CMainWindow::GetActionToolAction(EActionToolType actionType) const noex
     {
     case EActionToolType::CreateSpline:
         return m_CreateSplineAction;
+    case EActionToolType::New:
+        return m_NewAction;
+    case EActionToolType::Open:
+        return m_OpenAction;
+    case EActionToolType::Save:
+        return m_SaveAction;
     default:
         EDITOR_ASSERT(false);
         return nullptr;

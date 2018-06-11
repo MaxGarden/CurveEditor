@@ -15,6 +15,10 @@ DECLARE_POINTERS(ICurveEditorDataModel)
 DECLARE_POINTERS(ICurveEditorControllerListener)
 DECLARE_POINTERS(ICurveEditorController)
 
+DECLARE_POINTERS(ICurveEditorDataModelSerializer)
+DECLARE_POINTERS(ICurveEditorSelectionDataModelSerializer)
+DECLARE_POINTERS(ICurveEditorSplineDataModelSerializer)
+
 DECLARE_POINTERS(ICurveEditorSelectionDataModel)
 DECLARE_POINTERS(ICurveEditorSelectionController)
 DECLARE_POINTERS(ICurveEditorSelectionControllerPrivate)

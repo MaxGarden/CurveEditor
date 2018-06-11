@@ -20,6 +20,9 @@ enum class ESetToolActionType
 enum class EActionToolType
 {
     CreateSpline,
+    New,
+    Open,
+    Save,
 
     __Count
 };

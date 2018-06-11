@@ -5,7 +5,7 @@
 #include "CurveEditorController.h"
 #include <QMessageBox>
 
-CComponentToolActionSetter::CComponentToolActionSetter(QAction& action, const IEditorContext& editorContext, IComponentToolBuilder& componentToolBuilder) :
+CComponentToolActionSetter::CComponentToolActionSetter(QAction& action, IEditorContext& editorContext, IComponentToolBuilder& componentToolBuilder) :
     CEditorContextActionHandlerBase(action, editorContext),
     m_ComponentToolBuilder(componentToolBuilder)
 {

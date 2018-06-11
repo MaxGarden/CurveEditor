@@ -41,7 +41,7 @@ namespace xmls
 	Returns the int-value of the xint member
 	@return	current value
 	*/
-	int xInt::value()
+	int xInt::value() const
 	{
 		stringstream ss(m_sValue);
 		int value;

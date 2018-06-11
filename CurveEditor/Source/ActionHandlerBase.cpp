@@ -28,13 +28,13 @@ QAction& CActionHandlerBase::GetAction() const noexcept
 }
 
 
-CEditorContextActionHandlerBase::CEditorContextActionHandlerBase(QAction& action, const IEditorContext& editorContext) :
+CEditorContextActionHandlerBase::CEditorContextActionHandlerBase(QAction& action, IEditorContext& editorContext) :
     CActionHandlerBase(action),
     m_EditorContext(editorContext)
 {
 }
 
-const IEditorContext& CEditorContextActionHandlerBase::GetEditorContext() const noexcept
+IEditorContext& CEditorContextActionHandlerBase::GetEditorContext() const noexcept
 {
     return m_EditorContext;
 }

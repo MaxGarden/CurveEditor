@@ -1317,10 +1317,20 @@ QDateEdit::down-arrow:focus
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="m_NewAction"/>
+    <addaction name="m_OpenAction"/>
+    <addaction name="separator"/>
+    <addaction name="m_SaveAction"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QToolBar" name="m_ActionBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Actions</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -1328,13 +1338,16 @@ QDateEdit::down-arrow:focus
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="m_NewAction"/>
+   <addaction name="m_SaveAction"/>
+   <addaction name="m_OpenAction"/>
    <addaction name="m_AddEditorViewAction"/>
    <addaction name="m_RemoveEditorView"/>
    <addaction name="m_CreateSplineAction"/>
   </widget>
   <widget class="QToolBar" name="m_ToolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Tools</string>
    </property>
    <property name="orientation">
     <enum>Qt::Vertical</enum>
@@ -1498,6 +1511,48 @@ QDateEdit::down-arrow:focus
     <string>T</string>
    </property>
   </action>
+  <action name="m_SaveAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/save-disk.png</normaloff>:/icons/icons/save-disk.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="m_OpenAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/download-arrow-and-inbox.png</normaloff>:/icons/icons/download-arrow-and-inbox.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="m_NewAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/document-with-text-lines.png</normaloff>:/icons/icons/document-with-text-lines.png</iconset>
+   </property>
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="iconsresource.qrc"/>
@@ -1526,8 +1581,8 @@ QDateEdit::down-arrow:focus
    <slot>OnRemoveEditorButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>43</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>419</x>

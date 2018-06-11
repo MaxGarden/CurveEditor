@@ -18,6 +18,13 @@
 
 #include "CreateSplineDialog/CreateSplineActionHandler.h"
 
+#include "SaveManager/NewActionHandler.h"
+#include "SaveManager/OpenActionHandler.h"
+#include "SaveManager/SaveActionHandler.h"
+#include "SaveManager/SaveManager.h"
+
+#include "Serializers/CurveEditorDataModelSerializer.h"
+
 int main(int argc, char** argv)
 {
     QSurfaceFormat glFormat;
@@ -35,12 +42,7 @@ int main(int argc, char** argv)
     CCurveEditorSplineViewFactory splineViewFactory;
 
     curveEditorContext->SetViewFactory(std::make_unique<CCurveEditorViewFactory>(*curveEditorContext, splineViewFactory));
-
-    auto dataModel = ICurveEditorDataModel::Create();
-    dataModel->SetSelectionDataModel(ICurveEditorSelectionDataModel::Create());
-
     curveEditorContext->SetController(ICurveEditorController::Create(splineControllerFactory));
-    curveEditorContext->SetDataModel(std::move(dataModel));
 
     const auto curveEditorWidgetFactory = IEditorViewWidgetFactory::CreateFactory(curveEditorContext);
     CMainWindow mainWindow(*curveEditorWidgetFactory);
@@ -54,6 +56,9 @@ int main(int argc, char** argv)
 
         new CComponentToolActionSetter{ *setAction, *curveEditorContext, builder };
     };
+
+    auto& saveManager = ISaveManager::GetInstance();
+    saveManager.SetSerializer(ICurveEditorDataModelSerializer::Create());
 
     CMovingToolBuilder movingToolBuilder;
     createComponentToolActionSetter(ESetToolActionType::MovingTool, movingToolBuilder);
@@ -71,6 +76,10 @@ int main(int argc, char** argv)
     createComponentToolActionSetter(ESetToolActionType::SplineRemover, splineRemoverToolBuilder);
 
     new CCreateSplineActionHandler(*mainWindow.GetActionToolAction(EActionToolType::CreateSpline), *curveEditorContext);
+    new CSaveActionHandler(*mainWindow.GetActionToolAction(EActionToolType::Save), *curveEditorContext);
+    new COpenActionHandler(*mainWindow.GetActionToolAction(EActionToolType::Open), *curveEditorContext);
+    new CNewActionHandler(*mainWindow.GetActionToolAction(EActionToolType::New), *curveEditorContext);
+    mainWindow.GetActionToolAction(EActionToolType::New)->trigger();
 
     if (!mainWindow.Setup())
         return -2;

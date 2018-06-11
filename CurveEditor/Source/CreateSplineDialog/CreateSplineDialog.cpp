@@ -54,14 +54,23 @@ void CCreateSplineDialog::OnCreateButtonClicked()
         return iterator->second;
     }();
 
-    const auto splineDataModel = m_EditorDataModel.AddSplineDataModel(static_cast<SplineColor>(splineColor.rgb()), splineType);
-    EDITOR_ASSERT(splineDataModel);
-    if (!splineDataModel)
+    const auto splineID = m_EditorDataModel.GetFreeSplineID();
+    auto splineDataModel = ICurveEditorSplineDataModel::Create(splineID, static_cast<SplineColor>(splineColor.rgb()), splineType);
+
+    const auto result = m_EditorDataModel.AddSplineDataModel(std::move(splineDataModel));
+    EDITOR_ASSERT(result);
+    if (!result)
     {
         QMessageBox::critical(this, "Error", "Cannot add spline data model.");
         return reject();
     }
-    const auto addControlPointsResult = splineDataModel->AddControlPoints({
+
+    const auto newSplineDataModel = m_EditorDataModel.GetSplineDataModel(splineID);
+    EDITOR_ASSERT(newSplineDataModel);
+    if (!newSplineDataModel)
+        return;
+
+    const auto addControlPointsResult = newSplineDataModel->AddControlPoints({
         { 0, { 1.0f, -3.0f } },
         { 1, { 2.0f, -2.0f } },
         { 2, { 3.0f, -4.0f } },

@@ -7,7 +7,7 @@
 class CComponentToolActionSetter final : public CEditorContextActionHandlerBase
 {
 public:
-    CComponentToolActionSetter(QAction& action, const IEditorContext& editorContex, IComponentToolBuilder& componentToolBuilder);
+    CComponentToolActionSetter(QAction& action, IEditorContext& editorContext, IComponentToolBuilder& componentToolBuilder);
     virtual ~CComponentToolActionSetter() override final = default;
 
 protected:

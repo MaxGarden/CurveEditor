@@ -27,14 +27,14 @@ protected:
 class CEditorContextActionHandlerBase : public CActionHandlerBase
 {
 public:
-    CEditorContextActionHandlerBase(QAction& action, const IEditorContext& editorContext);
+    CEditorContextActionHandlerBase(QAction& action, IEditorContext& editorContext);
     virtual ~CEditorContextActionHandlerBase() override = default;
 
 protected:
-    const IEditorContext& GetEditorContext() const noexcept;
+    IEditorContext& GetEditorContext() const noexcept;
 
 private:
-    const IEditorContext& m_EditorContext;
+    IEditorContext& m_EditorContext;
 };
 
 #endif //__ACTION_HANDLER_BASE_H__

@@ -6,7 +6,7 @@
 class CCreateSplineActionHandler final : public CEditorContextActionHandlerBase
 {
 public:
-    CCreateSplineActionHandler(QAction& action, const IEditorContext& editorContext);
+    CCreateSplineActionHandler(QAction& action, IEditorContext& editorContext);
     virtual ~CCreateSplineActionHandler() override final = default;
 
 protected:

@@ -190,13 +190,13 @@ void CCurveEditorController::RecreateSplineControllers()
     if (!dataModel)
         return;
 
-    if (m_SelectionController)
-        m_SelectionController->SetDataModel(dataModel->GetSelectionDataModel());
-
     dataModel->VisitSplineDataModels([this](const auto& splineDataModel)
     {
         CreateSpline(splineDataModel);
     });
+
+    if (m_SelectionController)
+        m_SelectionController->SetDataModel(dataModel->GetSelectionDataModel());
 }
 
 bool CCurveEditorController::SetActiveTool(ICurveEditorToolSharedPtr&& tool)

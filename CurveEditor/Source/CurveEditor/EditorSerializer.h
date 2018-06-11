@@ -9,7 +9,7 @@ public:
     virtual ~IEditorSerializer() = default;
 
     virtual bool Serialize(IEditorDataModel& dataModel, SerializedData& serializedData) = 0;
-    virtual IEditorDataModelUniquePtr Load(const SerializedData& sertializedData) = 0;
+    virtual IEditorDataModelUniquePtr Load(const SerializedData& serializedData) = 0;
 };
 
 #endif //__EDITOR_SERIALIZER_H__

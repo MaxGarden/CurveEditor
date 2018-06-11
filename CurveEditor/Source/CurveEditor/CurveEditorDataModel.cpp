@@ -12,7 +12,9 @@ public:
     virtual void SetStyle(SCurveEditorStyle&& style) override final;
     virtual const SCurveEditorStyle& GetStyle() const noexcept override final;
 
-    virtual ICurveEditorSplineDataModelSharedPtr AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type, const std::optional<SplineID>& id) override final;
+    virtual SplineID GetFreeSplineID() const noexcept override final;
+
+    virtual bool AddSplineDataModel(ICurveEditorSplineDataModelUniquePtr&& splineDataModel) override final;
     virtual bool RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel) override final;
 
     virtual const ICurveEditorSplineDataModelSharedPtr& GetSplineDataModel(const SplineID& id) const noexcept override final;
@@ -20,9 +22,6 @@ public:
 
     virtual void SetSelectionDataModel(ICurveEditorSelectionDataModelSharedPtr&& selectionDataModel) override final;
     virtual const ICurveEditorSelectionDataModelSharedPtr& GetSelectionDataModel() const noexcept override final;
-
-private:
-    SplineID GenerateFreeSplineID() const noexcept;
 
 private:
     SCurveEditorStyle m_EditorStyle;
@@ -50,24 +49,32 @@ const SCurveEditorStyle& CCurveEditorDataModel::GetStyle() const noexcept
     return m_EditorStyle;
 }
 
-ICurveEditorSplineDataModelSharedPtr CCurveEditorDataModel::AddSplineDataModel(const SplineColor& color, ECurveEditorSplineType type, const std::optional<SplineID>& id)
+SplineID CCurveEditorDataModel::GetFreeSplineID() const noexcept
 {
-    const auto splineID = id.value_or(GenerateFreeSplineID());
+    while (true)
+    {
+        const auto result = ICurveEditorSplineDataModel::GenerateSplineID();
+        if (!GetSplineDataModel(result))
+            return result;
+    }
+}
 
-    const auto collidingSpline = GetSplineDataModel(splineID);
-    EDITOR_ASSERT(!collidingSpline);
-    if (!collidingSpline)
-        return nullptr;
-
-    auto splineDataModel = ICurveEditorSplineDataModel::Create(GenerateFreeSplineID(), color, type);
+bool CCurveEditorDataModel::AddSplineDataModel(ICurveEditorSplineDataModelUniquePtr&& splineDataModel)
+{
+    EDITOR_ASSERT(splineDataModel);
     if (!splineDataModel)
+        return false;
+
+    const auto collidingSpline = GetSplineDataModel(splineDataModel->GetID());
+    EDITOR_ASSERT(!collidingSpline);
+    if (collidingSpline)
         return nullptr;
 
     m_SplinesDataModels.emplace_back(std::move(splineDataModel));
     const auto& addedSplineDataModel = m_SplinesDataModels.back();
 
     NotifyListeners(&ICurveEditorDataModelListener::OnSplineCreated, addedSplineDataModel);
-    return addedSplineDataModel;
+    return true;
 }
 
 bool CCurveEditorDataModel::RemoveSplineDataModel(const ICurveEditorSplineDataModelSharedPtr& splineDataModel)
@@ -99,16 +106,6 @@ const ICurveEditorSplineDataModelSharedPtr& CCurveEditorDataModel::GetSplineData
 void CCurveEditorDataModel::VisitSplineDataModels(const ConstVisitorType<ICurveEditorSplineDataModelSharedPtr>& visitor) const noexcept
 {
     VisitObjectsContainer(m_SplinesDataModels, visitor);
-}
-
-SplineID CCurveEditorDataModel::GenerateFreeSplineID() const noexcept
-{
-    while (true)
-    {
-        const auto result = ICurveEditorSplineDataModel::GenerateSplineID();
-        if (!GetSplineDataModel(result))
-            return result;
-    }
 }
 
 void CCurveEditorDataModel::SetSelectionDataModel(ICurveEditorSelectionDataModelSharedPtr&& selectionDataModel)

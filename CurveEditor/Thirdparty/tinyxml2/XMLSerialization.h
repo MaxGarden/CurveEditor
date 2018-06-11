@@ -56,7 +56,7 @@ namespace xmls
 	public:
 		xString(){};
 		xString(string value) {AssignValue(value);};
-		string value(){return m_sValue;};
+		const string& value() const noexcept {return m_sValue;};
 		xString operator=(const string value) {AssignValue(value);return *this;};
 		xString operator=(const char* value) {AssignValue(value);return *this;};
 	};
@@ -71,7 +71,7 @@ namespace xmls
 	public:
 		xInt() {AssignValue(0);};
 		xInt(int value) {AssignValue(value);};
-		int value();
+		int value() const;
 		xInt operator=(const int value) {AssignValue(value);return *this;};
 	};
 
@@ -154,8 +154,8 @@ namespace xmls
 		virtual Serializable *newElement()=0;
 	public:
 		virtual ~CollectionBase() {};
-		size_t size() {return m_vCollection.size();};
-		Serializable *getItem(int itemID) { return m_vCollection.at(itemID);};
+		size_t size() const {return m_vCollection.size();};
+		Serializable *getItem(int itemID) const { return m_vCollection.at(itemID);};
 		void Clear();
 	};
 
@@ -170,7 +170,7 @@ namespace xmls
 		~Collection() {Clear();	};
 		T *newElement();
 		void addItem(T *item) { m_vCollection.push_back(item); m_mOwner[item]=false;};
-		T *getItem(int itemID) { return (T*)m_vCollection.at(itemID); };
+		T *getItem(int itemID) const { return (T*)m_vCollection.at(itemID); };
 	};
 
 /**
