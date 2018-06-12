@@ -1326,24 +1326,23 @@ QDateEdit::down-arrow:focus
     <addaction name="separator"/>
     <addaction name="m_SaveAction"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="m_AddEditorViewAction"/>
+    <addaction name="separator"/>
+    <addaction name="m_RemoveEditorView"/>
+   </widget>
+   <widget class="QMenu" name="menuCreate">
+    <property name="title">
+     <string>Create</string>
+    </property>
+    <addaction name="m_CreateSplineAction"/>
+   </widget>
    <addaction name="menuFile"/>
-  </widget>
-  <widget class="QToolBar" name="m_ActionBar">
-   <property name="windowTitle">
-    <string>Actions</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="m_NewAction"/>
-   <addaction name="m_SaveAction"/>
-   <addaction name="m_OpenAction"/>
-   <addaction name="m_AddEditorViewAction"/>
-   <addaction name="m_RemoveEditorView"/>
-   <addaction name="m_CreateSplineAction"/>
+   <addaction name="menuView"/>
+   <addaction name="menuCreate"/>
   </widget>
   <widget class="QToolBar" name="m_ToolBar">
    <property name="windowTitle">
@@ -1454,7 +1453,7 @@ QDateEdit::down-arrow:focus
      <normaloff>:/icons/icons/upload-arrow-and-outbox.png</normaloff>:/icons/icons/upload-arrow-and-outbox.png</iconset>
    </property>
    <property name="text">
-    <string>CreateSpline</string>
+    <string>Create a spline...</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Creates a new spline.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1469,7 +1468,7 @@ QDateEdit::down-arrow:focus
      <normaloff>:/icons/icons/laptop-with-big-screen.png</normaloff>:/icons/icons/laptop-with-big-screen.png</iconset>
    </property>
    <property name="text">
-    <string>AddEditorView</string>
+    <string>Add editor view</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds a new editor view.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1484,7 +1483,7 @@ QDateEdit::down-arrow:focus
      <normaloff>:/icons/icons/big-cancel-symbol.png</normaloff>:/icons/icons/big-cancel-symbol.png</iconset>
    </property>
    <property name="text">
-    <string>RemoveEditorView</string>
+    <string>Remove editor view</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes an editor view.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
