@@ -23,6 +23,7 @@ enum class EActionToolType
     New,
     Open,
     Save,
+    SaveAs,
 
     __Count
 };

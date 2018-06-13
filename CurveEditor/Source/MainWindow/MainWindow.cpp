@@ -59,6 +59,8 @@ QAction* CMainWindow::GetActionToolAction(EActionToolType actionType) const noex
         return m_OpenAction;
     case EActionToolType::Save:
         return m_SaveAction;
+    case EActionToolType::SaveAs:
+        return m_SaveAsAction;
     default:
         EDITOR_ASSERT(false);
         return nullptr;

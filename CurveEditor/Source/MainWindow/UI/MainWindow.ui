@@ -1325,6 +1325,7 @@ QDateEdit::down-arrow:focus
     <addaction name="m_OpenAction"/>
     <addaction name="separator"/>
     <addaction name="m_SaveAction"/>
+    <addaction name="m_SaveAsAction"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1516,7 +1517,7 @@ QDateEdit::down-arrow:focus
      <normaloff>:/icons/icons/save-disk.png</normaloff>:/icons/icons/save-disk.png</iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>Save...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -1531,7 +1532,7 @@ QDateEdit::down-arrow:focus
      <normaloff>:/icons/icons/download-arrow-and-inbox.png</normaloff>:/icons/icons/download-arrow-and-inbox.png</iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
    <property name="toolTip">
     <string>Open</string>
@@ -1550,6 +1551,15 @@ QDateEdit::down-arrow:focus
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="m_SaveAsAction">
+   <property name="icon">
+    <iconset resource="iconsresource.qrc">
+     <normaloff>:/icons/icons/save-disk.png</normaloff>:/icons/icons/save-disk.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
    </property>
   </action>
  </widget>

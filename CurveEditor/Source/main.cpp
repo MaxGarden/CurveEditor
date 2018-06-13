@@ -77,6 +77,7 @@ int main(int argc, char** argv)
 
     new CCreateSplineActionHandler(*mainWindow.GetActionToolAction(EActionToolType::CreateSpline), *curveEditorContext);
     new CSaveActionHandler(*mainWindow.GetActionToolAction(EActionToolType::Save), *curveEditorContext);
+    new CSaveAsActionHandler(*mainWindow.GetActionToolAction(EActionToolType::SaveAs), *curveEditorContext);
     new COpenActionHandler(*mainWindow.GetActionToolAction(EActionToolType::Open), *curveEditorContext);
     new CNewActionHandler(*mainWindow.GetActionToolAction(EActionToolType::New), *curveEditorContext);
     mainWindow.GetActionToolAction(EActionToolType::New)->trigger();
