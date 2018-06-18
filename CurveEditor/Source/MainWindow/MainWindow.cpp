@@ -5,16 +5,16 @@
 CMainWindow::CMainWindow(IEditorViewWidgetFactory& curveEditorWidgetFactory) :
     m_CurveEditorWidgetFactory(curveEditorWidgetFactory)
 {
-
     setupUi(this);
-    centralWidget()->hide();
-
     Setup();
     AddCurveEditorView();
 }
 
 bool CMainWindow::Setup()
 {
+    if (const auto widget = centralWidget())
+        widget->hide();
+
     m_ToolBarActionGroup = new QActionGroup(this);
 
     const auto actionsCount = static_cast<size_t>(ESetToolActionType::__Count);
