@@ -55,7 +55,7 @@ void CCurveEditorDebugComponent::OnFrame(ImDrawList&, ICurveEditorController&)
             const auto splineID = editorDataModel->GetFreeSplineID();
             auto splineDataModel = ICurveEditorSplineDataModel::Create(splineID, static_cast<SplineColor>(m_SplineColor), ECurveEditorSplineType::Function);
 
-            auto addResult = editorDataModel->AddSplineDataModel(std::move(splineDataModel));
+            const auto addResult = editorDataModel->AddSplineDataModel(std::move(splineDataModel));
             EDITOR_ASSERT(addResult);
             m_CreatedSplinesDataModels.emplace(editorDataModel->GetSplineDataModel(splineID));
 

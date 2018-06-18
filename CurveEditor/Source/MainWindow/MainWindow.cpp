@@ -1,10 +1,14 @@
 #include "pch.h"
 #include "MainWindow.h"
+#include <QDockWidget>
 
 CMainWindow::CMainWindow(IEditorViewWidgetFactory& curveEditorWidgetFactory) :
     m_CurveEditorWidgetFactory(curveEditorWidgetFactory)
 {
+
     setupUi(this);
+    centralWidget()->hide();
+
     Setup();
     AddCurveEditorView();
 }
@@ -85,21 +89,16 @@ void CMainWindow::OnRemoveEditorButtonClicked()
 
 void CMainWindow::AddCurveEditorView()
 {
-    assert(m_EditorsGroupBox);
-    if (!m_EditorsGroupBox)
-        return;
-
-    const auto layout = m_EditorsGroupBox->layout();
-    assert(layout);
-
-    if (!layout)
-        return;
-
     auto editorWidget = m_CurveEditorWidgetFactory.Create(this);
     assert(editorWidget);
     if (!editorWidget)
         return;
 
-    m_EditorsWidgets.emplace_back(editorWidget.release());
-    layout->addWidget(m_EditorsWidgets.back());
+    const auto dockWidget = new QDockWidget(this);
+    editorWidget->setParent(dockWidget);
+    dockWidget->setWidget(editorWidget.release());
+
+    addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
+
+    m_EditorsWidgets.emplace_back(dockWidget);
 }

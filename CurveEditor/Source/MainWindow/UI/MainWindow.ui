@@ -1293,20 +1293,7 @@ QDateEdit::down-arrow:focus
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_3">
-    <item>
-     <widget class="QGroupBox" name="m_EditorsGroupBox">
-      <property name="title">
-       <string>Editors</string>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMaximumSize</enum>
-       </property>
-      </layout>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="verticalLayout_3"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
